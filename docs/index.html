@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="石听 NeoLoop 公开演示版。全部业务数据均为合成样例。" />
+  <meta property="og:title" content="石听 NeoLoop｜无人配送客户之声闭环中枢" />
+  <meta property="og:description" content="让每条反馈都找到一辆车、一个任务、一个责任人和一次改进。" />
+  <meta property="og:image" content="./og.png" />
+  <title>石听 NeoLoop｜公开演示版</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="site-shell">
+    <nav class="topbar">
+      <a class="brand" href="#overview"><span class="brand-mark">石听</span><span>NeoLoop</span></a>
+      <div class="nav-links"><button data-view="overview" class="active">方案总览</button><button data-view="cases">反馈案件</button><button data-view="clusters">问题簇</button></div>
+      <span class="demo-badge">DEMO｜全部为合成数据</span>
+    </nav>
+
+    <section id="overview" class="view active-view">
+      <div class="hero">
+        <div class="hero-copy"><p class="eyebrow">无人配送客户之声闭环中枢</p><h1>让每条反馈都找到<br>一辆车、一个任务、一个责任人和一次改进。</h1><p class="hero-text">NeoLoop不重复做查车、发车或充电调度。它处理的是反馈进入后，如何补齐证据、交给正确团队，并把重复问题变成可跟踪的改进项目。</p><div class="hero-actions"><button class="primary" data-view="cases">查看案件闭环</button><button class="secondary" data-view="clusters">查看问题簇</button></div></div>
+        <div class="loop-card"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><div class="orbit-core">反馈<br>闭环</div><span class="orbit-node n1">反馈</span><span class="orbit-node n2">证据</span><span class="orbit-node n3">责任</span><span class="orbit-node n4">改进</span><span class="orbit-caption">原始反馈 → 案件 → 工单 → 问题簇</span></div>
+      </div>
+      <div class="stat-grid"><article><strong>30</strong><span>原始反馈</span><small>覆盖群消息、工单、邮件和评价</small></article><article><strong>20</strong><span>反馈案件</span><small>同一事件可并案，不同事件只聚类</small></article><article><strong>27</strong><span>处置工单</span><small>为案件拆解执行与验证任务</small></article><article><strong>10</strong><span>问题簇</span><small>用于复发观察和改进跟踪</small></article></div>
+      <section class="section-block boundary-grid"><div class="section-heading"><p class="eyebrow mint">信息边界</p><h2>四类内容，四种说法</h2></div><article class="boundary fact"><h3>公开事实</h3><p>只引用公开资料明确披露的能力与业务对象，不推断内部系统。</p></article><article class="boundary verify"><h3>待企业验证</h3><p>字段、责任矩阵、SLA和真实流程必须在企业侧确认。</p></article><article class="boundary design"><h3>方案设计</h3><p>单Base、七个AI节点、六条工作流和人工关口属于拟建方案。</p></article><article class="boundary synthetic"><h3>合成实验</h3><p>演示车辆、任务、案件和指标只验证结构与流程，不代表真实成效。</p></article></section>
+      <section class="section-block"><div class="section-heading split"><div><p class="eyebrow mint">一条反馈如何被处理</p><h2>个案闭环</h2></div><p>模型提供建议，授权人员决定风险、责任和对外动作。</p></div><div class="step-track"><div class="step"><span>01</span>接入</div><div class="step"><span>02</span>识别</div><div class="step"><span>03</span>关联</div><div class="step"><span>04</span>分派</div><div class="step"><span>05</span>处置</div><div class="step"><span>06</span>验证</div><div class="step"><span>07</span>回复与回访</div></div><div class="guardrail"><b>强制人工关口</b><span>车辆控制｜高风险降级｜客户回复、赔偿与恢复时间｜最终根因与知识发布</span></div></section>
+    </section>
+
+    <section id="cases" class="view"><div class="workspace"><div class="workspace-head"><div><p class="eyebrow mint">反馈案件</p><h1>从原文到可处置对象</h1><p>以下均为合成演示案例。</p></div><div id="filters" class="filter-row"><button data-filter="all" class="selected">全部</button><button data-filter="P0">P0</button><button data-filter="P1">P1</button><button data-filter="P2">P2</button><button data-filter="P3">P3</button></div></div><div class="case-layout"><div id="case-list" class="case-list"></div><article id="case-detail" class="case-detail"></article></div></div></section>
+
+    <section id="clusters" class="view"><div class="workspace"><div class="workspace-head"><div><p class="eyebrow mint">重复问题</p><h1>从案件到改进项目</h1><p>同一事件可以并案。不同事件只进入同一问题簇，不合并案件。</p></div></div><div id="cluster-grid" class="cluster-grid"></div><div class="recurrence"><div><p class="eyebrow mint">复发监测</p><h2>7天与30天观察</h2><p>改进项目关闭后，继续观察同类问题是否下降；指标只作为评测口径，不代表企业实绩。</p></div><div class="recurrence-bars"><div><span>7天</span><i style="width:56%"></i></div><div><span>30天</span><i style="width:32%"></i></div><small>示例柱形仅表示演示结构</small></div></div></div></section>
+    <footer><span>石听未来 · 石听 NeoLoop</span><span>公开演示版 · 全部数据为合成样例</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
