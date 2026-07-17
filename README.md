@@ -4,7 +4,7 @@
 
 石听 NeoLoop 是“石听未来”为新石器企业命题准备的反馈闭环协同方案。它不接管车辆运行，也不重复查车、发车、开门、充电调度等既有运营能力；它做的是把分散的用户反馈、客服记录和现场信息，组织为可追踪、可复盘的改进闭环。
 
-在线静态演示部署后可从 GitHub Pages 访问。页面采用纯 HTML、CSS 与 JavaScript，不依赖后端服务。
+在线演示：[https://shiting-neoloop-demo.netlify.app](https://shiting-neoloop-demo.netlify.app)。页面采用纯 HTML、CSS 与 JavaScript，不依赖后端服务。
 
 ## 这个仓库展示什么
 
@@ -33,12 +33,11 @@ npm run dev
 
 打开终端给出的本地地址即可查看 React 交互版。GitHub Pages 使用 `docs/` 下的零构建静态版本；直接打开 `docs/index.html` 或运行任意静态文件服务器也可以查看。
 
-## 发布到 GitHub Pages
+## 发布到 GitHub Pages（可选）
 
-1. 在 GitHub 新建公开仓库，例如 `shiting-neoloop`，再把本目录推送到 `main` 分支。
-2. 进入仓库 **Settings → Pages**，选择 **Deploy from a branch**。
-3. 选择 `main` 分支与 `/docs` 文件夹，保存后等待 GitHub 生成地址。
-4. 将生成的网址放到个人主页 README 的置顶项目中。
+1. 进入仓库 **Settings → Pages**，选择 **Deploy from a branch**。
+2. 选择 `main` 分支与 `/docs` 文件夹，保存后等待 GitHub 生成地址。
+3. 将生成的网址放到个人主页 README 的置顶项目中。
 
 完整操作见 [docs/GITHUB_PAGES_SETUP.md](docs/GITHUB_PAGES_SETUP.md)。提交或公开前，请由参赛者确认赛事条款、个人信息和可公开范围。
 
