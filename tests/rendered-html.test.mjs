@@ -29,10 +29,17 @@ test("server-renders the NeoLoop public demo", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
+  const pageSource = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   assert.match(html, /石听 NeoLoop/);
   assert.match(html, /让每条反馈都找到/);
   assert.match(html, /一辆车、一个任务、一个责任人和一次改进。/);
   assert.match(html, /全部业务数据均为合成样例/);
+  assert.match(html, /刘肖蔚然/);
+  assert.match(html, /闫紫豪/);
+  assert.match(html, /参赛身份与企业业务执行角色相互独立/);
+  assert.match(pageSource, /两名成员不映射演示中的企业客服、运维、审批或改进角色/);
+  assert.match(pageSource, /企业业务角色（演示名称，待企业确认）/);
+  assert.doesNotMatch(pageSource, /参赛成员执行闭环/);
   assert.doesNotMatch(html, /react-loading-skeleton/);
 });
 
