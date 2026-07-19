@@ -4,7 +4,7 @@
 
 石听 NeoLoop 是“石听未来”为新石器企业命题准备的反馈闭环协同方案。它不接管车辆运行，也不重复查车、发车、开门、充电调度等既有运营能力；它做的是把分散的用户反馈、客服记录和现场信息，组织为可追踪、可复盘的改进闭环。
 
-备用静态演示：[https://shiting-neoloop-demo.netlify.app](https://shiting-neoloop-demo.netlify.app)。仓库中的 React 版本提供完整的点击演示；全部业务内容仍为合成样例，不依赖企业生产系统。
+公开交互演示：[https://shiting-neoloop-demo.netlify.app](https://shiting-neoloop-demo.netlify.app)。该站点提供完整的点击演示；全部业务内容均为合成样例，不依赖企业生产系统。
 
 ## 这个仓库展示什么
 
