@@ -1,6 +1,8 @@
-# GitHub Pages 发布说明
+# GitHub Pages 降级页发布说明
 
-这个仓库已经将可公开的静态演示放在 `docs/` 目录。发布无需上传真实数据，也不需要部署后端。
+这个仓库在 `docs/` 目录保留了一套可公开、无需后端的旧版静态页。它是 Netlify 主站不可用时的功能缩减降级页，不包含当前完整六步交互和团队页，不能描述为主演示的同版备份。
+
+正式交互演示：<https://shiting-neoloop-demo.netlify.app>
 
 ## 首次发布
 
@@ -9,7 +11,7 @@
 3. 打开仓库的 **Settings → Pages**。
 4. 在 **Build and deployment** 中选择 **Deploy from a branch**。
 5. 分支选 `main`，文件夹选 `/docs`，保存。
-6. GitHub 完成构建后会显示公开网址；用无痕窗口打开一次，确认页面与公开边界说明正常。
+6. GitHub 完成构建后会显示公开网址；用无痕窗口打开一次，确认页面与公开边界说明正常，并明确标注“功能缩减降级页”。
 
 ## 发布前检查
 
@@ -27,7 +29,7 @@
 ### 石听 NeoLoop
 
 面向无人配送服务反馈闭环的协同方案。  
-[查看公开演示](https://YOUR_GITHUB_USERNAME.github.io/shiting-neoloop/) · [查看项目仓库](https://github.com/YOUR_GITHUB_USERNAME/shiting-neoloop)
+[查看正式交互演示](https://shiting-neoloop-demo.netlify.app/) · [查看项目仓库](https://github.com/YOUR_GITHUB_USERNAME/shiting-neoloop)
 ```
 
 把 `YOUR_GITHUB_USERNAME` 替换成自己的 GitHub 用户名。GitHub 官方说明见：[创建 GitHub Pages 站点](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site) 与 [配置个人主页 README](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme)。

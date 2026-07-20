@@ -12,7 +12,7 @@
 - 一个独立的参赛团队页面，只展示本次公开范围内的姓名、学校、专业和团队角色；参赛成员不映射为企业流程执行者；
 - 一份公开可读的方案边界：哪些是公开事实，哪些仍待企业验证；
 - 一组仅供演示的合成案例，不含真实客户、车辆、事故、运营数据或经营结论；
-- 可直接作为 GitHub Pages 来源目录的 `docs/` 静态站点。
+- 一个功能缩减的 `docs/` GitHub Pages 降级页；它不是当前 Netlify 主站的等价镜像。
 
 ## 方案边界
 
@@ -28,13 +28,26 @@ NeoLoop 不执行车辆控制；不自动判定事故责任、赔偿、恢复时
 ## 本地预览
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-打开终端给出的本地地址即可查看 React 交互版。GitHub Pages 使用 `docs/` 下的零构建静态版本；直接打开 `docs/index.html` 或运行任意静态文件服务器也可以查看。
+打开终端给出的本地地址即可查看 React 交互版。`docs/` 下的零构建静态页面只用于功能缩减的 GitHub Pages 降级展示；直接打开 `docs/index.html` 或运行任意静态文件服务器可以检查该降级页。
 
-## 发布到 GitHub Pages（可选）
+## 网站生产工作流
+
+完整、可复用的 Product Design → 开发 → 自动检查 → 浏览器 QA → Netlify Preview → GitHub 同步 → Production → 回滚流程见 [docs/WEBSITE_WORKFLOW.md](docs/WEBSITE_WORKFLOW.md)。
+
+```bash
+npm run check:release
+npm run verify:deploy -- "https://shiting-neoloop-demo.netlify.app/"
+```
+
+每次正式发布应从 [发布记录模板](docs/RELEASE_RECORD_TEMPLATE.md) 复制一份记录；当前交互版的基线记录见 [2026-07-19 发布记录](docs/releases/2026-07-19_ec5e224.md)。
+
+## 发布 GitHub Pages 降级页（可选）
+
+`docs/` 仅用于主站不可用时的功能缩减展示，不包含完整六步交互与团队页。
 
 1. 进入仓库 **Settings → Pages**，选择 **Deploy from a branch**。
 2. 选择 `main` 分支与 `/docs` 文件夹，保存后等待 GitHub 生成地址。
@@ -46,9 +59,10 @@ npm run dev
 
 ```text
 app/                  React 交互版源文件
-docs/                 GitHub Pages 静态站点与公开说明
+docs/                 工作流、发布记录、边界说明与旧版降级页
 data/demo-cases.json  合成案例数据
-.github/              GitHub 社区文件
+scripts/              Netlify 导出与公网验收脚本
+qa/                   设计参考与浏览器验收证据
 ```
 
 ## 项目信息

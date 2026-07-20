@@ -10,7 +10,7 @@
 面向无人配送服务反馈闭环的协同方案：把一条反馈整理成可追踪的任务、责任人和改进记录。
 
 - [项目仓库](https://github.com/YOUR_GITHUB_USERNAME/shiting-neoloop)
-- [交互演示](https://YOUR_GITHUB_USERNAME.github.io/shiting-neoloop/)
+- [交互演示](https://shiting-neoloop-demo.netlify.app/)
 
 > 公开演示使用合成案例，仅用于说明方案流程；不包含企业真实数据或车辆控制能力。
 ```
