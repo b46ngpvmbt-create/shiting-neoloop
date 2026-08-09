@@ -1,5 +1,7 @@
 export * from "./definitions.js";
 export * from "./invoker.js";
+export * from "./owner-first-n1-binding-preview.js";
+export * from "./owner-first-n1-evidence-binding.js";
 export * from "./owner-first-n1-preview.js";
 export * from "./policy.js";
 export * from "./runner.js";
