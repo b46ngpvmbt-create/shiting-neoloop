@@ -86,14 +86,15 @@ bound candidate 随后必须通过未修改的 `validateNodeCandidate`，才可�
 1. 确认 candidate、span 均为普通 JSON object，键集合准确，无 accessor、prototype 或别名键。
 2. 确认 `source_ref` 精确等于 request object ID。
 3. 确认 `quote` 是非空字符串，且不只包含空白。
-4. 确认权威原文和 quote 都是 well-formed UTF-16；不得包含孤立 high/low surrogate。
-5. 不做 trim、大小写折叠、空白折叠、NFC/NFD/NFKC/NFKD、同义替换、模糊匹配或任何语义改写。
-6. 用 ECMAScript 字符串索引对 quote 做逐字搜索，重叠出现也分别计数。
-7. 出现次数必须恰好为 1；0 次或多次都拒绝。
-8. `start_offset` 为唯一出现位置；`end_offset = start_offset + quote.length`，两者均为 0-based UTF-16 code-unit 半开区间。
-9. 两端不得切开 surrogate pair；并使用 `Intl.Segmenter('und', { granularity: 'grapheme' })` 验证两端都是原文 grapheme boundary。运行时无法建立该验证时 fail closed。
-10. 多个 span 的派生区间必须互不重叠、互不重复；任一冲突都原子拒绝整个 candidate。
-11. 新增 offset 后运行完整 `validateNodeCandidate`；只有其返回 valid 才成功。
+4. 在没有 offset 的原 candidate 上先运行未修改的 `validateNodeCandidate`。现有 validator 允许 offset 缺省，故该轮负责拒绝 payload、标量、引用、来源、quote 不在原文、注入及其他非 offset 错误；其原始错误分类必须保留，不能被统一改写为 evidence-binding 错误。
+5. 确认权威原文和 quote 都是 well-formed UTF-16；不得包含孤立 high/low surrogate。
+6. 不做 trim、大小写折叠、空白折叠、NFC/NFD/NFKC/NFKD、同义替换、模糊匹配或任何语义改写。
+7. 用 ECMAScript 字符串索引对 quote 做逐字搜索，重叠出现也分别计数。
+8. 出现次数必须恰好为 1；0 次或多次都拒绝。
+9. `start_offset` 为唯一出现位置；`end_offset = start_offset + quote.length`，两者均为 0-based UTF-16 code-unit 半开区间。
+10. 两端不得切开 surrogate pair；并使用 `Intl.Segmenter('und', { granularity: 'grapheme' })` 验证两端都是原文 grapheme boundary。运行时无法建立该验证时 fail closed。
+11. 多个 span 的派生区间必须互不重叠、互不重复；任一冲突都原子拒绝整个 candidate。
+12. 新增 offset 后再次运行完整 `validateNodeCandidate`；只有其返回 valid 才成功。
 
 任何一步失败时不得输出部分修改 candidate。一个 candidate 的所有 span 要么全部绑定并通过权威 validator，要么全部拒绝。
 
@@ -121,7 +122,14 @@ bound candidate 随后必须通过未修改的 `validateNodeCandidate`，才可�
 11. `binding_post_validation_failed`
 12. `binding_internal_error`
 
-对外仍只输出闭集 reason code，不回显 path、quote、原文、offset、模型自造键名或 provider 文本。所有失败的最终分类统一为 `needs_human`。outer `issue_codes` 继续使用既有闭集：普通绑定拒绝统一投影为 `candidate_invalid_evidence_binding`，内部异常投影为 `internal_validation_error`；详细原因只能存在于 `binding.reason_codes`。
+对外仍只输出闭集 reason code，不回显 path、quote、原文、offset、模型自造键名或 provider 文本。所有失败的最终分类统一为 `needs_human`。outer `issue_codes` 继续使用既有闭集：
+
+- 第一次、无 offset 的 `validateNodeCandidate` 失败时，复用既有分类器保留 payload、scalar、injection、missing/extra 或 evidence 的真实类别；
+- pre-binding shape、唯一性、Unicode、grapheme 或 overlap 绑定失败投影为 `candidate_invalid_evidence_binding`；
+- 第二次完整 validator 若出现非 offset 错误，按其真实类别输出并附 `binding_post_validation_failed`；
+- 内部异常投影为 `internal_validation_error`。
+
+详细绑定原因只能存在于 `binding.reason_codes`，不得替代 outer 分类。
 
 首次绑定失败可以沿用既有、冻结的唯一模型修复轮，但修复提示只能要求重新给出可由当前权威原文逐字且唯一定位的 `source_ref + quote`；不得把本地计算的 offset 发回模型，不得自动选择重复 quote 中的某一次。第二次仍失败即停止。
 
@@ -160,7 +168,7 @@ bound candidate 随后必须通过未修改的 `validateNodeCandidate`，才可�
 
 `bound` 当且仅当 `classification=candidate_validated_after_deterministic_binding`、`exact_14_generated=true`、`issue_codes=[]`、`span_count` 为正安全整数、三个摘要均为 64 位小写十六进制且 `reason_codes=[]`。
 
-`refused` 当且仅当 `classification=needs_human`、`exact_14_generated=false`、`candidate_after_sha256=null`、`reason_codes` 为非空闭集。`span_count`、`source_sha256` 与 `candidate_before_sha256` 只有在对应完整对象已安全验证并摘要时才可非空，否则为 `null`；不得为填满报告而推断。
+`refused` 当且仅当 `classification=needs_human`、`exact_14_generated=false`、`issue_codes` 为非空既有闭集、`candidate_after_sha256=null`、`reason_codes` 为非空绑定闭集。`span_count`、`source_sha256` 与 `candidate_before_sha256` 只有在对应完整对象已安全验证并摘要时才可非空，否则为 `null`；不得为填满报告而推断。
 
 禁止保存或输出 raw quote、权威原文、provider 原文、浏览器 URL、账号、token、Base/table/view/record/app/field ID。现场 candidate 仍只经剪贴板与一次性进程内存传递，不落盘。
 
