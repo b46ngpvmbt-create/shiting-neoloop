@@ -256,8 +256,8 @@ test("run contract binds the local toolchain and resolver build inputs without c
     resolver_build: {
       compiler_mode: "typescript_nodenext_es2022_strict",
       input_binding_contract: "captured_source_compiler_types_and_emitted_js.v1",
-      source_file_count: 42,
-      source_digest_sha256: "6449d479841fde1169ec522d88c8487a06b209b795c717bed1b46bfe6e703fe0",
+      source_file_count: 44,
+      source_digest_sha256: "9362fee34e865b7a1e8dd9e1358cf86d84459572becc05049b84ce486ac75409",
       compiler_and_type_input_file_count: 214,
       compiler_and_type_inputs_digest_sha256: "84d5e928f49c7a5775bd190017266d330313fb217f6bb975567c3afef2a98a7b",
       project_package_metadata_sha256: "85983a5b4558118f2d2f5f5cc8a2f351f0062b72b28e572a5d24ba7c018eef79",
@@ -266,9 +266,9 @@ test("run contract binds the local toolchain and resolver build inputs without c
       typescript_package_metadata_sha256: "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
       node_types_package_metadata_sha256: "ba8f6326a685af9e7dce89a99f55e0dc3cef450046acf00a20f7cb673562f581",
       undici_types_package_metadata_sha256: "11f873b423b96a5ad444a099685ca6b9de1379dcd83fd8d368e757ddb53658e4",
-      input_digest_sha256: "90c7f987918297ae70d0cc76cfa79522cffe521b3239e670bc2194b5f0ce246f",
-      emitted_js_file_count: 42,
-      emitted_js_bundle_sha256: "865addb7141a3dd80cdcefc0feeafe16bf9ffce0e573a4f98da11e9b0c126511",
+      input_digest_sha256: "c23d2f2587f2da79bb6a611376b3fc3e544af5c2870861914d3a8aad6691c9aa",
+      emitted_js_file_count: 44,
+      emitted_js_bundle_sha256: "7e54bb076b571db8f71ca48df896cc2844dc67e64d0def9aa17825fd26bb136b",
       resolver_emitted_js_sha256: "71a62593a4c5706b8d192f21434c748de6e680dd6d3b167b9da837c3964ba755",
     },
     clock_policy: {

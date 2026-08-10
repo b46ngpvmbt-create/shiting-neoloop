@@ -57,6 +57,19 @@ export const OWNER_FIRST_DELIVERY_GROUPS = Object.freeze({
       "tests/core/owner-first-node-preview-cli.test.mjs",
     ]),
   }),
+  live_bridge: Object.freeze({
+    entrypoints: Object.freeze([
+      "src/neoloop/ai/owner-first-live-bridge.ts",
+      "src/neoloop/cli/owner-first-live-bridge.ts",
+    ]),
+    runtime_assets: Object.freeze([
+      "feishu/scripts/run-owner-first-live-bridge.mjs",
+    ]),
+    verification_paths: Object.freeze([
+      "tests/core/owner-first-live-bridge.test.mjs",
+      "tests/core/owner-first-live-bridge-cli.test.mjs",
+    ]),
+  }),
 });
 
 const SHARED_TOOLCHAIN_PATHS = Object.freeze([
