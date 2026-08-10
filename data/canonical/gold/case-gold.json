@@ -1,0 +1,410 @@
+{
+  "fixture_version": "1.0.0-t1-r2",
+  "schema_version": "1.0.0-draft.2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "disclaimer": "本文件仅包含由报名阶段合成历史快照派生的评测标注草案，仍待授权人员逐条复核；不对应真实客户、车辆、任务、责任、事故或企业成效，也不构成新版工作流运行证据。",
+  "annotation": {
+    "status": "draft_pending_human_review",
+    "provenance": "synthetic_evaluator_derived_from_legacy_snapshots",
+    "human_reviewed": false
+  },
+  "source_contract": {
+    "case_table": "data/canonical/tables/cases.json",
+    "raw_feedback_table": "data/canonical/tables/raw-feedback.json",
+    "source_record_mode": "legacy_snapshot",
+    "legacy_snapshots_are_workflow_run_evidence": false
+  },
+  "records": [
+    {
+      "gold_id": "GOLD-SYN-CASE-001",
+      "case_id": "SYN-CASE-001",
+      "legacy_id": "DEMO-C-001",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "自动驾驶/道路安全" },
+      "expected_hard_rule_risk": "P0",
+      "expected_final_risk": "P0",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-102", "candidate_task_id": "SYN-TASK-8452" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-001", "suggested_team": "车辆运维+现场运维" },
+      "expected_safety_stop": { "required": true, "code": "hard_rule_high_risk", "handoff": "human_risk_review" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-001",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-001",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-002"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-002",
+      "case_id": "SYN-CASE-002",
+      "legacy_id": "DEMO-C-017",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "冷链/温控" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P1",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-145", "candidate_task_id": "SYN-TASK-8488" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-017", "suggested_team": "车辆运维+现场运维" },
+      "expected_safety_stop": { "required": true, "code": "high_risk_human_review", "handoff": "human_risk_review" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-002",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-027"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-003",
+      "case_id": "SYN-CASE-003",
+      "legacy_id": "DEMO-C-003",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "网络连接" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P1",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X3-205", "candidate_task_id": "SYN-TASK-8461" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-003", "suggested_team": "车辆运维+现场运维" },
+      "expected_safety_stop": { "required": true, "code": "high_risk_human_review", "handoff": "human_risk_review" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-003",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-006",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-007"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-004",
+      "case_id": "SYN-CASE-004",
+      "legacy_id": "DEMO-C-004",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "配送时效" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-118", "candidate_task_id": "SYN-TASK-8470" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-004", "suggested_team": "客户服务" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-004",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-008",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-009"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-005",
+      "case_id": "SYN-CASE-005",
+      "legacy_id": "DEMO-C-005",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "现场运维", "detail": "路线/地图点位" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X3-211", "candidate_task_id": "SYN-TASK-8474" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-005", "suggested_team": "现场运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-005",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-010",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-011"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-006",
+      "case_id": "SYN-CASE-006",
+      "legacy_id": "DEMO-C-006",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "现场运维", "detail": "培训/现场操作" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P3",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-130", "candidate_task_id": null },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-006", "suggested_team": "现场运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-006",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-012"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-007",
+      "case_id": "SYN-CASE-007",
+      "legacy_id": "DEMO-C-007",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "动力/补能" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-130", "candidate_task_id": "SYN-TASK-8480" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-007", "suggested_team": "车辆运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-007",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-013",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-014"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-008",
+      "case_id": "SYN-CASE-008",
+      "legacy_id": "DEMO-C-008",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "舱门/柜体" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-107", "candidate_task_id": "SYN-TASK-8501" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-008", "suggested_team": "车辆运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-008",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-015",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-016"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-009",
+      "case_id": "SYN-CASE-009",
+      "legacy_id": "DEMO-C-009",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "通知/订单状态" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P3",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X3-222", "candidate_task_id": "SYN-TASK-8492" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-009", "suggested_team": "客户服务" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-009",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-017"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-010",
+      "case_id": "SYN-CASE-010",
+      "legacy_id": "DEMO-C-010",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "装卸/交接" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-118", "candidate_task_id": "SYN-TASK-8508" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-010", "suggested_team": "客户服务+现场运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-010",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-018",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-019"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-011",
+      "case_id": "SYN-CASE-011",
+      "legacy_id": "DEMO-C-011",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "产品体验/数据展示" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P3",
+      "missing_fields": ["车辆ID", "任务ID"],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": null, "candidate_task_id": null },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-011", "suggested_team": "客户服务+产品" },
+      "expected_safety_stop": { "required": true, "code": "missing_entity_ids", "handoff": "manual_supplement" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-011",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-020"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-012",
+      "case_id": "SYN-CASE-012",
+      "legacy_id": "DEMO-C-012",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "账号/权限" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X3-211", "candidate_task_id": null },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-012", "suggested_team": "客户服务" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-012",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-021"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-013",
+      "case_id": "SYN-CASE-013",
+      "legacy_id": "DEMO-C-013",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "现场运维", "detail": "路线/地图点位" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-130", "candidate_task_id": "SYN-TASK-8520" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-013", "suggested_team": "现场运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-013",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-022",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-023"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-014",
+      "case_id": "SYN-CASE-014",
+      "legacy_id": "DEMO-C-014",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "舱门/柜体" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P1",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-107", "candidate_task_id": "SYN-TASK-8501" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-014", "suggested_team": "车辆运维+产品" },
+      "expected_safety_stop": { "required": true, "code": "high_risk_human_review", "handoff": "human_risk_review" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-014",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-024"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-015",
+      "case_id": "SYN-CASE-015",
+      "legacy_id": "DEMO-C-015",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "数据分析/报表" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P3",
+      "missing_fields": ["车辆ID", "任务ID"],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": null, "candidate_task_id": null },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-015", "suggested_team": "客户服务+产品" },
+      "expected_safety_stop": { "required": true, "code": "missing_entity_ids", "handoff": "manual_supplement" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-015",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-025"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-016",
+      "case_id": "SYN-CASE-016",
+      "legacy_id": "DEMO-C-016",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "客户服务", "detail": "服务沟通" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": null, "candidate_task_id": null },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-016", "suggested_team": "客户服务" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-016",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-026"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-017",
+      "case_id": "SYN-CASE-017",
+      "legacy_id": "DEMO-C-002",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "舱门/柜体" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P1",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-107", "candidate_task_id": "SYN-TASK-8458" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-002", "suggested_team": "车辆运维" },
+      "expected_safety_stop": { "required": true, "code": "high_risk_human_review", "handoff": "human_risk_review" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-017",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-003",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-004",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-005"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-018",
+      "case_id": "SYN-CASE-018",
+      "legacy_id": "DEMO-C-018",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "现场运维", "detail": "路线申请/部署" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P3",
+      "missing_fields": ["车辆ID", "任务ID"],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": null, "candidate_task_id": null },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-018", "suggested_team": "现场运维" },
+      "expected_safety_stop": { "required": true, "code": "missing_entity_ids", "handoff": "manual_supplement" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-018",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-028"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-019",
+      "case_id": "SYN-CASE-019",
+      "legacy_id": "DEMO-C-019",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "网络/数据回传" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X3-205", "candidate_task_id": "SYN-TASK-8514" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-019", "suggested_team": "车辆运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-019",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-029"
+      ]
+    },
+    {
+      "gold_id": "GOLD-SYN-CASE-020",
+      "case_id": "SYN-CASE-020",
+      "legacy_id": "DEMO-C-020",
+      "source_record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "annotation": { "status": "draft_pending_human_review", "provenance": "synthetic_evaluator_derived_from_legacy_snapshot", "human_reviewed": false },
+      "expected_classification": { "domain": "车辆运维", "detail": "舱门/柜体" },
+      "expected_hard_rule_risk": null,
+      "expected_final_risk": "P2",
+      "missing_fields": [],
+      "entity_human_confirmation": { "required": true, "status": "待人工确认", "candidate_vehicle_id": "SYN-VEHICLE-X6-145", "candidate_task_id": "SYN-TASK-8488" },
+      "routing_human_confirmation": { "required": true, "status": "待人工确认", "candidate_routing_rule_id": "SYN-ROUTING-020", "suggested_team": "车辆运维" },
+      "expected_safety_stop": { "required": false, "code": null, "handoff": "continue_to_standard_human_gates" },
+      "evidence_references": [
+        "data/canonical/tables/cases.json#SYN-CASE-020",
+        "data/canonical/tables/raw-feedback.json#SYN-FEEDBACK-030"
+      ]
+    }
+  ]
+}

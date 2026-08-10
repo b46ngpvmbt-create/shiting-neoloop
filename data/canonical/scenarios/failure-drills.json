@@ -1,0 +1,112 @@
+{
+  "fixture_version": "1.0.0-t1-r2",
+  "schema_version": "1.0.0-draft.2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "disclaimer": "以下四项均为尚未执行的合成故障注入定义，只规定预期安全路径；空运行证据和空观察结果不得被解释为已通过验收。",
+  "records": [
+    {
+      "drill_id": "DRILL-IDEMPOTENCY-001",
+      "category_key": "same_key_retry_and_different_key_similar",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-IDEMPOTENCY",
+      "execution_status": "not_run",
+      "clock": { "source": "test", "timezone": "Asia/Shanghai", "anchor": "2026-08-01T09:10:00+08:00", "advancement": "manual_only" },
+      "input_attempts": [
+        {
+          "attempt_key": "original",
+          "source_record_id": "SYN-RUNTIME-SRC-017-IDEM-A",
+          "source_tenant_scope": "synthetic-scenario-runtime",
+          "channel": "客户群",
+          "authorization_scope": "synthetic_demo_only",
+          "idempotency_key": "e3095e0ace263e8982cb0ac347a7b072263b86b5e029fc4e4a4ceee3c6845e54",
+          "original_text": "合成场景：A站取货时舱门连续两次无法解锁，任务已经延误。"
+        },
+        {
+          "attempt_key": "same_key_retry",
+          "source_record_id": "SYN-RUNTIME-SRC-017-IDEM-A",
+          "source_tenant_scope": "synthetic-scenario-runtime",
+          "channel": "客户群",
+          "authorization_scope": "synthetic_demo_only",
+          "idempotency_key": "e3095e0ace263e8982cb0ac347a7b072263b86b5e029fc4e4a4ceee3c6845e54",
+          "original_text": "合成场景：A站取货时舱门连续两次无法解锁，任务已经延误。"
+        },
+        {
+          "attempt_key": "different_key_similar",
+          "source_record_id": "SYN-RUNTIME-SRC-017-IDEM-B",
+          "source_tenant_scope": "synthetic-scenario-runtime",
+          "channel": "客户群",
+          "authorization_scope": "synthetic_demo_only",
+          "idempotency_key": "00f21ebf5afa1acb572e8834ee35acd1b0bacc0fad50ea6f691b548dd3631e0d",
+          "original_text": "合成场景：A站同一取货时段再次反馈舱门无法解锁并造成延误。"
+        }
+      ],
+      "expected_semantics": {
+        "same_key_retry": { "outcome": "idempotent_replay", "returns_feedback_id": "SYN-RUNTIME-FEEDBACK-017-IDEM-A", "new_raw_feedback_count": 0, "new_case_count": 0 },
+        "different_key_similar": { "outcome": "created", "returns_feedback_id": "SYN-RUNTIME-FEEDBACK-017-IDEM-B", "new_raw_feedback_count": 1, "new_case_count": 1, "n5_mode": "same_event_duplicate", "automatic_merge": false }
+      },
+      "human_gates": [{ "gate_key": "same_event_merge_or_keep_separate", "required": true }],
+      "forbidden_actions": ["overwrite_existing_feedback", "deduplicate_by_text_hash", "automatic_case_merge"],
+      "run_evidence": [],
+      "observed_results": []
+    },
+    {
+      "drill_id": "DRILL-MISSING-ENTITY-IDS-001",
+      "category_key": "missing_vehicle_and_task_ids",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-MISSING-IDS",
+      "execution_status": "not_run",
+      "clock": { "source": "test", "timezone": "Asia/Shanghai", "anchor": "2026-08-01T09:20:00+08:00", "advancement": "manual_only" },
+      "fault_injection": { "remove_fields": ["vehicle_id", "task_id"], "preserve_original_text": true },
+      "expected_semantics": { "next_case_status": "待补充", "missing_fields": ["车辆ID", "任务ID"], "fabricated_ids": false, "formal_entity_written": false },
+      "human_gates": [{ "gate_key": "supplement_ids_or_confirm_not_applicable", "required": true }],
+      "forbidden_actions": ["invent_vehicle_id", "invent_task_id", "confirm_formal_entity_without_evidence"],
+      "run_evidence": [],
+      "observed_results": []
+    },
+    {
+      "drill_id": "DRILL-INVALID-AI-SCHEMA-001",
+      "category_key": "invalid_ai_schema_retry_once_then_human",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-AI-SCHEMA",
+      "execution_status": "not_run",
+      "clock": { "source": "test", "timezone": "Asia/Shanghai", "anchor": "2026-08-01T09:30:00+08:00", "advancement": "manual_only" },
+      "fault_injection": { "node": "N4", "mode": "entity_candidates", "node_version": "N4-fixture-v1", "invalid_output_kind": "missing_required_envelope_fields" },
+      "retry_policy": { "max_retries": 1, "same_node_version_required": true, "on_retry_failure": "stop_node_chain_and_handoff_to_human" },
+      "expected_semantics": { "audit_each_attempt": true, "last_invalid_node_status": "error", "chain_handoff_status": "needs_human", "raw_feedback_status": "已建案", "case_status": "待关联", "preserve_existing_state": true, "continue_downstream_nodes": false },
+      "human_gates": [{ "gate_key": "manual_processing_after_schema_failure", "required": true }],
+      "forbidden_actions": ["retry_more_than_once", "change_node_version_during_retry", "continue_after_second_schema_failure"],
+      "run_evidence": [],
+      "observed_results": []
+    },
+    {
+      "drill_id": "DRILL-SLA-TIMEOUT-001",
+      "category_key": "sla_timeout_escalation_preserves_clock",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-SLA-TIMEOUT",
+      "execution_status": "not_run",
+      "clock": { "source": "test", "timezone": "Asia/Shanghai", "anchor": "2026-08-01T10:01:00+08:00", "advancement": "manual_only" },
+      "fault_injection": { "workflow": "W4", "kind": "sla_timeout", "simulated_at": "2026-08-01T10:01:00+08:00" },
+      "sla_clock": {
+        "original_started_at": "2026-08-01T09:01:00+08:00",
+        "original_due_at": "2026-08-01T10:00:00+08:00",
+        "expected_after_escalation_started_at": "2026-08-01T09:01:00+08:00",
+        "expected_after_escalation_due_at": "2026-08-01T10:00:00+08:00",
+        "reset_count": 0
+      },
+      "expected_semantics": { "escalation_notification_required": true, "preserve_original_status": true, "preserve_original_clock": true, "administrator_notification_on_failure": true },
+      "human_gates": [{ "gate_key": "administrator_retry_takeover_or_pause", "required": true }],
+      "forbidden_actions": ["reset_sla_clock", "hide_timeout", "advance_case_state_on_failed_escalation"],
+      "run_evidence": [],
+      "observed_results": []
+    }
+  ]
+}
