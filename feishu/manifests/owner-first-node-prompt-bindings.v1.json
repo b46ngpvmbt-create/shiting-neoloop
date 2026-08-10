@@ -1,0 +1,434 @@
+{
+  "schema_version": "owner-first-node-prompt-bindings.v1",
+  "data_scope": "synthetic_experiment",
+  "candidate_top_level_key_order": [
+    "payload",
+    "evidence_spans",
+    "missing_fields",
+    "confidence",
+    "status"
+  ],
+  "binding_kinds": [
+    "feishu_variable_token",
+    "controlled_catalog_literal"
+  ],
+  "profiles": {
+    "n2-default": {
+      "prompt_path": "feishu/prompts/n2-default-owner-first-exact-5.txt",
+      "workflow": "W2",
+      "ui_step": "N2 业务分类",
+      "node": "N2",
+      "mode": "default",
+      "version": "N2-1.0.0-draft.2",
+      "input_key_order": [
+        "n1_output",
+        "taxonomy",
+        "taxonomy_version"
+      ],
+      "bindings": [
+        {
+          "input_key": "n1_output",
+          "kind": "feishu_variable_token",
+          "token_name": "N1_STRUCTURED_OUTPUT",
+          "ui_source": "W2.previous_step.N1 结构化抽取.output"
+        },
+        {
+          "input_key": "taxonomy",
+          "kind": "controlled_catalog_literal",
+          "literal_id": "taxonomy-owner-synthetic-v1",
+          "literal_value": {
+            "domains": [
+              "车辆运维"
+            ],
+            "subcategories": {
+              "车辆运维": [
+                "舱门解锁异常"
+              ]
+            },
+            "tags": [
+              "舱门",
+              "延误"
+            ]
+          }
+        },
+        {
+          "input_key": "taxonomy_version",
+          "kind": "controlled_catalog_literal",
+          "literal_id": "taxonomy-version-owner-synthetic-v1",
+          "literal_value": "taxonomy-owner-synthetic-v1"
+        }
+      ]
+    },
+    "n3-default": {
+      "prompt_path": "feishu/prompts/n3-default-owner-first-exact-5.txt",
+      "workflow": "W2",
+      "ui_step": "N3 风险建议",
+      "node": "N3",
+      "mode": "default",
+      "version": "N3-1.0.0-draft.2",
+      "input_key_order": [
+        "original_text",
+        "n1_output",
+        "hard_rule_result"
+      ],
+      "bindings": [
+        {
+          "input_key": "original_text",
+          "kind": "feishu_variable_token",
+          "token_name": "RAW_FEEDBACK_ORIGINAL_TEXT",
+          "ui_source": "W2.trigger.原始反馈.original_text"
+        },
+        {
+          "input_key": "n1_output",
+          "kind": "feishu_variable_token",
+          "token_name": "N1_STRUCTURED_OUTPUT",
+          "ui_source": "W2.previous_step.N1 结构化抽取.output"
+        },
+        {
+          "input_key": "hard_rule_result",
+          "kind": "feishu_variable_token",
+          "token_name": "DETERMINISTIC_HARD_RULE_RESULT",
+          "ui_source": "W2.deterministic_step.硬规则结果.output"
+        }
+      ]
+    },
+    "n4-default": {
+      "prompt_path": "feishu/prompts/n4-default-owner-first-exact-5.txt",
+      "workflow": "W3",
+      "ui_step": "N4 实体关联",
+      "node": "N4",
+      "mode": "default",
+      "version": "N4-1.0.0-draft.2",
+      "input_key_order": [
+        "case_facts",
+        "vehicle_candidates",
+        "task_candidates",
+        "site_candidates"
+      ],
+      "bindings": [
+        {
+          "input_key": "case_facts",
+          "kind": "feishu_variable_token",
+          "token_name": "CASE_FACTS_BUNDLE",
+          "ui_source": "W3.trigger.反馈案件.{case_id,summary,evidence_summary,missing_fields}"
+        },
+        {
+          "input_key": "vehicle_candidates",
+          "kind": "feishu_variable_token",
+          "token_name": "VEHICLE_CANDIDATE_LOOKUP",
+          "ui_source": "W3.lookup.车辆档案.output"
+        },
+        {
+          "input_key": "task_candidates",
+          "kind": "feishu_variable_token",
+          "token_name": "TASK_CANDIDATE_LOOKUP",
+          "ui_source": "W3.lookup.配送任务.output"
+        },
+        {
+          "input_key": "site_candidates",
+          "kind": "feishu_variable_token",
+          "token_name": "SITE_CANDIDATE_LOOKUP",
+          "ui_source": "W3.lookup.站点责任矩阵.output"
+        }
+      ]
+    },
+    "n5-same-event": {
+      "prompt_path": "feishu/prompts/n5-same-event-owner-first-exact-5.txt",
+      "workflow": "W6",
+      "ui_step": "N5 同事件重复",
+      "node": "N5",
+      "mode": "same_event_duplicate",
+      "version": "N5-same-event-1.0.0-draft.2",
+      "input_key_order": [
+        "case_facts",
+        "time",
+        "confirmed_entities",
+        "source_reference"
+      ],
+      "bindings": [
+        {
+          "input_key": "case_facts",
+          "kind": "feishu_variable_token",
+          "token_name": "SAME_EVENT_CASE_FACTS",
+          "ui_source": "W6.trigger_and_lookup.反馈案件.{case_id,summary}"
+        },
+        {
+          "input_key": "time",
+          "kind": "feishu_variable_token",
+          "token_name": "SAME_EVENT_TIME",
+          "ui_source": "W6.trigger_and_lookup.反馈案件.{case_id,created_at}"
+        },
+        {
+          "input_key": "confirmed_entities",
+          "kind": "feishu_variable_token",
+          "token_name": "SAME_EVENT_CONFIRMED_ENTITIES",
+          "ui_source": "W6.trigger_and_lookup.反馈案件.{case_id,formal_entity,formal_entity_confirmation_status}"
+        },
+        {
+          "input_key": "source_reference",
+          "kind": "feishu_variable_token",
+          "token_name": "SAME_EVENT_SOURCE_REFERENCE",
+          "ui_source": "W6.trigger_and_lookup.反馈案件.{case_id,source_locator,source_sha256}"
+        }
+      ]
+    },
+    "n5-cross-event": {
+      "prompt_path": "feishu/prompts/n5-cross-event-owner-first-exact-5.txt",
+      "workflow": "W6",
+      "ui_step": "N5 跨事件聚类",
+      "node": "N5",
+      "mode": "cross_event_clustering",
+      "version": "N5-cross-event-1.0.0-draft.2",
+      "input_key_order": [
+        "case_facts",
+        "time",
+        "confirmed_entities",
+        "source_reference"
+      ],
+      "bindings": [
+        {
+          "input_key": "case_facts",
+          "kind": "feishu_variable_token",
+          "token_name": "CROSS_EVENT_CASE_FACTS",
+          "ui_source": "W6.trigger_and_lookup.已关闭反馈案件.{case_id,status,workflow_readiness,summary,cluster_id}"
+        },
+        {
+          "input_key": "time",
+          "kind": "feishu_variable_token",
+          "token_name": "CROSS_EVENT_TIME",
+          "ui_source": "W6.trigger_and_lookup.已关闭反馈案件.{case_id,closed_at}"
+        },
+        {
+          "input_key": "confirmed_entities",
+          "kind": "feishu_variable_token",
+          "token_name": "CROSS_EVENT_CONFIRMED_ENTITIES",
+          "ui_source": "W6.trigger_and_lookup.已关闭反馈案件.{case_id,formal_entity,formal_entity_confirmation_status}"
+        },
+        {
+          "input_key": "source_reference",
+          "kind": "feishu_variable_token",
+          "token_name": "CROSS_EVENT_SOURCE_REFERENCE",
+          "ui_source": "W6.trigger_and_lookup.已关闭反馈案件.{case_id,source_locator,source_sha256}"
+        }
+      ]
+    },
+    "n6-responsibility": {
+      "prompt_path": "feishu/prompts/n6-responsibility-owner-first-exact-5.txt",
+      "workflow": "W3",
+      "ui_step": "N6 责任路由",
+      "node": "N6",
+      "mode": "responsibility_routing",
+      "version": "N6-responsibility-routing-1.0.0-draft.2",
+      "input_key_order": [
+        "evidence",
+        "responsibility_matrix",
+        "issue_cluster",
+        "resolution_records"
+      ],
+      "bindings": [
+        {
+          "input_key": "evidence",
+          "kind": "feishu_variable_token",
+          "token_name": "N4_AND_CASE_EVIDENCE",
+          "ui_source": "W3.previous_step.N4 实体关联.output+W3.trigger.反馈案件.{case_id,evidence_summary}"
+        },
+        {
+          "input_key": "responsibility_matrix",
+          "kind": "controlled_catalog_literal",
+          "literal_id": "routing-matrix-owner-synthetic-v1",
+          "literal_value": [
+            {
+              "routing_rule_id": "SYN-ROUTING-OWNER-002",
+              "rule_version": "routing-matrix-owner@1.0.0-draft.2",
+              "station_id": "SYN-STATION-OWNER-YZ",
+              "issue_type": "舱门/柜体",
+              "default_team": "车辆运维",
+              "reviewer_role": "待企业确认",
+              "sla_rule_version": "legacy-registration-demo-v1",
+              "status": "待企业验证",
+              "evidence_class": "enterprise_pending"
+            },
+            {
+              "routing_rule_id": "SYN-ROUTING-OWNER-014",
+              "rule_version": "routing-matrix-owner@1.0.0-draft.2",
+              "station_id": "SYN-STATION-OWNER-YZ",
+              "issue_type": "舱门/柜体",
+              "default_team": "车辆运维+产品",
+              "reviewer_role": "待企业确认",
+              "sla_rule_version": "legacy-registration-demo-v1",
+              "status": "待企业验证",
+              "evidence_class": "enterprise_pending"
+            }
+          ]
+        },
+        {
+          "input_key": "issue_cluster",
+          "kind": "feishu_variable_token",
+          "token_name": "RESPONSIBILITY_ISSUE_CLUSTER",
+          "ui_source": "W3.trigger.反馈案件.{formal_entity,category_detail}"
+        },
+        {
+          "input_key": "resolution_records",
+          "kind": "controlled_catalog_literal",
+          "literal_id": "pre-dispatch-no-resolution-records-v1",
+          "literal_value": []
+        }
+      ]
+    },
+    "n6-root-cause": {
+      "prompt_path": "feishu/prompts/n6-root-cause-owner-first-exact-5.txt",
+      "workflow": "W6",
+      "ui_step": "N6 根因假设",
+      "node": "N6",
+      "mode": "root_cause_hypothesis",
+      "version": "N6-root-cause-1.0.0-draft.3",
+      "input_key_order": [
+        "evidence",
+        "issue_cluster",
+        "resolution_records",
+        "hypothesis_catalog"
+      ],
+      "bindings": [
+        {
+          "input_key": "evidence",
+          "kind": "feishu_variable_token",
+          "token_name": "CLUSTER_CASE_EVIDENCE",
+          "ui_source": "W6.lookup.问题簇成员反馈案件.output"
+        },
+        {
+          "input_key": "issue_cluster",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_ISSUE_CLUSTER",
+          "ui_source": "W6.trigger_or_lookup.问题簇.output"
+        },
+        {
+          "input_key": "resolution_records",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_RESOLUTION_RECORDS",
+          "ui_source": "W6.lookup.已审核处置工单.output"
+        },
+        {
+          "input_key": "hypothesis_catalog",
+          "kind": "controlled_catalog_literal",
+          "literal_id": "root-cause-hypothesis-owner-synthetic-v1",
+          "literal_value": [
+            {
+              "hypothesis_id": "HYP-OWNER-001",
+              "factor_label": "锁体部件批次差异",
+              "phenomenon_label": "舱门无法解锁",
+              "uncertainty_options": [
+                {
+                  "uncertainty_id": "UNC-OWNER-SAMPLE",
+                  "label": "样本数量有限"
+                },
+                {
+                  "uncertainty_id": "UNC-OWNER-TEARDOWN",
+                  "label": "尚缺少拆检报告"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "n7-customer-reply": {
+      "prompt_path": "feishu/prompts/n7-customer-reply-owner-first-exact-5.txt",
+      "workflow": "W5",
+      "ui_step": "N7 客户回复草稿",
+      "node": "N7",
+      "mode": "customer_reply",
+      "version": "N7-1.0.0-draft.2",
+      "input_key_order": [
+        "reviewed_facts",
+        "resolution_result",
+        "reviewed_knowledge_index"
+      ],
+      "bindings": [
+        {
+          "input_key": "reviewed_facts",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_CASE_FACTS",
+          "ui_source": "W5.lookup.人工已审核反馈案件事实.output"
+        },
+        {
+          "input_key": "resolution_result",
+          "kind": "feishu_variable_token",
+          "token_name": "VERIFIED_RESOLUTION_RESULT",
+          "ui_source": "W5.trigger.处置工单.已验证处置结果"
+        },
+        {
+          "input_key": "reviewed_knowledge_index",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_KNOWLEDGE_INDEX",
+          "ui_source": "W5.lookup.知识索引.允许N7引用的已审核记录"
+        }
+      ]
+    },
+    "n7-knowledge-draft": {
+      "prompt_path": "feishu/prompts/n7-knowledge-draft-owner-first-exact-5.txt",
+      "workflow": "W6",
+      "ui_step": "N7 知识草稿",
+      "node": "N7",
+      "mode": "knowledge_draft",
+      "version": "N7-1.0.0-draft.2",
+      "input_key_order": [
+        "reviewed_facts",
+        "resolution_result",
+        "reviewed_knowledge_index"
+      ],
+      "bindings": [
+        {
+          "input_key": "reviewed_facts",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_CLUSTER_FACTS",
+          "ui_source": "W6.lookup.人工已审核问题簇成员事实.output"
+        },
+        {
+          "input_key": "resolution_result",
+          "kind": "feishu_variable_token",
+          "token_name": "VERIFIED_CLUSTER_RESOLUTION",
+          "ui_source": "W6.lookup.已验证问题簇处置结果.output"
+        },
+        {
+          "input_key": "reviewed_knowledge_index",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_KNOWLEDGE_INDEX",
+          "ui_source": "W6.lookup.知识索引.允许N7引用的已审核记录"
+        }
+      ]
+    },
+    "n7-insight-summary": {
+      "prompt_path": "feishu/prompts/n7-insight-summary-owner-first-exact-5.txt",
+      "workflow": "W6",
+      "ui_step": "N7 洞察摘要",
+      "node": "N7",
+      "mode": "insight_summary",
+      "version": "N7-1.0.0-draft.2",
+      "input_key_order": [
+        "reviewed_facts",
+        "resolution_result",
+        "reviewed_knowledge_index"
+      ],
+      "bindings": [
+        {
+          "input_key": "reviewed_facts",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_CLUSTER_FACTS",
+          "ui_source": "W6.lookup.人工已审核问题簇成员事实.output"
+        },
+        {
+          "input_key": "resolution_result",
+          "kind": "feishu_variable_token",
+          "token_name": "VERIFIED_CLUSTER_RESOLUTION",
+          "ui_source": "W6.lookup.已验证问题簇处置结果.output"
+        },
+        {
+          "input_key": "reviewed_knowledge_index",
+          "kind": "feishu_variable_token",
+          "token_name": "REVIEWED_KNOWLEDGE_INDEX",
+          "ui_source": "W6.lookup.知识索引.允许N7引用的已审核记录"
+        }
+      ]
+    }
+  }
+}
