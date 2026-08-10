@@ -612,7 +612,7 @@ test("captured source bytes remain the compiled input after the original path ch
     const [moduleUrl, projectRoot, sourcePath] = process.argv.slice(1);
     let compilerCalls = 0;
     mock.module("node:child_process", {
-      exports: {
+      namedExports: {
         spawnSync(command, args, options) {
           compilerCalls += 1;
           if (compilerCalls === 1) {
@@ -654,7 +654,7 @@ test("compiler timeout fails closed with fixed execution limits and no raw outpu
     const [moduleUrl, projectRoot] = process.argv.slice(1);
     let observed;
     mock.module("node:child_process", {
-      exports: {
+      namedExports: {
         spawnSync(command, args, options) {
           observed = {
             command_is_process_exec_path: command === process.execPath,
@@ -744,7 +744,7 @@ test("output parent inode replacement fails closed before the artifact opens", a
     let parentReplacements = 0;
     let parentInodeChanged = false;
     mock.module("node:fs/promises", {
-      exports: {
+      namedExports: {
         readFile: realReadFile,
         open: realOpen,
         async mkdir(path, options) {
