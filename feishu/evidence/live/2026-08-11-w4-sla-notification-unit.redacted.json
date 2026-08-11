@@ -47,7 +47,10 @@
     "workflow_disabled_after_wait": true,
     "fixture_read_back_from_server": true,
     "notification_action_configured": true,
-    "notification_delivery_confirmation": "pending_user_confirmation",
+    "notification_delivery_confirmation": "user_attested_received",
+    "notification_delivery_machine_verified": false,
+    "notification_delivery_user_attested": true,
+    "user_confirmation_observed_on": "2026-08-11",
     "workflow_run_log_api_available": false,
     "business_records_written_by_workflow": 0
   },
@@ -73,8 +76,9 @@
   },
   "acceptance_boundaries": {
     "w4_live_synthetic_trigger_executed": true,
-    "notification_delivery_verified": false,
-    "p07_completed": false,
+    "notification_delivery_verified": true,
+    "notification_delivery_verification_class": "user_attested",
+    "p07_completed": true,
     "p03_second_identity": "waived_not_completed",
     "p04_p05_completed": false,
     "production_ready": false,
