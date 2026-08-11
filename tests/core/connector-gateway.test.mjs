@@ -683,6 +683,27 @@ test("Feishu adapter calls the runtime fetch directly when no test transport is 
   }
 });
 
+test("Feishu adapter exposes only the API operation and numeric error code", async () => {
+  const adapter = openApiAdapter(async (input) => {
+    const url = String(input);
+    if (url.endsWith("/tenant_access_token/internal/")) {
+      return jsonResponse({ code: 0, tenant_access_token: "synthetic-tenant-token", expire: 7140 });
+    }
+    if (url.includes("/records/search")) {
+      return jsonResponse({ code: 1254302, msg: "synthetic sensitive upstream detail" });
+    }
+    throw new Error(`Unexpected mock URL ${url}`);
+  });
+
+  await assert.rejects(
+    () => adapter.findByIdempotencyKey("b".repeat(64)),
+    (error) => (
+      error.code === "feishu_api_raw_search_1254302"
+      && !error.message.includes("synthetic sensitive upstream detail")
+    ),
+  );
+});
+
 test("production Feishu adapter gets an app token, creates with a stable client_token, and exact-reads back", async () => {
   const record = storedFeedback();
   const calls = [];

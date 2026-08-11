@@ -88,6 +88,14 @@ interface SearchResult {
   record: StoredRawFeedback;
 }
 
+type FeishuApiOperation =
+  | "raw_search"
+  | "raw_create"
+  | "raw_read"
+  | "audit_search"
+  | "audit_create"
+  | "audit_latest_search";
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -242,10 +250,19 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     response: Response,
     payload: Record<string, unknown>,
     write: boolean,
+    operation: FeishuApiOperation,
   ): void {
     if (response.ok && payload.code === 0) return;
     const unknown = write && (response.status >= 500 || response.status === 408 || response.status === 429);
-    throw new FeishuAdapterError("feishu_api_error", unknown ? "unknown" : "not_written");
+    const apiCode = (
+      typeof payload.code === "number" && Number.isSafeInteger(payload.code)
+    ) || (
+      typeof payload.code === "string" && /^[0-9]{1,12}$/u.test(payload.code)
+    ) ? String(payload.code) : "unknown";
+    throw new FeishuAdapterError(
+      `feishu_api_${operation}_${apiCode}`,
+      unknown ? "unknown" : "not_written",
+    );
   }
 
   private rawFields(record: StoredRawFeedback): Record<string, unknown> {
@@ -341,7 +358,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       },
       false,
     );
-    this.ensureSuccess(response, payload, false);
+    this.ensureSuccess(response, payload, false, "raw_search");
     const data = payload.data;
     const items = isObject(data) && Array.isArray(data.items) ? data.items : [];
     if (items.length === 0) return null;
@@ -362,7 +379,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       method: "POST",
       body: JSON.stringify({ fields: this.rawFields(record) }),
     }, true);
-    this.ensureSuccess(response, payload, true);
+    this.ensureSuccess(response, payload, true, "raw_create");
     const data = payload.data;
     const wire = this.wireRecord(isObject(data) ? data.record : null);
     return { record_id: wire.record_id };
@@ -394,7 +411,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       false,
     );
     if (response.status === 404) return null;
-    this.ensureSuccess(response, payload, false);
+    this.ensureSuccess(response, payload, false, "raw_read");
     const data = payload.data;
     const wire = this.wireRecord(isObject(data) ? data.record : null);
     return this.parseRawRecord(wire);
@@ -451,7 +468,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       },
       false,
     );
-    this.ensureSuccess(response, payload, false);
+    this.ensureSuccess(response, payload, false, "audit_search");
     const searchData = payload.data;
     const existing = isObject(searchData) && Array.isArray(searchData.items) ? searchData.items : [];
     if (existing.length === 0) return null;
@@ -476,7 +493,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       { method: "POST", body: JSON.stringify({ fields }) },
       true,
     );
-    this.ensureSuccess(response, payload, true);
+    this.ensureSuccess(response, payload, true, "audit_create");
   }
 
   async appendAiAudit(record: AuditRecord, operationKey: string): Promise<void> {
@@ -534,7 +551,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       },
       false,
     );
-    this.ensureSuccess(response, payload, false);
+    this.ensureSuccess(response, payload, false, "audit_latest_search");
     const data = payload.data;
     const items = isObject(data) && Array.isArray(data.items) ? data.items : [];
     if (items.length === 0) return null;
