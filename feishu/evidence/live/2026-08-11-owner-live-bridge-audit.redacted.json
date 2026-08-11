@@ -29,6 +29,10 @@
     "preexisting_match_count": 0,
     "postwrite_match_count": 1,
     "created_this_run": true,
+    "replay_preexisting_match_count": 1,
+    "replay_postwrite_match_count": 1,
+    "replay_created_record": false,
+    "idempotent_replay_verified": true,
     "business_write_count": 0,
     "audit_write_count": 1,
     "readback_verified": true
