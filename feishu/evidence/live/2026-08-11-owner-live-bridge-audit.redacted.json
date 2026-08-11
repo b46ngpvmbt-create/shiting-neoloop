@@ -1,0 +1,62 @@
+{
+  "schema_version": "owner_live_bridge_audit_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "raw_provider_output_retained": false,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_used": false,
+  "automatic_compensation_used": false,
+  "final_root_cause_used": false,
+  "notification_sent": false,
+  "bridge_run": {
+    "profile_id": "n1-default",
+    "candidate_source_class": "local_synthetic_fixture",
+    "feishu_model_candidate_claimed": false,
+    "classification": "exact_14_ready_for_owner_confirmation",
+    "attempt_count": 1,
+    "exact_14_valid": true,
+    "planned_business_write_count": 0,
+    "planned_audit_write_count": 1,
+    "issue_codes": []
+  },
+  "live_write": {
+    "target_table": "AI 审计",
+    "operation": "idempotent_create_by_deterministic_run_id",
+    "preexisting_match_count": 0,
+    "postwrite_match_count": 1,
+    "created_this_run": true,
+    "business_write_count": 0,
+    "audit_write_count": 1,
+    "readback_verified": true
+  },
+  "record_counts_after_write": {
+    "vehicles": 8,
+    "delivery_tasks": 12,
+    "routing_matrix": 20,
+    "knowledge_index": 4,
+    "raw_feedback": 32,
+    "cases": 23,
+    "work_orders": 28,
+    "clusters": 10,
+    "improvements": 10,
+    "ai_audit": 9,
+    "total": 156
+  },
+  "workflow_state_after_write": {
+    "total": 6,
+    "enabled": 0,
+    "disabled": 6
+  },
+  "acceptance_boundaries": {
+    "deterministic_bridge_to_live_audit_verified": true,
+    "feishu_candidate_to_exact_14_verified": false,
+    "raw_feedback_case_work_order_chain_completed": false,
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
