@@ -1,0 +1,111 @@
+{
+  "schema_version": "owner_live_w6_cross_event_unit_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "raw_provider_output_retained": false,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "automatic_final_root_cause_used": false,
+  "notification_sent": false,
+  "workflow": {
+    "name": "W6 问题簇与复发监测",
+    "status_after_test": "disabled",
+    "total_step_count": 12,
+    "cross_event_branch_step_count": 8,
+    "automatic_business_write_steps_in_tested_branch": 0,
+    "notification_steps_in_tested_branch": 0,
+    "definition_after_sha256": "97e00232d560eec416363f9cc0cfa282c0c3eea2da8312433cdc66939608d4e1"
+  },
+  "configuration_hardening": [
+    {
+      "reason": "broad_cross_event_lookup_would_exceed_safe_native_ai_input_boundary",
+      "workflow_definition_before_sha256": "3ab14fec08f320d9fe4fa5242f9e1cf2d05f7943377982b9c196484c3b5217d0",
+      "workflow_definition_after_sha256": "09b1fadd096a089731c9e8ad2f03fa04013fd545f76533350ee2b9a5b32e9f72",
+      "action": "replace_broad_queries_with_exact_synthetic_allowlists"
+    },
+    {
+      "reason": "text_contains_any_filter_returned_zero_exact_matches_in_native_workflow",
+      "workflow_definition_before_sha256": "09b1fadd096a089731c9e8ad2f03fa04013fd545f76533350ee2b9a5b32e9f72",
+      "workflow_definition_after_sha256": "97e00232d560eec416363f9cc0cfa282c0c3eea2da8312433cdc66939608d4e1",
+      "action": "replace_case_allowlist_with_exact_business_key_equality"
+    }
+  ],
+  "lookup_risk_readback": {
+    "closed_case_candidates_before_hardening": 9,
+    "cluster_candidates_before_hardening": 10,
+    "work_order_candidates_before_hardening": 28,
+    "approved_knowledge_candidates_before_hardening": 1,
+    "broad_bundle_sent_to_model": false
+  },
+  "live_runs": [
+    {
+      "fixture_ordinal": 1,
+      "status": "failed_safe",
+      "duration_seconds": 3.3,
+      "executed_step_count": 3,
+      "terminal_step": "closed_case_lookup",
+      "lookup_match_count": 0,
+      "issue_code": "text_contains_any_filter_no_exact_match",
+      "business_records_written_by_workflow": 0,
+      "notifications_sent": 0
+    },
+    {
+      "fixture_ordinal": 2,
+      "trigger_record_created": true,
+      "workflow_enabled_only_for_test_window": true,
+      "test_window_seconds": 55,
+      "workflow_disabled_after_test": true,
+      "execution_result": "not_claimed_without_machine_readable_run_log",
+      "business_write_success_claimed": false,
+      "notifications_sent": 0
+    }
+  ],
+  "dedicated_demo_fixtures": {
+    "case_count": 3,
+    "cluster_count": 1,
+    "work_order_count": 1,
+    "fixture_id_prefix": "SYN-LIVE-DEMO-W6-CROSS-",
+    "existing_141_record_baseline_modified": false,
+    "records_retained_for_demo": true
+  },
+  "server_readback_after_test": {
+    "record_counts": {
+      "vehicles": 8,
+      "delivery_tasks": 12,
+      "routing_matrix": 20,
+      "knowledge_index": 5,
+      "raw_feedback": 33,
+      "cases": 32,
+      "work_orders": 31,
+      "clusters": 11,
+      "improvements": 10,
+      "ai_audit": 9,
+      "total": 171
+    },
+    "workflows": {
+      "total": 6,
+      "enabled": 0,
+      "disabled": 6
+    }
+  },
+  "acceptance_boundaries": {
+    "cross_event_definition_saved": true,
+    "exact_synthetic_lookup_allowlists_saved": true,
+    "first_run_safe_stop_observed": true,
+    "second_run_trigger_created": true,
+    "second_run_completion_machine_verified": false,
+    "n5_cross_event_deterministic_candidate_validation_proven": false,
+    "n6_root_cause_deterministic_candidate_validation_proven": false,
+    "n7_deterministic_candidate_validation_proven": false,
+    "cluster_created_by_workflow": false,
+    "improvement_created_by_workflow": false,
+    "p03_second_identity": "waived_not_completed",
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
