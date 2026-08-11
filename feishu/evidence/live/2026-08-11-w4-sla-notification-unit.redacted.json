@@ -1,0 +1,83 @@
+{
+  "schema_version": "owner_live_w4_sla_notification_unit_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "message_receiver_identifier_redacted": true,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "business_record_updates_by_workflow": 0,
+  "workflow": {
+    "name": "W4 SLA 协同",
+    "step_count": 5,
+    "steps": [
+      "synthetic_work_order_trigger",
+      "related_case_lookup",
+      "sla_due_branch",
+      "overdue_owner_notification",
+      "due_soon_owner_notification"
+    ],
+    "message_receiver_count": 1,
+    "send_to_everyone": false,
+    "status_after_test": "disabled"
+  },
+  "configuration_hardening": {
+    "reason": "replace_disabled_config_label_before_live_synthetic_unit",
+    "workflow_definition_before_sha256": "681da36f068f22357f527d333f1906df4ff51be4ca4744d7d09d70330566f001",
+    "workflow_definition_after_sha256": "1459e7f617c63ae57c8850580365742130ee3b45bfbebb44b7cede6f80d3b897",
+    "message_prefix_after": "[SYNTHETIC][UNIT TEST]",
+    "step_count_changed": false,
+    "receiver_count_changed": false,
+    "business_write_step_count_after": 0
+  },
+  "live_unit": {
+    "fixture_id_prefix": "SYN-LIVE-DEMO-W4-",
+    "created_work_order_count": 1,
+    "linked_to_existing_synthetic_case": true,
+    "trigger_preconditions": {
+      "status": "处理中",
+      "data_scope": "synthetic_experiment",
+      "due_at_present": true,
+      "sla_reset_count": 0
+    },
+    "workflow_temporarily_enabled": true,
+    "workflow_disabled_after_wait": true,
+    "fixture_read_back_from_server": true,
+    "notification_action_configured": true,
+    "notification_delivery_confirmation": "pending_user_confirmation",
+    "workflow_run_log_api_available": false,
+    "business_records_written_by_workflow": 0
+  },
+  "server_readback_after_test": {
+    "record_counts": {
+      "vehicles": 8,
+      "delivery_tasks": 12,
+      "routing_matrix": 20,
+      "knowledge_index": 5,
+      "raw_feedback": 33,
+      "cases": 32,
+      "work_orders": 32,
+      "clusters": 11,
+      "improvements": 10,
+      "ai_audit": 9,
+      "total": 172
+    },
+    "workflows": {
+      "total": 6,
+      "enabled": 0,
+      "disabled": 6
+    }
+  },
+  "acceptance_boundaries": {
+    "w4_live_synthetic_trigger_executed": true,
+    "notification_delivery_verified": false,
+    "p07_completed": false,
+    "p03_second_identity": "waived_not_completed",
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
