@@ -1,0 +1,26 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "shiting-neoloop-connector-gateway",
+  "main": "./index.ts",
+  "compatibility_date": "2026-08-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "../../feishu/workbench-plugin/dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CONNECTOR_GATEWAY",
+        "class_name": "GatewayDurableObject"
+      }
+    ]
+  },
+  "exports": {
+    "GatewayDurableObject": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  }
+}

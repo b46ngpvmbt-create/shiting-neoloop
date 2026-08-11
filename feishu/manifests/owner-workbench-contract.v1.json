@@ -1,0 +1,406 @@
+{
+  "contract": "neoloop.owner-workbench-contract.v1",
+  "version": "1.0.0",
+  "project": "石听 NeoLoop",
+  "fact_class": "solution_design",
+  "data_scope": "synthetic_experiment",
+  "execution_policy": {
+    "default_mode": "plan_only",
+    "network_access": false,
+    "writes_executed": false,
+    "real_resource_identifiers_allowed_in_output": false,
+    "external_urls_allowed_in_output": false,
+    "credentials_allowed_in_output": false
+  },
+  "readback_contract": {
+    "contract": "neoloop.owner-workbench.readback.v1",
+    "redacted": true,
+    "exact_top_level_keys": [
+      "contract",
+      "redacted",
+      "tables",
+      "views",
+      "workflows",
+      "w2_readback"
+    ]
+  },
+  "baseline": {
+    "table_count": 10,
+    "field_count": 240,
+    "view_count": 5,
+    "view_count_semantics": "named_business_views_only",
+    "physical_view_count": 15,
+    "record_count": 178,
+    "workflow_counts": {
+      "total": 6,
+      "enabled": 0,
+      "disabled": 6
+    },
+    "tables": [
+      { "table_key": "raw_feedback", "field_count": 25, "record_count": 33 },
+      { "table_key": "cases", "field_count": 40, "record_count": 32 },
+      { "table_key": "work_orders", "field_count": 27, "record_count": 32 },
+      { "table_key": "clusters", "field_count": 26, "record_count": 13 },
+      { "table_key": "improvements", "field_count": 23, "record_count": 10 },
+      { "table_key": "vehicles", "field_count": 19, "record_count": 8 },
+      { "table_key": "delivery_tasks", "field_count": 20, "record_count": 12 },
+      { "table_key": "routing_matrix", "field_count": 21, "record_count": 20 },
+      { "table_key": "knowledge_index", "field_count": 19, "record_count": 5 },
+      { "table_key": "ai_audit", "field_count": 20, "record_count": 13 }
+    ],
+    "view_keys": [
+      "feedback_inbox",
+      "case_cockpit",
+      "sla_board",
+      "issue_map",
+      "improvement_tracking"
+    ],
+    "default_view_keys": [
+      "default_raw_feedback",
+      "default_cases",
+      "default_work_orders",
+      "default_clusters",
+      "default_improvements",
+      "default_vehicles",
+      "default_delivery_tasks",
+      "default_routing_matrix",
+      "default_knowledge_index",
+      "default_ai_audit"
+    ],
+    "workflow_keys": ["W1", "W2", "W3", "W4", "W5", "W6"]
+    ,
+    "w2_readback": {
+      "workflow_key": "W2",
+      "title": "W2 风险分诊",
+      "status": "disabled",
+      "step_types": [
+        "ChangeRecordTrigger",
+        "GenerateAiTextAction",
+        "GenerateAiTextAction",
+        "GenerateAiTextAction"
+      ]
+    }
+  },
+  "schema_migration": {
+    "kind": "additive_fields_only",
+    "existing_record_policy": "no_backfill_no_rewrite",
+    "field_additions": [
+      {
+        "table_key": "raw_feedback",
+        "field_name": "connector_id",
+        "field_type": "text",
+        "required_for_new_ingest": true,
+        "hidden_by_default": true,
+        "backfill": "none",
+        "writer": "private_worker"
+      },
+      {
+        "table_key": "raw_feedback",
+        "field_name": "connector_transport",
+        "field_type": "single_select",
+        "allowed_values": ["webhook", "polling", "batch", "manual"],
+        "required_for_new_ingest": true,
+        "hidden_by_default": true,
+        "backfill": "none",
+        "writer": "private_worker"
+      },
+      {
+        "table_key": "raw_feedback",
+        "field_name": "source_type",
+        "field_type": "single_select",
+        "allowed_values": [
+          "service_rating",
+          "vehicle_event",
+          "fault_report",
+          "service_ticket",
+          "customer_group",
+          "hotline_transcript",
+          "email",
+          "partner_feedback",
+          "public_review",
+          "manual_note"
+        ],
+        "required_for_new_ingest": true,
+        "hidden_by_default": true,
+        "backfill": "none",
+        "writer": "private_worker"
+      },
+      {
+        "table_key": "raw_feedback",
+        "field_name": "attachment_manifest",
+        "field_type": "long_text_json",
+        "required_for_new_ingest": true,
+        "hidden_by_default": true,
+        "backfill": "none",
+        "writer": "private_worker"
+      },
+      {
+        "table_key": "ai_audit",
+        "field_name": "object_type",
+        "field_type": "single_select",
+        "allowed_values": ["raw_feedback", "case", "work_order", "cluster", "improvement", "knowledge"],
+        "required_for_new_ingest": false,
+        "hidden_by_default": true,
+        "backfill": "none",
+        "writer": "private_worker"
+      },
+      {
+        "table_key": "ai_audit",
+        "field_name": "object_id",
+        "field_type": "text",
+        "required_for_new_ingest": false,
+        "hidden_by_default": true,
+        "backfill": "none",
+        "writer": "private_worker"
+      },
+      {
+        "table_key": "ai_audit",
+        "field_name": "review_action",
+        "field_type": "single_select",
+        "allowed_values": ["pending", "approved", "rejected", "revision_requested"],
+        "required_for_new_ingest": false,
+        "hidden_by_default": false,
+        "backfill": "none",
+        "writer": "authorized_human"
+      },
+      {
+        "table_key": "ai_audit",
+        "field_name": "reviewed_by",
+        "field_type": "text",
+        "required_for_new_ingest": false,
+        "hidden_by_default": false,
+        "backfill": "none",
+        "writer": "authorized_human"
+      },
+      {
+        "table_key": "ai_audit",
+        "field_name": "reviewed_at",
+        "field_type": "datetime",
+        "required_for_new_ingest": false,
+        "hidden_by_default": false,
+        "backfill": "none",
+        "writer": "authorized_human"
+      }
+    ],
+    "expected_post_state": {
+      "table_count": 10,
+      "field_count": 249,
+      "view_count": 5,
+      "view_count_semantics": "named_business_views_only",
+      "physical_view_count": 15,
+      "record_count": 178,
+      "workflow_counts": {
+        "total": 6,
+        "enabled": 0,
+        "disabled": 6
+      },
+      "existing_records_unchanged": true
+    },
+    "rollback": {
+      "strategy": "retain_additive_fields",
+      "record_deletes": false,
+      "field_deletes": false
+    }
+  },
+  "w2_analysis": {
+    "workflow_ref": "logical://workflows/W2",
+    "name": "W2 风险分诊",
+    "replacement_state": "disabled",
+    "trigger": {
+      "type": "AddRecordTrigger",
+      "table_name": "原始反馈",
+      "watched_field_name": "feedback_id",
+      "required_equalities": {
+        "data_scope": "synthetic_experiment",
+        "processing_status": "待分诊"
+      },
+      "required_non_empty_fields": [
+        "original_text",
+        "authorization_scope",
+        "source_record_id",
+        "connector_id",
+        "connector_transport",
+        "source_type"
+      ]
+    },
+    "candidate_top_level_keys": [
+      "payload",
+      "evidence_spans",
+      "missing_fields",
+      "confidence",
+      "status"
+    ],
+    "node_pipelines": [
+      {
+        "node": "N1",
+        "mode": "default",
+        "version": "N1-1.0.0-draft.2",
+        "prompt_contract_ref": "logical://prompts/N1/runtime-exact-5",
+        "input_bindings": ["original_text", "channel", "feedback_id"],
+        "validator_profile_ref": "logical://analysis-profiles/n1-default"
+      },
+      {
+        "node": "N2",
+        "mode": "default",
+        "version": "N2-1.0.0-draft.2",
+        "prompt_contract_ref": "logical://prompts/N2/default-exact-5",
+        "input_bindings": ["n1_exact_14", "taxonomy", "taxonomy_version"],
+        "validator_profile_ref": "logical://analysis-profiles/n2-default"
+      },
+      {
+        "node": "N3",
+        "mode": "default",
+        "version": "N3-1.0.0-draft.2",
+        "prompt_contract_ref": "logical://prompts/N3/default-exact-5",
+        "input_bindings": ["original_text", "n1_exact_14", "hard_rule_result"],
+        "validator_profile_ref": "logical://analysis-profiles/n3-default"
+      }
+    ],
+    "attempt_policy": {
+      "max_attempts_per_node": 2,
+      "repair_attempts": 1,
+      "second_failure": "stop_needs_human",
+      "third_attempt_allowed": false
+    },
+    "validator_action": {
+      "type": "HTTPClientAction",
+      "origin_placeholder": "{{OWNER_ANALYSIS_API_ORIGIN}}",
+      "authorization_placeholder": "{{OWNER_ANALYSIS_AUTHORIZATION}}",
+      "method": "POST",
+      "body_type": "raw",
+      "content_type": "application/json",
+      "request_contract": "neoloop.w2-analysis-attempt.v1",
+      "request_exact_top_level_keys": [
+        "contract",
+        "operation",
+        "record_id",
+        "profile_id",
+        "node",
+        "attempt",
+        "candidate"
+      ],
+      "candidate_transport": "nested_exact_5_json_object",
+      "response_contract": "neoloop.w2-analysis-attempt-result.v1",
+      "response_exact_top_level_keys": [
+        "contract",
+        "operation",
+        "record_id",
+        "profile_id",
+        "node",
+        "object_ref",
+        "attempt",
+        "route",
+        "classification",
+        "continue",
+        "retry",
+        "repair_errors",
+        "envelope",
+        "envelope_json",
+        "hard_rule_result_json",
+        "business_write_count",
+        "audit_write_count"
+      ],
+      "route_enum": ["continue", "retry", "stop"],
+      "repair_error_codes": [
+        "candidate_validation_failed",
+        "candidate_injection_boundary_violation",
+        "exact_14_invalid",
+        "internal_validation_error"
+      ],
+      "syntax_invalid_transport_behavior": "feishu_http_step_fails_closed_before_gateway"
+    },
+    "deterministic_hard_rule": {
+      "position": "after_N2_before_N3",
+      "type": "worker_response_field",
+      "response_field": "hard_rule_result_json",
+      "required_when": "N2_continue",
+      "null_for_nodes": ["N1", "N3"],
+      "model_called": false,
+      "writes": []
+    },
+    "write_policy": {
+      "feishu_native_business_writes": [],
+      "worker_allowed_tables": ["AI 审计"],
+      "worker_forbidden_tables": ["原始反馈", "反馈案件", "处置工单", "问题簇", "改进项目"],
+      "messages_or_notifications": false
+    },
+    "forbidden_action_types": [
+      "AddRecordAction",
+      "SetRecordAction",
+      "DeleteRecordAction",
+      "LarkMessageAction",
+      "NotificationAction"
+    ],
+    "required_bindings": [
+      {
+        "placeholder": "{{CURRENT_W2_WORKFLOW_ID}}",
+        "kind": "existing_workflow_resource",
+        "preserve_existing": true,
+        "usage": "workflow_update_and_enable_cli_flag_only",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{OWNER_ANALYSIS_API_ORIGIN}}",
+        "kind": "deployment_origin",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{OWNER_ANALYSIS_AUTHORIZATION}}",
+        "kind": "deployment_credential",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{FIELD_original_text}}",
+        "kind": "trigger_field_reference",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{FIELD_channel}}",
+        "kind": "trigger_field_reference",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{PROMPT_N1_EXACT5}}",
+        "kind": "prompt_text",
+        "source_ref": "feishu/prompts/n1-owner-w2-runtime-exact-5.txt",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{PROMPT_N2_EXACT5}}",
+        "kind": "prompt_text",
+        "source_ref": "feishu/prompts/n2-default-owner-first-exact-5.txt",
+        "emit_value": false
+      },
+      {
+        "placeholder": "{{PROMPT_N3_EXACT5}}",
+        "kind": "prompt_text",
+        "source_ref": "feishu/prompts/n3-default-owner-first-exact-5.txt",
+        "emit_value": false
+      }
+    ],
+    "rollback": {
+      "source": "current_w2_readback",
+      "workflow_resource_binding": "{{CURRENT_W2_WORKFLOW_ID}}",
+      "title": "W2 风险分诊",
+      "status": "disabled",
+      "step_types": [
+        "ChangeRecordTrigger",
+        "GenerateAiTextAction",
+        "GenerateAiTextAction",
+        "GenerateAiTextAction"
+      ],
+      "restore_full_definition_required": true,
+      "execute": false
+    },
+    "activation": {
+      "kind": "enable_workflow",
+      "workflow_ref": "logical://workflows/W2",
+      "workflow_resource_binding": "{{CURRENT_W2_WORKFLOW_ID}}",
+      "separate_action": true,
+      "execute": false,
+      "required_pre_state": { "total": 6, "enabled": 0, "disabled": 6 },
+      "expected_post_state": { "total": 6, "enabled": 1, "disabled": 5 },
+      "rollback": { "kind": "disable_workflow", "execute": false }
+    }
+  }
+}
