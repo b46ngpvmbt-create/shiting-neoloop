@@ -645,6 +645,44 @@ test("Feishu adapter classifies network failures without echoing raw exception d
   }
 });
 
+test("Feishu adapter binds the runtime fetch receiver when no test transport is injected", async () => {
+  const originalFetch = globalThis.fetch;
+  let searchReached = false;
+  globalThis.fetch = function runtimeFetch(input) {
+    if (this !== globalThis) throw new TypeError("Illegal invocation: incorrect fetch receiver");
+    const url = String(input);
+    if (url.endsWith("/tenant_access_token/internal/")) {
+      return Promise.resolve(jsonResponse({
+        code: 0,
+        tenant_access_token: "synthetic-tenant-token",
+        expire: 7140,
+      }));
+    }
+    if (url.includes("/records/search")) {
+      searchReached = true;
+      return Promise.resolve(jsonResponse({ code: 0, data: { items: [] } }));
+    }
+    throw new Error(`Unexpected mock URL ${url}`);
+  };
+  try {
+    const adapter = new FeishuOpenApiAdapter({
+      app_id: "synthetic-app-id",
+      app_secret: "synthetic-app-secret-never-log",
+      app_token: "synthetic-base-token",
+      raw_feedback_table_id: "synthetic-raw-table",
+      ai_audit_table_id: "synthetic-audit-table",
+      raw_feedback_fields: identityFieldMap(RAW_FEEDBACK_FIELD_KEYS),
+      ai_audit_fields: identityFieldMap(AI_AUDIT_FIELD_KEYS),
+      api_origin: "https://open.feishu.invalid",
+      now: () => new Date(NOW),
+    });
+    assert.equal(await adapter.findByIdempotencyKey("b".repeat(64)), null);
+    assert.equal(searchReached, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("production Feishu adapter gets an app token, creates with a stable client_token, and exact-reads back", async () => {
   const record = storedFeedback();
   const calls = [];

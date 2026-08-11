@@ -170,7 +170,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     }
     assertFieldMap(RAW_FEEDBACK_FIELD_KEYS, config.raw_feedback_fields, "raw_feedback_fields");
     assertFieldMap(AI_AUDIT_FIELD_KEYS, config.ai_audit_fields, "ai_audit_fields");
-    this.fetchImpl = config.fetch_impl ?? fetch;
+    this.fetchImpl = config.fetch_impl ?? globalThis.fetch.bind(globalThis);
     this.apiOrigin = (config.api_origin ?? "https://open.feishu.cn").replace(/\/$/u, "");
     this.timeoutMs = config.request_timeout_ms ?? 8_000;
     this.now = config.now ?? (() => new Date());
