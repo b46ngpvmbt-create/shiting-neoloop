@@ -629,6 +629,22 @@ function jsonResponse(body, status = 200) {
   });
 }
 
+test("Feishu adapter classifies network failures without echoing raw exception details", async () => {
+  const cases = [
+    [new TypeError("Illegal invocation: synthetic detail"), "feishu_fetch_invocation_error"],
+    [new TypeError("Network connection lost: synthetic detail"), "feishu_network_connection_lost"],
+    [new TypeError("DNS lookup failed: synthetic detail"), "feishu_network_dns_error"],
+    [new TypeError("TLS certificate rejected: synthetic detail"), "feishu_network_tls_error"],
+  ];
+  for (const [failure, code] of cases) {
+    const adapter = openApiAdapter(async () => { throw failure; });
+    await assert.rejects(
+      () => adapter.findByIdempotencyKey("b".repeat(64)),
+      (error) => error.code === code && !error.message.includes("synthetic detail"),
+    );
+  }
+});
+
 test("production Feishu adapter gets an app token, creates with a stable client_token, and exact-reads back", async () => {
   const record = storedFeedback();
   const calls = [];

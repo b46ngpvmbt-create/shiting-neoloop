@@ -135,6 +135,22 @@ function clientToken(idempotencyKey: string): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
 
+function classifyNetworkFailure(error: unknown): string {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return "feishu_network_timeout";
+  }
+  if (error instanceof Error) {
+    const description = `${error.name}:${error.message}`.toLowerCase();
+    if (description.includes("illegal invocation")) return "feishu_fetch_invocation_error";
+    if (description.includes("network connection lost")) return "feishu_network_connection_lost";
+    if (description.includes("dns")) return "feishu_network_dns_error";
+    if (description.includes("tls") || description.includes("certificate")) {
+      return "feishu_network_tls_error";
+    }
+  }
+  return "feishu_network_error";
+}
+
 export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAnalysisPort {
   private readonly fetchImpl: typeof fetch;
   private readonly apiOrigin: string;
@@ -165,8 +181,8 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     const timer = setTimeout(() => abort.abort(), this.timeoutMs);
     try {
       return await this.fetchImpl(url, { ...init, signal: abort.signal });
-    } catch {
-      throw new FeishuAdapterError("feishu_network_error", write ? "unknown" : "not_written");
+    } catch (error) {
+      throw new FeishuAdapterError(classifyNetworkFailure(error), write ? "unknown" : "not_written");
     } finally {
       clearTimeout(timer);
     }
