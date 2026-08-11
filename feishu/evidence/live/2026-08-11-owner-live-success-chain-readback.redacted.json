@@ -1,0 +1,92 @@
+{
+  "schema_version": "owner_live_success_chain_readback.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "notification_sent": false,
+  "success_chain": {
+    "feedback_id": "SYN-LIVE-DEMO-FEEDBACK-002",
+    "feedback_record_count": 1,
+    "feedback_status": "已建案",
+    "feedback_case_relation_present": true,
+    "case_id": "SYN-LIVE-DEMO-CASE-001",
+    "case_record_count": 1,
+    "case_status": "处理中",
+    "entity_confirmation_status": "owner_confirmed_synthetic",
+    "work_order_id": "SYN-LIVE-DEMO-WORK-001",
+    "work_order_record_count": 1,
+    "work_order_status": "待接单",
+    "case_work_order_relation_present": true,
+    "all_business_records_synthetic": true
+  },
+  "ai_audit_readback": {
+    "record_count": 6,
+    "all_records_synthetic": true,
+    "all_validation_payloads_present": true,
+    "records": [
+      {
+        "object_type": "raw_feedback",
+        "node": "N1",
+        "status": "ok",
+        "retry_count": 0
+      },
+      {
+        "object_type": "raw_feedback",
+        "node": "N2",
+        "status": "ok",
+        "retry_count": 0
+      },
+      {
+        "object_type": "raw_feedback",
+        "node": "N3",
+        "status": "ok",
+        "retry_count": 0
+      },
+      {
+        "object_type": "case",
+        "node": "N4",
+        "status": "error",
+        "retry_count": 0
+      },
+      {
+        "object_type": "case",
+        "node": "N4",
+        "status": "ok",
+        "retry_count": 1
+      },
+      {
+        "object_type": "case",
+        "node": "N6",
+        "status": "ok",
+        "retry_count": 0
+      }
+    ]
+  },
+  "base_state_after_readback": {
+    "table_count": 10,
+    "total_record_count": 156,
+    "raw_feedback_count": 32,
+    "case_count": 23,
+    "work_order_count": 28,
+    "cluster_count": 10,
+    "improvement_count": 10,
+    "ai_audit_count": 9,
+    "workflow_total": 6,
+    "workflow_enabled": 0,
+    "workflow_disabled": 6
+  },
+  "acceptance_boundaries": {
+    "p03_second_identity": "waived_not_completed",
+    "owner_synthetic_success_chain_readback_verified": true,
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false,
+    "exactly_once_production_claimed": false,
+    "routing_responsibility_finalized": false
+  }
+}
