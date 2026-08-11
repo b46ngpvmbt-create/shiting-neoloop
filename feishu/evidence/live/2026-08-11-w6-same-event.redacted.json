@@ -1,0 +1,93 @@
+{
+  "schema_version": "owner_live_w6_same_event_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "raw_provider_output_retained": false,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_merge_used": false,
+  "automatic_relink_used": false,
+  "notification_sent": false,
+  "workflow_configuration": {
+    "workflow": "W6",
+    "title": "W6 问题簇与复发监测",
+    "status": "disabled",
+    "step_count_before": 9,
+    "step_count_after": 12,
+    "same_event_branch_added": true,
+    "same_event_lookup_added": true,
+    "n5_same_event_node_added": true,
+    "human_stop_after_n5": true,
+    "existing_cross_event_steps_preserved": 8,
+    "unsafe_record_or_message_steps_added": 0,
+    "prompt_variable_binding_count": 4
+  },
+  "workflow_state_after_update": {
+    "total": 6,
+    "enabled": 0,
+    "disabled": 6
+  },
+  "dedicated_demo_fixtures": {
+    "case_count": 2,
+    "case_id_prefix": "SYN-LIVE-DEMO-W6-CASE-",
+    "workflow_readiness": "awaiting_same_event_check",
+    "formal_entity_confirmation_status": "owner_confirmed_synthetic",
+    "record_mode": "owner_live_demo",
+    "existing_baseline_records_modified": 0,
+    "cluster_links_created": 0
+  },
+  "live_candidate_preview": {
+    "workflow_executed": false,
+    "feishu_test_data_row_count": 3,
+    "dedicated_demo_fixtures_selected_by_test_generator": false,
+    "model_attempt_count": 2,
+    "attempt_1": {
+      "candidate_top_level_shape_valid": true,
+      "evidence_shape_valid": false,
+      "failure_class": "evidence_field_aliases_not_allowed"
+    },
+    "repair_instruction_persisted": true,
+    "attempt_2": {
+      "candidate_top_level_shape_valid": true,
+      "evidence_shape_valid": true,
+      "safe_boolean_boundary_valid": true,
+      "deterministic_validation_valid": false,
+      "failure_class": "confirmed_entity_conflict"
+    },
+    "final_classification": "needs_human",
+    "exact_14_generated": false,
+    "business_write_count": 0,
+    "audit_write_count": 0
+  },
+  "record_counts_after_preview": {
+    "vehicles": 8,
+    "delivery_tasks": 12,
+    "routing_matrix": 20,
+    "knowledge_index": 4,
+    "raw_feedback": 32,
+    "cases": 23,
+    "work_orders": 28,
+    "clusters": 10,
+    "improvements": 10,
+    "ai_audit": 8,
+    "total": 155
+  },
+  "preview_delta": {
+    "dedicated_case_fixtures": 2,
+    "business_records_created_by_n5_preview": 0,
+    "ai_audit_rows_created_by_n5_preview": 0,
+    "clusters_created": 0,
+    "improvements_created": 0
+  },
+  "acceptance_boundaries": {
+    "w6_same_event_configured_disabled": true,
+    "w6_same_event_candidate_successfully_validated": false,
+    "w6_same_event_runtime_completed": false,
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
