@@ -804,6 +804,7 @@ export class GatewayController {
       );
       return result(error instanceof FeishuAdapterError ? 503 : 500, {
         error: error instanceof FeishuAdapterError ? "upstream_not_written" : "internal_error",
+        ...(error instanceof FeishuAdapterError ? { upstream_error_code: errorCode } : {}),
         receipt_id: receipt.receipt_id,
       });
     }

@@ -527,6 +527,7 @@ test("definite Feishu failures are dead-lettered with hashes and codes but never
   const failedBody = await failed.json();
   assert.equal(failed.status, 503);
   assert.equal(failedBody.error, "upstream_not_written");
+  assert.equal(failedBody.upstream_error_code, "synthetic_forbidden");
   assert.equal(feishu.recordsByKey.size, 0);
   assert.equal(store.deadLetters.length, 1);
   assert.equal(store.deadLetters[0].error_code, "synthetic_forbidden");
