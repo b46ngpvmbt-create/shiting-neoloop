@@ -1,0 +1,107 @@
+{
+  "schema_version": "owner_live_demo_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "notification_sent": false,
+  "workflow_state_after_run": {
+    "total": 6,
+    "enabled": 0,
+    "disabled": 6
+  },
+  "failure_chain": {
+    "feedback_id": "SYN-LIVE-DEMO-FEEDBACK-001",
+    "n1_validated": true,
+    "n2_validated": true,
+    "n3_attempt_count": 2,
+    "n3_classification": "needs_human",
+    "n3_business_write_count": 0,
+    "case_created": false,
+    "work_order_created": false,
+    "failure_reason_class": "candidate_schema_and_binding_invalid_after_one_repair"
+  },
+  "success_chain": {
+    "feedback_id": "SYN-LIVE-DEMO-FEEDBACK-002",
+    "case_id": "SYN-LIVE-DEMO-CASE-001",
+    "work_order_id": "SYN-LIVE-DEMO-WORK-001",
+    "validated_nodes": [
+      "N1",
+      "N2",
+      "N3",
+      "N4",
+      "N6:responsibility_routing"
+    ],
+    "n4_retry_count": 1,
+    "n6_route_candidate_count": 2,
+    "responsibility_finalized": false,
+    "work_order_status": "待接单",
+    "work_order_assignment_state": "pending_human_validation",
+    "feedback_case_link_count": 1,
+    "case_work_order_link_count": 1,
+    "success_chain_ai_audit_count": 6
+  },
+  "idempotency_checks": {
+    "same_key_same_content": "return_existing",
+    "same_key_different_content": "idempotency_conflict",
+    "duplicate_feedback_count": 0,
+    "duplicate_case_count": 0,
+    "duplicate_work_order_count": 0,
+    "business_write_count_for_conflict": 0
+  },
+  "prompt_injection_check": {
+    "classification": "needs_human",
+    "attempt_count": 1,
+    "business_write_count": 0,
+    "audit_write_count": 0,
+    "envelope_generated": false
+  },
+  "record_counts_after_run": {
+    "vehicles": 8,
+    "delivery_tasks": 12,
+    "routing_matrix": 20,
+    "knowledge_index": 4,
+    "raw_feedback": 32,
+    "cases": 21,
+    "work_orders": 28,
+    "clusters": 10,
+    "improvements": 10,
+    "ai_audit": 8,
+    "total": 153
+  },
+  "safari_visibility": {
+    "v01_feedback_inbox_opened": true,
+    "v02_case_cockpit_opened": true,
+    "v03_sla_board_opened": true,
+    "ai_audit_table_opened": true,
+    "ai_audit_visible_row_count": 8
+  },
+  "workflow_configuration_readback": {
+    "workflow_write_scope_granted": true,
+    "w1_idempotency_skeleton_preserved": true,
+    "w2_status": "disabled",
+    "w2_step_count": 4,
+    "w2_n1_dynamic_input_binding": true,
+    "w2_n2_exact_5_prompt_configured": true,
+    "w2_n3_fail_closed_without_local_hard_rule": true,
+    "w3_status": "disabled",
+    "w3_step_count": 6,
+    "w3_lookup_count": 3,
+    "w3_n6_mode": "responsibility_routing",
+    "record_write_steps_added": 0,
+    "notifications_sent": 0,
+    "workflows_enabled_during_update": 0
+  },
+  "acceptance_boundaries": {
+    "p03_second_identity": "waived_not_completed",
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false,
+    "workflow_write_configuration_persisted": true,
+    "workflow_write_configuration_blocker": null
+  }
+}
