@@ -1,0 +1,57 @@
+{
+  "schema_version": "owner_live_p08_knowledge_review_fallback_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "automatic_publication_used": false,
+  "automatic_customer_reply_sent": false,
+  "review": {
+    "kind": "base_knowledge_index_human_review",
+    "user_decision_source": "conversation_attestation",
+    "user_decision": "approve_and_retain",
+    "fixture_id": "SYN-LIVE-DEMO-KNOWLEDGE-001",
+    "title": "舱门无法解锁客户回复边界（合成）",
+    "version": "1.0",
+    "applicable_scope": "synthetic_experiment_only",
+    "approval_status_after": "已审核",
+    "citation_allowed_for_n7_after": "true",
+    "record_write_count_for_confirmation": 0,
+    "publication_action_count": 0,
+    "customer_message_count": 0
+  },
+  "server_readback": {
+    "knowledge_record_count": 5,
+    "approved_citable_synthetic_count": 1,
+    "pending_non_citable_synthetic_count": 4,
+    "target_exact_readback_count": 1,
+    "target_data_scope": "synthetic_experiment",
+    "target_evidence_class": "synthetic_experiment",
+    "workflows": {
+      "total": 6,
+      "enabled": 0,
+      "disabled": 6
+    }
+  },
+  "cross_evidence": {
+    "w5_safe_stop_without_approved_knowledge": "feishu/evidence/live/2026-08-11-w5-unit.redacted.json",
+    "w5_n7_draft_with_approved_knowledge": "feishu/evidence/live/2026-08-11-w5-unit.redacted.json",
+    "w6_n7_deterministic_audit": "feishu/evidence/live/2026-08-11-w6-cross-event-owner-bridge-audit.redacted.json",
+    "unreviewed_knowledge_formal_publication_count": 0
+  },
+  "acceptance_boundaries": {
+    "p08_execution_status": "completed",
+    "p08_result": "受限",
+    "native_knowledge_space_capability_verified": false,
+    "base_knowledge_index_fallback_verified": true,
+    "human_review_verified": true,
+    "automatic_publication_verified": false,
+    "p03_second_identity": "waived_not_completed",
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
