@@ -1,0 +1,86 @@
+{
+  "schema_version": "owner_live_p06_human_confirmation_fallback_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "final_root_cause_claimed": false,
+  "native_approval_discovery": {
+    "approval_read_scope_machine_verified": true,
+    "launchable_template_count": 7,
+    "neoloop_suitable_template_count": 0,
+    "unrelated_template_reused": false,
+    "native_approval_instance_created": false
+  },
+  "fallback": {
+    "kind": "base_human_status_confirmation",
+    "result": "completed_restricted",
+    "restriction_reason": "no_suitable_native_approval_template_and_no_dedicated_reviewer_or_review_time_fields_in_frozen_240_field_schema",
+    "field_level_permission_machine_verified": false,
+    "user_decision_source": "conversation_attestation",
+    "controller_write_path": "lark_cli_openapi_user_identity",
+    "workflow_used": false
+  },
+  "synthetic_candidates": [
+    {
+      "fixture_id": "SYN-LIVE-DEMO-P06-APPROVE-001",
+      "initial_status": "候选",
+      "user_decision": "approve",
+      "final_status": "待审核",
+      "exact_server_readback_count": 1,
+      "improvement_created": false,
+      "knowledge_published": false
+    },
+    {
+      "fixture_id": "SYN-LIVE-DEMO-P06-REJECT-001",
+      "initial_status": "候选",
+      "user_decision": "reject",
+      "final_status": "已驳回",
+      "exact_server_readback_count": 1,
+      "improvement_created": false,
+      "knowledge_published": false
+    }
+  ],
+  "safety_result": {
+    "formal_status_changed_before_user_decision": false,
+    "automatic_business_transition_count": 0,
+    "improvement_created_count": 0,
+    "knowledge_published_count": 0,
+    "notification_sent_count": 0,
+    "existing_baseline_records_modified": false
+  },
+  "server_state_after_test": {
+    "record_counts": {
+      "vehicles": 8,
+      "delivery_tasks": 12,
+      "routing_matrix": 20,
+      "knowledge_index": 5,
+      "raw_feedback": 33,
+      "cases": 32,
+      "work_orders": 32,
+      "clusters": 13,
+      "improvements": 10,
+      "ai_audit": 13,
+      "total": 178
+    },
+    "workflows": {
+      "total": 6,
+      "enabled": 0,
+      "disabled": 6
+    }
+  },
+  "acceptance_boundaries": {
+    "p06_execution_status": "completed",
+    "p06_result": "受限",
+    "native_approval_capability_verified": false,
+    "base_human_confirmation_fallback_verified": true,
+    "p03_second_identity": "waived_not_completed",
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
