@@ -1,0 +1,110 @@
+{
+  "schema_version": "owner_live_w3_unit_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "raw_provider_output_retained": false,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "notification_sent": false,
+  "workflow": {
+    "name": "W3 关联派单",
+    "status_after_test": "disabled",
+    "step_count": 6,
+    "steps": [
+      "synthetic_case_trigger",
+      "vehicle_candidate_lookup",
+      "task_candidate_lookup",
+      "routing_candidate_lookup",
+      "n4_entity_association",
+      "n6_responsibility_routing"
+    ],
+    "automatic_business_write_steps": 0,
+    "notification_steps": 0
+  },
+  "configuration_hardening": {
+    "reason": "native_ai_input_length_limit",
+    "workflow_definition_before_sha256": "e339f6d1e774c4b1925d98cfc150fe8421abb9c2b33f96c50c5285d0f107b63f",
+    "workflow_definition_after_sha256": "9f4ae9bce11863757a07fee8ba52dbf9233d5643d0bce190e2fa3d0bb638c083",
+    "lookup_projection_field_counts": {
+      "vehicles": 3,
+      "delivery_tasks": 3,
+      "routing_matrix": 4
+    },
+    "business_fields_changed": 0
+  },
+  "live_runs": [
+    {
+      "fixture_ordinal": 1,
+      "status": "failed_safe",
+      "duration_seconds": 3.6,
+      "terminal_step": "n4_entity_association",
+      "issue_code": "native_ai_input_length_limit",
+      "business_records_written_by_workflow": 0,
+      "notifications_sent": 0
+    },
+    {
+      "fixture_ordinal": 2,
+      "status": "operator_stopped",
+      "duration_seconds": 30.9,
+      "n4_completed": true,
+      "terminal_step": "n6_responsibility_routing",
+      "issue_code": "workflow_disabled_during_execution",
+      "business_records_written_by_workflow": 0,
+      "notifications_sent": 0
+    },
+    {
+      "fixture_ordinal": 3,
+      "status": "success",
+      "duration_seconds": 38.6,
+      "executed_step_count": 6,
+      "n4_duration_seconds": 13.7,
+      "n6_duration_seconds": 20.1,
+      "business_records_written_by_workflow": 0,
+      "notifications_sent": 0
+    }
+  ],
+  "dedicated_demo_fixtures": {
+    "case_count_created_for_w3": 3,
+    "fixture_id_prefix": "SYN-LIVE-DEMO-W3-",
+    "existing_141_record_baseline_modified": false,
+    "records_retained_for_demo": true
+  },
+  "server_readback_after_test": {
+    "record_counts": {
+      "vehicles": 8,
+      "delivery_tasks": 12,
+      "routing_matrix": 20,
+      "knowledge_index": 5,
+      "raw_feedback": 33,
+      "cases": 26,
+      "work_orders": 30,
+      "clusters": 10,
+      "improvements": 10,
+      "ai_audit": 9,
+      "total": 163
+    },
+    "workflows": {
+      "total": 6,
+      "enabled": 0,
+      "disabled": 6
+    }
+  },
+  "acceptance_boundaries": {
+    "w3_native_unit_executed": true,
+    "three_lookup_steps_verified": true,
+    "n4_native_step_completed": true,
+    "n6_native_step_completed": true,
+    "n4_n6_outputs_persisted_to_business_records": false,
+    "n4_n6_deterministic_candidate_validation_proven": false,
+    "n4_n6_exact_14_generation_proven": false,
+    "work_order_created_by_w3": false,
+    "p03_second_identity": "waived_not_completed",
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false
+  }
+}
