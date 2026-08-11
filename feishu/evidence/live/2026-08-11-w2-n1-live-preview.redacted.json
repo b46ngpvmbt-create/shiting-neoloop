@@ -1,0 +1,65 @@
+{
+  "schema_version": "owner_live_n1_preview_evidence.v1",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "observed_on": "2026-08-11",
+  "identity_class": "owner_user",
+  "base_resource_identifiers_redacted": true,
+  "real_customer_data_used": false,
+  "vehicle_control_used": false,
+  "automatic_liability_or_compensation_used": false,
+  "notification_sent": false,
+  "workflow": {
+    "name": "W2 风险分诊",
+    "status_after_preview": "disabled",
+    "step_count_after_preview": 4,
+    "repair_rule_persisted": true,
+    "definition_sha256_before_repair": "9643a516bfc14b020a4403676d96d81090dd786ab23f3ab028819b5cfa2fdcb4",
+    "definition_sha256_after_repair": "a8e7af0dabfafde16ebd0912e557f351c2e93580c6efc8fc906da04b1a7fb319"
+  },
+  "target_preview": {
+    "feedback_id": "SYN-LIVE-DEMO-FEEDBACK-001",
+    "model_call_count": 1,
+    "candidate_status": "ok",
+    "source_ref_matched": true,
+    "entity_clues_observed": true,
+    "candidate_shape_valid": false,
+    "invalid_shape_summary": [
+      "fact_spans_returned_as_string_array_instead_of_exact_object_array",
+      "request_evidence_span_index_returned_as_array_instead_of_single_integer"
+    ],
+    "local_bridge_classification": "needs_human",
+    "local_bridge_issue_codes": [
+      "candidate_validation_failed"
+    ],
+    "exact_14_generated": false,
+    "planned_business_write_count": 0,
+    "planned_audit_write_count": 0
+  },
+  "repair_boundary": {
+    "maximum_model_calls_per_target": 2,
+    "target_repair_call_completed": false,
+    "reason": "test_dialog_generated_a_different_synthetic_fixture_after_form_state_changed",
+    "different_fixture_result_not_counted_as_target_success": true,
+    "third_target_call_forbidden": true
+  },
+  "server_readback_after_preview": {
+    "table_count": 10,
+    "total_record_count": 156,
+    "raw_feedback_count": 32,
+    "case_count": 23,
+    "work_order_count": 28,
+    "ai_audit_count": 9,
+    "workflow_total": 6,
+    "workflow_enabled": 0,
+    "workflow_disabled": 6
+  },
+  "acceptance_boundaries": {
+    "p03_second_identity": "waived_not_completed",
+    "p04_p05_completed": false,
+    "production_ready": false,
+    "real_data_connected": false,
+    "successful_feishu_n1_candidate_proven": false,
+    "business_chain_write_authorized_by_this_evidence": false
+  }
+}
