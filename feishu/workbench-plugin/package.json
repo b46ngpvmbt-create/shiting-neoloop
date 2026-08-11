@@ -1,0 +1,19 @@
+{
+  "name": "@shiting-neoloop/workbench-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run check && node --test ../../tests/web/workbench-plugin*.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "8.0.13"
+  },
+  "dependencies": {
+    "@lark-base-open/js-sdk": "1.0.2"
+  }
+}
