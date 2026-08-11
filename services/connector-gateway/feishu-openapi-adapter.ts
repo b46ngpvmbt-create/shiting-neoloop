@@ -152,7 +152,7 @@ function classifyNetworkFailure(error: unknown): string {
 }
 
 export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAnalysisPort {
-  private readonly fetchImpl: typeof fetch;
+  private readonly injectedFetch: typeof fetch | null;
   private readonly apiOrigin: string;
   private readonly timeoutMs: number;
   private readonly now: () => Date;
@@ -170,7 +170,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     }
     assertFieldMap(RAW_FEEDBACK_FIELD_KEYS, config.raw_feedback_fields, "raw_feedback_fields");
     assertFieldMap(AI_AUDIT_FIELD_KEYS, config.ai_audit_fields, "ai_audit_fields");
-    this.fetchImpl = config.fetch_impl ?? globalThis.fetch.bind(globalThis);
+    this.injectedFetch = config.fetch_impl ?? null;
     this.apiOrigin = (config.api_origin ?? "https://open.feishu.cn").replace(/\/$/u, "");
     this.timeoutMs = config.request_timeout_ms ?? 8_000;
     this.now = config.now ?? (() => new Date());
@@ -180,7 +180,10 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), this.timeoutMs);
     try {
-      return await this.fetchImpl(url, { ...init, signal: abort.signal });
+      const requestInit = { ...init, signal: abort.signal };
+      return this.injectedFetch
+        ? await this.injectedFetch(url, requestInit)
+        : await fetch(url, requestInit);
     } catch (error) {
       throw new FeishuAdapterError(classifyNetworkFailure(error), write ? "unknown" : "not_written");
     } finally {

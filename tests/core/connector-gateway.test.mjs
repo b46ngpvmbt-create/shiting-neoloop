@@ -645,11 +645,11 @@ test("Feishu adapter classifies network failures without echoing raw exception d
   }
 });
 
-test("Feishu adapter binds the runtime fetch receiver when no test transport is injected", async () => {
+test("Feishu adapter calls the runtime fetch directly when no test transport is injected", async () => {
   const originalFetch = globalThis.fetch;
   let searchReached = false;
   globalThis.fetch = function runtimeFetch(input) {
-    if (this !== globalThis) throw new TypeError("Illegal invocation: incorrect fetch receiver");
+    if (this !== undefined) throw new TypeError("Illegal invocation: runtime fetch must be a direct call");
     const url = String(input);
     if (url.endsWith("/tenant_access_token/internal/")) {
       return Promise.resolve(jsonResponse({
