@@ -10,7 +10,6 @@ import type {
 type SqlPrimitive = string | number | null | ArrayBuffer;
 
 export interface SqlCursorLike<Row extends Record<string, unknown>> {
-  readonly rowsWritten: number;
   toArray(): Row[];
 }
 
@@ -127,7 +126,8 @@ export class SqliteGatewayStore implements GatewayStore {
     const result = this.storage.sql.exec(
       `INSERT OR IGNORE INTO connectors
        (connector_id, manifest_json, sealed_secret, secret_version, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)
+       RETURNING connector_id`,
       connector.manifest.connector_id,
       JSON.stringify(connector.manifest),
       connector.sealed_secret,
@@ -135,7 +135,7 @@ export class SqliteGatewayStore implements GatewayStore {
       connector.created_at,
       connector.updated_at,
     );
-    return result.rowsWritten === 1;
+    return result.toArray().length === 1;
   }
 
   async getConnector(connectorId: string): Promise<StoredConnector | null> {
@@ -155,26 +155,28 @@ export class SqliteGatewayStore implements GatewayStore {
   async updateConnector(connector: StoredConnector): Promise<void> {
     const result = this.storage.sql.exec(
       `UPDATE connectors SET manifest_json = ?, sealed_secret = ?, secret_version = ?, updated_at = ?
-       WHERE connector_id = ?`,
+       WHERE connector_id = ?
+       RETURNING connector_id`,
       JSON.stringify(connector.manifest),
       connector.sealed_secret,
       connector.secret_version,
       connector.updated_at,
       connector.manifest.connector_id,
     );
-    if (result.rowsWritten !== 1) throw new Error("connector_not_found");
+    if (result.toArray().length !== 1) throw new Error("connector_not_found");
   }
 
   async consumeNonce(connectorId: string, nonce: string, expiresAt: Date, now: Date): Promise<boolean> {
     return this.storage.transactionSync(() => {
       this.storage.sql.exec("DELETE FROM nonces WHERE expires_at <= ?", now.getTime());
       const result = this.storage.sql.exec(
-        "INSERT OR IGNORE INTO nonces (connector_id, nonce, expires_at) VALUES (?, ?, ?)",
+        `INSERT OR IGNORE INTO nonces (connector_id, nonce, expires_at) VALUES (?, ?, ?)
+         RETURNING nonce`,
         connectorId,
         nonce,
         expiresAt.getTime(),
       );
-      return result.rowsWritten === 1;
+      return result.toArray().length === 1;
     });
   }
 
@@ -184,7 +186,8 @@ export class SqliteGatewayStore implements GatewayStore {
         `INSERT OR IGNORE INTO receipts
          (receipt_id, connector_id, idempotency_key, content_fingerprint, body_sha256, state,
           feedback_id, error_code, attempt_count, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         RETURNING receipt_id`,
         receipt.receipt_id,
         receipt.connector_id,
         receipt.idempotency_key,
@@ -197,7 +200,7 @@ export class SqliteGatewayStore implements GatewayStore {
         receipt.created_at,
         receipt.updated_at,
       );
-      if (insertion.rowsWritten === 1) return { inserted: true, receipt };
+      if (insertion.toArray().length === 1) return { inserted: true, receipt };
       const existing = this.storage.sql.exec<ReceiptRow>(
         "SELECT * FROM receipts WHERE receipt_id = ?",
         receipt.receipt_id,
@@ -218,7 +221,8 @@ export class SqliteGatewayStore implements GatewayStore {
   async updateReceipt(receipt: GatewayReceipt): Promise<void> {
     const result = this.storage.sql.exec(
       `UPDATE receipts SET state = ?, feedback_id = ?, error_code = ?, attempt_count = ?, updated_at = ?
-       WHERE receipt_id = ?`,
+       WHERE receipt_id = ?
+       RETURNING receipt_id`,
       receipt.state,
       receipt.feedback_id,
       receipt.error_code,
@@ -226,7 +230,7 @@ export class SqliteGatewayStore implements GatewayStore {
       receipt.updated_at,
       receipt.receipt_id,
     );
-    if (result.rowsWritten !== 1) throw new Error("receipt_not_found");
+    if (result.toArray().length !== 1) throw new Error("receipt_not_found");
   }
 
   async getAnalysisAttempt(
@@ -250,7 +254,8 @@ export class SqliteGatewayStore implements GatewayStore {
       const insertion = this.storage.sql.exec(
         `INSERT OR IGNORE INTO analysis_attempts
          (record_id, profile_id, node, attempt, candidate_sha256, response_json, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+         RETURNING record_id`,
         receipt.record_id,
         receipt.profile_id,
         receipt.node,
@@ -259,7 +264,7 @@ export class SqliteGatewayStore implements GatewayStore {
         receipt.response_json,
         receipt.created_at,
       );
-      if (insertion.rowsWritten === 1) return { inserted: true, receipt };
+      if (insertion.toArray().length === 1) return { inserted: true, receipt };
       const existing = this.storage.sql.exec<AnalysisAttemptRow>(
         "SELECT * FROM analysis_attempts WHERE record_id = ? AND profile_id = ? AND attempt = ?",
         receipt.record_id,

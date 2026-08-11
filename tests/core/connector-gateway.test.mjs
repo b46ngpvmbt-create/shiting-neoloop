@@ -61,6 +61,7 @@ const {
 } = await importGateway("feishu-openapi-adapter.js");
 const { MemoryGatewayStore } = await importGateway("memory-store.js");
 const { AesGcmSecretProtector } = await importGateway("secrets.js");
+const { SqliteGatewayStore } = await importGateway("sqlite-store.js");
 const {
   deriveGatewayIdempotencyKey,
   signGatewayRequest,
@@ -228,6 +229,47 @@ test("owner creates, lists, rotates, and disables a connector without exposing s
   ));
   assert.equal(disabled.status, 200);
   assert.equal((await disabled.json()).connector.enabled, false);
+});
+
+test("SQLite nonce insertion uses returned rows instead of indexed rowsWritten billing counts", async () => {
+  const seen = new Set();
+  const storage = {
+    sql: {
+      exec(query, ...bindings) {
+        if (query.startsWith("DELETE FROM nonces")) {
+          return { rowsWritten: 0, toArray: () => [] };
+        }
+        if (query.includes("INSERT OR IGNORE INTO nonces")) {
+          const key = `${bindings[0]}\u0000${bindings[1]}`;
+          const inserted = !seen.has(key);
+          if (inserted) seen.add(key);
+          return {
+            // Cloudflare bills both the table row and its primary-key index row.
+            rowsWritten: inserted ? 2 : 0,
+            toArray: () => inserted && query.includes("RETURNING") ? [{ nonce: bindings[1] }] : [],
+          };
+        }
+        throw new Error(`Unexpected SQL in nonce test: ${query}`);
+      },
+    },
+    transactionSync(callback) {
+      return callback();
+    },
+  };
+  const store = new SqliteGatewayStore(storage);
+
+  assert.equal(await store.consumeNonce(
+    "synthetic_service_rating",
+    "synthetic_nonce_indexed_write",
+    new Date(NOW.getTime() + 5 * 60 * 1000),
+    NOW,
+  ), true);
+  assert.equal(await store.consumeNonce(
+    "synthetic_service_rating",
+    "synthetic_nonce_indexed_write",
+    new Date(NOW.getTime() + 5 * 60 * 1000),
+    NOW,
+  ), false);
 });
 
 test("signed webhook derives the domain-separated key and preserves attachment metadata in a synthetic write", async () => {
