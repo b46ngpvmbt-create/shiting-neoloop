@@ -29,6 +29,10 @@ export const OWNER_FIRST_LIVE_PROFILE_IDS = [
   "n3-default",
   "n4-default",
   "n6-responsibility",
+  "n5-cross-event",
+  "n6-root-cause",
+  "n7-knowledge-draft",
+  "n7-insight-summary",
 ] as const;
 
 export type OwnerFirstLiveProfileId = (typeof OWNER_FIRST_LIVE_PROFILE_IDS)[number];
@@ -61,10 +65,10 @@ export type OwnerFirstLiveBridgeClassification =
   | "needs_human";
 
 interface ProfileContract {
-  node: "N1" | "N2" | "N3" | "N4" | "N6";
+  node: "N1" | "N2" | "N3" | "N4" | "N5" | "N6" | "N7";
   mode: string;
   version: string;
-  object_type: "raw_feedback" | "case";
+  object_type: "raw_feedback" | "case" | "cluster";
 }
 
 const PROFILE_CONTRACTS: Record<OwnerFirstLiveProfileId, ProfileContract> = {
@@ -92,10 +96,34 @@ const PROFILE_CONTRACTS: Record<OwnerFirstLiveProfileId, ProfileContract> = {
     version: "N4-1.0.0-draft.2",
     object_type: "case",
   },
+  "n5-cross-event": {
+    node: "N5",
+    mode: "cross_event_clustering",
+    version: "N5-cross-event-1.0.0-draft.2",
+    object_type: "case",
+  },
   "n6-responsibility": {
     node: "N6",
     mode: "responsibility_routing",
     version: "N6-responsibility-routing-1.0.0-draft.2",
+    object_type: "case",
+  },
+  "n6-root-cause": {
+    node: "N6",
+    mode: "root_cause_hypothesis",
+    version: "N6-root-cause-1.0.0-draft.3",
+    object_type: "cluster",
+  },
+  "n7-knowledge-draft": {
+    node: "N7",
+    mode: "knowledge_draft",
+    version: "N7-1.0.0-draft.2",
+    object_type: "case",
+  },
+  "n7-insight-summary": {
+    node: "N7",
+    mode: "insight_summary",
+    version: "N7-1.0.0-draft.2",
     object_type: "case",
   },
 };

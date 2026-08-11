@@ -74,6 +74,78 @@ function n2Candidate(overrides = {}) {
   };
 }
 
+function expansionCandidate(profileId) {
+  const base = (payload, evidence_spans, confidence) => ({
+    payload,
+    evidence_spans,
+    missing_fields: [],
+    confidence,
+    status: "ok",
+  });
+  switch (profileId) {
+    case "n5-cross-event":
+      return base({
+        cluster_candidate: {
+          candidate_kind: "new_cluster",
+          suggested_cluster_id: null,
+          member_cases: [
+            { case_id: "SYN-CASE-OWNER-CURRENT", evidence_span_indices: [0] },
+            { case_id: "SYN-CASE-OWNER-PEER", evidence_span_indices: [1] },
+          ],
+          similarity: 0.87,
+        },
+        human_review_required: true,
+        automatic_merge: false,
+        automatic_case_relink: false,
+      }, [
+        { source_ref: "case:SYN-CASE-OWNER-CURRENT", quote: "A 站舱门无法解锁，任务发生延误。" },
+        { source_ref: "case:SYN-CASE-OWNER-PEER", quote: "B 站另一任务出现舱门无法解锁，涉及相同部件批次。" },
+      ], 0.87);
+    case "n6-root-cause":
+      return base({
+        hypotheses: [{
+          hypothesis_id: "HYP-OWNER-001",
+          statement: "待验证假设：锁体部件批次差异可能与舱门无法解锁相关，需人工结合支持证据、反证和不确定项验证。",
+          supporting_evidence_indices: [0, 1],
+          counter_evidence_indices: [2],
+          uncertainty_ids: ["UNC-OWNER-SAMPLE", "UNC-OWNER-TEARDOWN"],
+          uncertainties: ["待确认：样本数量有限", "待确认：尚缺少拆检报告"],
+        }],
+        human_review_required: true,
+        final_root_cause: false,
+      }, [
+        { source_ref: "case:SYN-CASE-OWNER-CURRENT", quote: "A 站舱门无法解锁，部件批次为 B-17。" },
+        { source_ref: "case:SYN-CASE-OWNER-PEER", quote: "B 站舱门无法解锁，部件批次同为 B-17。" },
+        { source_ref: "case:SYN-CASE-OWNER-COUNTER", quote: "同批次车辆在 C 站的合成复测中未复现该现象。" },
+      ], 0.72);
+    case "n7-knowledge-draft":
+    case "n7-insight-summary": {
+      const draftKind = profileId === "n7-knowledge-draft" ? "knowledge_draft" : "insight_summary";
+      return base({
+        draft_kind: draftKind,
+        draft: draftKind === "knowledge_draft"
+          ? "候选知识草稿：记录舱门异常的核验步骤和证据要求。"
+          : "候选洞察摘要：本案验证链路完整，后续结论仍需人工复核。",
+        citations: [{
+          knowledge_id: "SYN-KNOWLEDGE-OWNER-APPROVED-001",
+          version: "approved.1",
+          evidence_span_indices: [2],
+        }],
+        supporting_evidence_indices: [0, 1, 2],
+        publication_state: "draft_unpublished",
+        human_review_required: true,
+        automatic_publication: false,
+      }, [
+        { source_ref: "case:SYN-CASE-OWNER-017", quote: "SYN-CASE-OWNER-017 的舱门解锁异常已由授权人员核对。" },
+        { source_ref: "work_order:SYN-WORK-OWNER-017", quote: "处置证据已验证，合成场景中的连续解锁测试通过。" },
+        { source_ref: "knowledge:SYN-KNOWLEDGE-OWNER-APPROVED-001", quote: "回复应说明已完成核验，并邀请客户确认当前体验。" },
+      ], 0.86);
+    }
+    default:
+      throw new Error(`unsupported expansion profile ${profileId}`);
+  }
+}
+
 function input(profileId, request, candidates) {
   return {
     profile_id: profileId,
@@ -167,15 +239,57 @@ test("profile drift and non-synthetic ids are rejected before runner invocation"
   assert.equal(realIdReport.planned_business_write_count, 0);
 });
 
-test("bridge supports exactly the five profiles required by the first live chain", async () => {
+test("bridge preserves the ordered five-profile first live chain prefix", async () => {
   const { OWNER_FIRST_LIVE_PROFILE_IDS } = await importBuilt("src/neoloop/ai/owner-first-live-bridge.js");
-  assert.deepEqual(OWNER_FIRST_LIVE_PROFILE_IDS, [
+  assert.deepEqual(OWNER_FIRST_LIVE_PROFILE_IDS.slice(0, 5), [
     "n1-default",
     "n2-default",
     "n3-default",
     "n4-default",
     "n6-responsibility",
   ]);
+});
+
+test("bridge expands to the four W6 cross-event profiles without authorizing business writes", async () => {
+  const {
+    OWNER_FIRST_LIVE_PROFILE_IDS,
+    runOwnerFirstLiveBridge,
+  } = await importBuilt("src/neoloop/ai/owner-first-live-bridge.js");
+  const {
+    getOwnerFirstNodePreviewRequest,
+  } = await importBuilt("src/neoloop/ai/owner-first-node-preview.js");
+  const expansionProfiles = [
+    "n5-cross-event",
+    "n6-root-cause",
+    "n7-knowledge-draft",
+    "n7-insight-summary",
+  ];
+
+  assert.deepEqual(OWNER_FIRST_LIVE_PROFILE_IDS, [
+    "n1-default",
+    "n2-default",
+    "n3-default",
+    "n4-default",
+    "n6-responsibility",
+    "n5-cross-event",
+    "n6-root-cause",
+    "n7-knowledge-draft",
+    "n7-insight-summary",
+  ]);
+  for (const profileId of expansionProfiles) {
+    const request = getOwnerFirstNodePreviewRequest(profileId);
+    const report = await runOwnerFirstLiveBridge(input(
+      profileId,
+      request,
+      [expansionCandidate(profileId)],
+    ));
+    assert.equal(report.classification, "exact_14_ready_for_owner_confirmation", profileId);
+    assert.equal(report.envelope.validation.valid, true, profileId);
+    assert.equal(report.planned_business_write_count, 0, profileId);
+    assert.equal(report.planned_audit_write_count, 1, profileId);
+    assert.equal(report.write_plan.business_write_count, 0, profileId);
+    assert.equal(report.write_plan.audit_write_count, 1, profileId);
+  }
 });
 
 test("N3, N4, and N6 responsibility requests enter their validators without fixture identity pinning", async () => {
