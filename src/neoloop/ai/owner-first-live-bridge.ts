@@ -17,7 +17,11 @@ import {
 import type { AiNodeInvocation, AiNodeInvoker } from "./invoker.js";
 import { bindOwnerFirstN1Evidence } from "./owner-first-n1-evidence-binding.js";
 import { inspectUntrustedText } from "./policy.js";
-import { createAiInputHash, AuditedAiNodeRunner } from "./runner.js";
+import {
+  createAiInputHash,
+  AuditedAiNodeRunner,
+  runAuditedAiNodeAttempt,
+} from "./runner.js";
 import {
   validateNodeCandidate,
   validateNodeRequestDefinition,
@@ -144,6 +148,30 @@ export interface OwnerFirstLiveBridgeInput {
   observed_at: string;
   request: AiNodeRunRequest<JsonValue>;
   candidates: unknown[];
+}
+
+export interface OwnerFirstLiveAttemptInput {
+  profile_id: OwnerFirstLiveProfileId;
+  data_scope: "synthetic_experiment";
+  observed_at: string;
+  request: AiNodeRunRequest<JsonValue>;
+  attempt: 1 | 2;
+  candidate: unknown;
+}
+
+export interface OwnerFirstLiveAttemptReport {
+  schema_version: "owner_first_live_attempt_report.v1";
+  profile_id: OwnerFirstLiveProfileId | null;
+  classification: "exact_14_ready_for_owner_confirmation" | "repair_required" | "needs_human";
+  route: "continue" | "retry" | "stop";
+  request_sha256: string | null;
+  input_hash: string | null;
+  attempt: 1 | 2 | null;
+  envelope: AiNodeEnvelope<JsonValue> | null;
+  write_plan: OwnerFirstLiveWritePlan | null;
+  planned_business_write_count: 0;
+  planned_audit_write_count: 0 | 1;
+  issue_codes: OwnerFirstLiveBridgeIssueCode[];
 }
 
 export interface OwnerFirstLiveWritePlan {
@@ -335,6 +363,189 @@ function makeWritePlan(
       "notification",
     ],
   };
+}
+
+const ATTEMPT_INPUT_KEYS = [
+  "profile_id",
+  "data_scope",
+  "observed_at",
+  "request",
+  "attempt",
+  "candidate",
+] as const;
+
+function attemptFailure(
+  profileId: OwnerFirstLiveProfileId | null,
+  issueCode: OwnerFirstLiveBridgeIssueCode,
+  options: {
+    requestSha256?: string | null;
+    inputHash?: string | null;
+    attempt?: 1 | 2 | null;
+    writePlan?: OwnerFirstLiveWritePlan | null;
+  } = {},
+): OwnerFirstLiveAttemptReport {
+  return {
+    schema_version: "owner_first_live_attempt_report.v1",
+    profile_id: profileId,
+    classification: "needs_human",
+    route: "stop",
+    request_sha256: options.requestSha256 ?? null,
+    input_hash: options.inputHash ?? null,
+    attempt: options.attempt ?? null,
+    envelope: null,
+    write_plan: options.writePlan ?? null,
+    planned_business_write_count: 0,
+    planned_audit_write_count: options.writePlan ? 1 : 0,
+    issue_codes: [issueCode],
+  };
+}
+
+/**
+ * Validates and audits one already-produced candidate. The caller owns the
+ * durable two-attempt ledger; this function never invokes a model or advances
+ * to another attempt by itself.
+ */
+export async function runOwnerFirstLiveAttempt(
+  input: unknown,
+): Promise<OwnerFirstLiveAttemptReport> {
+  try {
+    const boundary = snapshotPlainJsonData(input);
+    if (!boundary.ok || !isRecord(boundary.value) || !hasExactKeys(boundary.value, ATTEMPT_INPUT_KEYS)) {
+      return attemptFailure(null, "input_shape_invalid");
+    }
+    const snapshot = boundary.value;
+    if (!isProfileId(snapshot.profile_id)) return attemptFailure(null, "profile_not_allowed");
+    const profileId = snapshot.profile_id;
+    if (snapshot.data_scope !== "synthetic_experiment") {
+      return attemptFailure(profileId, "data_scope_invalid");
+    }
+    if (!isExactObservedAt(snapshot.observed_at)) {
+      return attemptFailure(profileId, "observed_at_invalid");
+    }
+    if (snapshot.attempt !== 1 && snapshot.attempt !== 2) {
+      return attemptFailure(profileId, "candidate_count_invalid");
+    }
+    const attempt = snapshot.attempt;
+    if (!isRecord(snapshot.request)) {
+      return attemptFailure(profileId, "request_contract_mismatch", { attempt });
+    }
+    const request = snapshot.request as unknown as AiNodeRunRequest<JsonValue>;
+    const contract = PROFILE_CONTRACTS[profileId];
+    if (
+      request.node !== contract.node
+      || request.mode !== contract.mode
+      || request.version !== contract.version
+      || !isRecord(request.object_ref)
+      || request.object_ref.object_type !== contract.object_type
+      || typeof request.object_ref.object_id !== "string"
+    ) {
+      return attemptFailure(profileId, "request_contract_mismatch", { attempt });
+    }
+    if (!SYNTHETIC_ID_PATTERN.test(request.object_ref.object_id)) {
+      return attemptFailure(profileId, "non_synthetic_input", { attempt });
+    }
+    const requestValidation = validateNodeRequestDefinition(request);
+    if (!requestValidation.valid) {
+      return attemptFailure(profileId, "request_definition_invalid", { attempt });
+    }
+
+    const requestSha256 = canonicalJsonSha256(
+      request as unknown as JsonValue,
+      "neoloop:owner-first-live-request:v1",
+    );
+    const inputHash = createAiInputHash(request);
+    let candidate: unknown = snapshot.candidate;
+    let injectionDetected = false;
+    if (profileId === "n1-default") {
+      injectionDetected = isRecord(request.input)
+        && typeof request.input.original_text === "string"
+        && inspectUntrustedText(request.input.original_text).prompt_injection_detected;
+      const binding = bindOwnerFirstN1Evidence(request, candidate);
+      if (binding.status === "bound") {
+        candidate = binding.candidate;
+      } else {
+        injectionDetected = injectionDetected
+          || binding.issue_codes.includes("candidate_injection_boundary_violation");
+        candidate = null;
+      }
+    }
+
+    const audit = new BridgeAuditSink();
+    const clock: Clock = {
+      source: "test",
+      now: () => new Date(snapshot.observed_at as string),
+    };
+    const envelope = await runAuditedAiNodeAttempt(
+      request,
+      candidate,
+      attempt === 1 ? 0 : 1,
+      {
+        audit,
+        clock,
+        ids: new BridgeIds(`${requestSha256.slice(0, 10)}-A${attempt}`),
+        data_scope: "synthetic_experiment",
+      },
+    ) as AiNodeEnvelope<JsonValue>;
+    if (audit.records.length !== 1) {
+      return attemptFailure(profileId, "internal_validation_error", {
+        requestSha256,
+        inputHash,
+        attempt,
+      });
+    }
+    const writePlan = makeWritePlan(profileId, requestSha256, inputHash, audit.records);
+    const exactBoundary = validateAiNodeEnvelope(envelope);
+    if (!exactBoundary.valid) {
+      return attemptFailure(profileId, "exact_14_invalid", {
+        requestSha256,
+        inputHash,
+        attempt,
+        writePlan,
+      });
+    }
+    if (envelope.status === "ok" && envelope.validation.valid === true) {
+      return {
+        schema_version: "owner_first_live_attempt_report.v1",
+        profile_id: profileId,
+        classification: "exact_14_ready_for_owner_confirmation",
+        route: "continue",
+        request_sha256: requestSha256,
+        input_hash: inputHash,
+        attempt,
+        envelope: structuredClone(envelope),
+        write_plan: writePlan,
+        planned_business_write_count: 0,
+        planned_audit_write_count: 1,
+        issue_codes: [],
+      };
+    }
+
+    const issueCode = classifyFailure(envelope, injectionDetected);
+    if (attempt === 1 && issueCode !== "candidate_injection_boundary_violation") {
+      return {
+        schema_version: "owner_first_live_attempt_report.v1",
+        profile_id: profileId,
+        classification: "repair_required",
+        route: "retry",
+        request_sha256: requestSha256,
+        input_hash: inputHash,
+        attempt,
+        envelope: null,
+        write_plan: writePlan,
+        planned_business_write_count: 0,
+        planned_audit_write_count: 1,
+        issue_codes: [issueCode],
+      };
+    }
+    return attemptFailure(profileId, issueCode, {
+      requestSha256,
+      inputHash,
+      attempt,
+      writePlan,
+    });
+  } catch {
+    return attemptFailure(null, "internal_validation_error");
+  }
 }
 
 export async function runOwnerFirstLiveBridge(

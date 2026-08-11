@@ -34,6 +34,13 @@ export interface AuditedAiNodeRunnerOptions {
   data_scope: DataScope;
 }
 
+export interface AuditedAiNodeAttemptOptions {
+  audit: AuditSink;
+  clock: Clock;
+  ids: IdGenerator;
+  data_scope: DataScope;
+}
+
 export function createAiInputHash(request: AiNodeRunRequest<JsonValue>): string {
   const material: JsonValue = {
     node: request.node,
@@ -120,6 +127,130 @@ function humanState(status: AiNodeStatus): "none" | "pending" {
   return status === "ok" ? "none" : "pending";
 }
 
+function makeAuditedEnvelope(
+  request: AiNodeRunRequest<JsonValue>,
+  inputHash: string,
+  runId: string,
+  retryCount: 0 | 1,
+  fields: Pick<AiNodeCandidate, "payload" | "evidence_spans" | "missing_fields" | "confidence">,
+  status: AiNodeStatus,
+  validation: { valid: boolean; errors: string[] },
+): AiNodeEnvelope<JsonValue> {
+  const envelope: AiNodeEnvelope<JsonValue> = {
+    node: request.node,
+    mode: request.mode,
+    version: request.version,
+    run_id: runId,
+    object_ref: { ...request.object_ref },
+    input_hash: inputHash,
+    payload: structuredClone(fields.payload),
+    evidence_spans: structuredClone(fields.evidence_spans),
+    missing_fields: structuredClone(fields.missing_fields),
+    confidence: fields.confidence,
+    status,
+    validation: { valid: validation.valid, errors: [...validation.errors] },
+    retry_count: retryCount,
+    human_revision: { state: humanState(status) },
+  };
+  const boundary = validateAiNodeEnvelope(envelope);
+  if (!boundary.valid) {
+    throw new Error(`Runner constructed an invalid AiNodeEnvelope: ${boundary.errors.join("; ")}`);
+  }
+  return envelope;
+}
+
+async function appendEnvelopeAudit(
+  envelope: AiNodeEnvelope<JsonValue>,
+  audit: AuditSink,
+  clock: Clock,
+  ids: IdGenerator,
+): Promise<void> {
+  const auditEnvelope = structuredClone(envelope);
+  const payload: JsonValue = {
+    attempt: auditEnvelope.retry_count,
+    envelope: auditEnvelope as unknown as JsonValue,
+  };
+  const record: AuditRecord = {
+    audit_id: ids.nextId("audit"),
+    object_ref: { ...envelope.object_ref },
+    category: "ai",
+    occurred_at: clock.now().toISOString(),
+    clock_source: clock.source,
+    payload,
+  };
+  await audit.append(record);
+}
+
+/**
+ * Expands and audits exactly one already-produced model candidate. It never
+ * invokes a model and never consumes a second attempt implicitly. Callers own
+ * the durable attempt ledger and may pass only retry_count 0 or 1.
+ */
+export async function runAuditedAiNodeAttempt<TInput extends JsonValue, TOutput extends JsonValue>(
+  request: AiNodeRunRequest<TInput>,
+  candidate: unknown,
+  retryCount: 0 | 1,
+  options: AuditedAiNodeAttemptOptions,
+): Promise<AiNodeEnvelope<TOutput>> {
+  const authoritativeRequest = structuredClone(request) as AiNodeRunRequest<JsonValue>;
+  const inputHash = createAiInputHash(authoritativeRequest);
+  const runId = options.ids.nextId("run");
+  const requestValidation = validateNodeRequestDefinition(authoritativeRequest);
+  let envelope: AiNodeEnvelope<JsonValue>;
+
+  if (!requestValidation.valid) {
+    envelope = makeAuditedEnvelope(
+      authoritativeRequest,
+      inputHash,
+      runId,
+      retryCount,
+      { payload: null, evidence_spans: [], missing_fields: [], confidence: null },
+      retryCount === 0 ? "error" : "needs_human",
+      requestValidation,
+    );
+  } else {
+    const rawSnapshot = snapshotPlainJsonData(candidate);
+    if (!rawSnapshot.ok) {
+      envelope = makeAuditedEnvelope(
+        authoritativeRequest,
+        inputHash,
+        runId,
+        retryCount,
+        { payload: null, evidence_spans: [], missing_fields: [], confidence: null },
+        retryCount === 0 ? "error" : "needs_human",
+        { valid: false, errors: [rawSnapshot.error] },
+      );
+    } else {
+      const candidateValidation = validateNodeCandidate(authoritativeRequest, rawSnapshot.value);
+      if (candidateValidation.valid) {
+        const validated = asValidatedCandidate(rawSnapshot.value);
+        envelope = makeAuditedEnvelope(
+          authoritativeRequest,
+          inputHash,
+          runId,
+          retryCount,
+          validated,
+          validated.status,
+          { valid: true, errors: [] },
+        );
+      } else {
+        envelope = makeAuditedEnvelope(
+          authoritativeRequest,
+          inputHash,
+          runId,
+          retryCount,
+          safeCandidateFields(rawSnapshot.value),
+          retryCount === 0 ? "error" : "needs_human",
+          { valid: false, errors: candidateValidation.errors },
+        );
+      }
+    }
+  }
+
+  await appendEnvelopeAudit(envelope, options.audit, options.clock, options.ids);
+  return envelope as AiNodeEnvelope<TOutput>;
+}
+
 export class AuditedAiNodeRunner implements AiNodeRunner {
   private readonly invoker: AiNodeInvoker;
   private readonly audit: AuditSink;
@@ -136,20 +267,7 @@ export class AuditedAiNodeRunner implements AiNodeRunner {
   }
 
   private async appendAudit(envelope: AiNodeEnvelope<JsonValue>): Promise<void> {
-    const auditEnvelope = structuredClone(envelope);
-    const payload: JsonValue = {
-      attempt: auditEnvelope.retry_count,
-      envelope: auditEnvelope as unknown as JsonValue,
-    };
-    const record: AuditRecord = {
-      audit_id: this.ids.nextId("audit"),
-      object_ref: { ...envelope.object_ref },
-      category: "ai",
-      occurred_at: this.clock.now().toISOString(),
-      clock_source: this.clock.source,
-      payload,
-    };
-    await this.audit.append(record);
+    await appendEnvelopeAudit(envelope, this.audit, this.clock, this.ids);
   }
 
   private makeEnvelope(
@@ -161,27 +279,7 @@ export class AuditedAiNodeRunner implements AiNodeRunner {
     status: AiNodeStatus,
     validation: { valid: boolean; errors: string[] },
   ): AiNodeEnvelope<JsonValue> {
-    const envelope: AiNodeEnvelope<JsonValue> = {
-      node: request.node,
-      mode: request.mode,
-      version: request.version,
-      run_id: runId,
-      object_ref: { ...request.object_ref },
-      input_hash: inputHash,
-      payload: structuredClone(fields.payload),
-      evidence_spans: structuredClone(fields.evidence_spans),
-      missing_fields: structuredClone(fields.missing_fields),
-      confidence: fields.confidence,
-      status,
-      validation: { valid: validation.valid, errors: [...validation.errors] },
-      retry_count: retryCount,
-      human_revision: { state: humanState(status) },
-    };
-    const boundary = validateAiNodeEnvelope(envelope);
-    if (!boundary.valid) {
-      throw new Error(`Runner constructed an invalid AiNodeEnvelope: ${boundary.errors.join("; ")}`);
-    }
-    return envelope;
+    return makeAuditedEnvelope(request, inputHash, runId, retryCount, fields, status, validation);
   }
 
   async run<TInput extends JsonValue, TOutput extends JsonValue>(
