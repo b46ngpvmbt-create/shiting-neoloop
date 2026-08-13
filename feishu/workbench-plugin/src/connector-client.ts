@@ -54,7 +54,15 @@ export type IntakeReceipt = {
   disposition: "inserted" | "returned_existing";
 };
 
+export type WorkflowStatus = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  observedAt: string;
+};
+
 export interface ConnectorClient {
+  workflowStatus(): Promise<WorkflowStatus | null>;
   list(): Promise<ConnectorSummary[]>;
   create(input: CreateConnectorInput): Promise<OneTimeSecretResult>;
   disable(connectorId: string): Promise<ConnectorSummary>;
@@ -62,28 +70,62 @@ export interface ConnectorClient {
   createManualFeedback(input: ManualFeedbackInput): Promise<IntakeReceipt>;
 }
 
-type RequestProof = () => Promise<{
-  timestamp: string;
-  nonce: string;
-  signature: string;
-}>;
+type SessionAuthorization = () => Promise<`Session ${string}`> | `Session ${string}`;
+
+type GatewayStats = {
+  committed: number;
+  conflicts: number;
+  dead_lettered: number;
+  reconciliation_required: number;
+  last_received_at: string | null;
+};
+
+type GatewayConnector = {
+  connector_id: string;
+  display_name: string;
+  provider: string;
+  transport: ConnectorTransport;
+  source_type: string;
+  enabled: boolean;
+  stats: GatewayStats;
+};
+
+function summary(connector: GatewayConnector): ConnectorSummary {
+  const totals = {
+    received: connector.stats.committed + connector.stats.conflicts
+      + connector.stats.dead_lettered + connector.stats.reconciliation_required,
+    committed: connector.stats.committed,
+    replayed: 0,
+    conflicts: connector.stats.conflicts,
+    rejected: connector.stats.dead_lettered,
+    reconciliation: connector.stats.reconciliation_required,
+  };
+  return {
+    id: connector.connector_id,
+    displayName: connector.display_name,
+    provider: connector.provider,
+    transport: connector.transport,
+    sourceType: connector.source_type,
+    status: connector.enabled ? "active" : "disabled",
+    lastReceivedAt: connector.stats.last_received_at,
+    totals,
+  };
+}
 
 export class HttpConnectorClient implements ConnectorClient {
   constructor(
     private readonly baseUrl: string,
-    private readonly requestProof: RequestProof,
+    private readonly authorization: SessionAuthorization,
   ) {}
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const proof = await this.requestProof();
+    const authorization = await this.authorization();
     const response = await fetch(new URL(path, this.baseUrl), {
       ...init,
       credentials: "omit",
       headers: {
         "Content-Type": "application/json",
-        "X-NeoLoop-Timestamp": proof.timestamp,
-        "X-NeoLoop-Nonce": proof.nonce,
-        "X-NeoLoop-Signature": proof.signature,
+        Authorization: authorization,
         ...init.headers,
       },
     });
@@ -94,39 +136,108 @@ export class HttpConnectorClient implements ConnectorClient {
     return response.json() as Promise<T>;
   }
 
-  list() {
-    return this.request<ConnectorSummary[]>("/api/v1/connectors");
+  async list() {
+    const result = await this.request<{ connectors: GatewayConnector[] }>("/api/v1/connectors");
+    return result.connectors.map(summary);
   }
 
-  create(input: CreateConnectorInput) {
-    return this.request<OneTimeSecretResult>("/api/v1/connectors", {
+  async workflowStatus(): Promise<WorkflowStatus> {
+    const result = await this.request<{
+      contract: "neoloop.workflow-status.v1";
+      total: number;
+      enabled: number;
+      disabled: number;
+      observed_at: string;
+    }>("/api/v1/workflows/status");
+    if (
+      result.contract !== "neoloop.workflow-status.v1"
+      || ![result.total, result.enabled, result.disabled].every(Number.isSafeInteger)
+      || result.total < 0
+      || result.enabled < 0
+      || result.disabled < 0
+      || result.enabled + result.disabled !== result.total
+      || !Number.isFinite(Date.parse(result.observed_at))
+    ) {
+      throw new Error("Workflow status response is invalid");
+    }
+    return {
+      total: result.total,
+      enabled: result.enabled,
+      disabled: result.disabled,
+      observedAt: result.observed_at,
+    };
+  }
+
+  async create(input: CreateConnectorInput) {
+    const suffix = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
+    const result = await this.request<{ connector: GatewayConnector; secret: string }>("/api/v1/connectors", {
       method: "POST",
       body: JSON.stringify({
         contract: "neoloop.connector.v1",
+        connector_id: `connector_${suffix}`,
+        display_name: input.displayName,
+        provider: input.provider,
+        transport: input.transport,
+        source_type: input.sourceType,
+        source_tenant_scope: input.sourceTenantScope,
+        authorization_scope: input.authorizationScope,
         data_scope: "synthetic_experiment",
         field_map_version: "1",
-        ...input,
+        enabled: true,
       }),
     });
+    return {
+      connector: summary(result.connector),
+      oneTimeSecret: result.secret,
+      webhookPath: `/api/v1/connectors/${result.connector.connector_id}/feedback`,
+    };
   }
 
-  disable(connectorId: string) {
-    return this.request<ConnectorSummary>(`/api/v1/connectors/${encodeURIComponent(connectorId)}/disable`, {
+  async disable(connectorId: string) {
+    const result = await this.request<{ connector: GatewayConnector }>(`/api/v1/connectors/${encodeURIComponent(connectorId)}/disable`, {
       method: "POST",
     });
+    return summary(result.connector);
   }
 
-  rotate(connectorId: string) {
-    return this.request<OneTimeSecretResult>(`/api/v1/connectors/${encodeURIComponent(connectorId)}/rotate-secret`, {
+  async rotate(connectorId: string) {
+    const result = await this.request<{ connector: GatewayConnector; secret: string }>(`/api/v1/connectors/${encodeURIComponent(connectorId)}/rotate-secret`, {
       method: "POST",
     });
+    return {
+      connector: summary(result.connector),
+      oneTimeSecret: result.secret,
+      webhookPath: `/api/v1/connectors/${result.connector.connector_id}/feedback`,
+    };
   }
 
-  createManualFeedback(input: ManualFeedbackInput) {
-    return this.request<IntakeReceipt>("/api/v1/manual-feedback", {
+  async createManualFeedback(input: ManualFeedbackInput): Promise<IntakeReceipt> {
+    const result = await this.request<{ feedback_id: string; outcome: string }>("/api/v1/manual-feedback", {
       method: "POST",
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        contract: "neoloop.source-feedback.v1",
+        connector_id: "manual_owner_workbench",
+        provider: "neoloop",
+        transport: "manual",
+        source_type: "manual_note",
+        source_name: input.sourceName,
+        source_record_id: input.sourceRecordId,
+        source_tenant_scope: "competition-synthetic",
+        source_locator: input.sourceLocator,
+        source_event_at: input.sourceEventAt,
+        source_timezone: input.sourceTimezone,
+        channel: input.channel,
+        sender_role: input.senderRole,
+        original_text: input.originalText,
+        authorization_scope: "synthetic_demo_only",
+        attachments: [],
+        data_scope: "synthetic_experiment",
+      }),
     });
+    return {
+      feedbackId: result.feedback_id,
+      disposition: result.outcome === "created" ? "inserted" : "returned_existing",
+    };
   }
 }
 
@@ -135,6 +246,9 @@ export function createUnavailableConnectorClient(): ConnectorClient {
     throw new Error("连接器会话未就绪；请由认证服务注入短期请求证明。");
   };
   return {
+    async workflowStatus() {
+      return null;
+    },
     async list() {
       return [];
     },
@@ -180,6 +294,9 @@ export function createMockConnectorClient(): ConnectorClient {
   };
 
   return {
+    async workflowStatus() {
+      return { total: 6, enabled: 0, disabled: 6, observedAt: new Date().toISOString() };
+    },
     async list() {
       return structuredClone(connectors);
     },

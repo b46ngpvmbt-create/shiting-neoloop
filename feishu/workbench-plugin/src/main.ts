@@ -8,49 +8,102 @@ import {
   createUnavailableConnectorClient,
   HttpConnectorClient,
 } from "./connector-client";
-import type { WorkbenchRole } from "./policy";
+import { bitable } from "@lark-base-open/js-sdk";
+import { mountDashboardLifecycle } from "./dashboard-lifecycle";
+import {
+  createBrowserFeishuWorkbenchSession,
+  createFeishuWorkbenchSession,
+  type FeishuWorkbenchSession,
+} from "./feishu-session";
 import { NeoLoopWorkbench } from "./workbench";
-
-type RuntimeConnectorSession = {
-  baseUrl: string;
-  requestProof: () => Promise<{
-    timestamp: string;
-    nonce: string;
-    signature: string;
-  }>;
-};
-
-declare global {
-  interface Window {
-    __NEOLOOP_CONNECTOR_SESSION__?: RuntimeConnectorSession;
-    __NEOLOOP_WORKBENCH_ROLE__?: WorkbenchRole;
-  }
-}
 
 const root = document.querySelector<HTMLElement>("#app");
 if (!root) throw new Error("Missing #app mount point");
+const mount = root;
 
 const isLocalPreview = import.meta.env.DEV
   && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
-const role = window.__NEOLOOP_WORKBENCH_ROLE__ ?? (isLocalPreview ? "owner" : "judge");
-const baseAdapter = isLocalPreview
-  ? createMockBaseAdapter(role)
-  : createOfficialLarkBaseAdapter(role);
 
-// Live connector management is fail-closed. The host may inject a short-lived,
-// session-only proof callback after authenticating the current Feishu user.
-// Only the local Vite development preview uses synthetic in-memory data. A
-// production build without an authenticated session is visibly unavailable and
-// cannot perform connector mutations.
-const connectorClient = window.__NEOLOOP_CONNECTOR_SESSION__
-  ? new HttpConnectorClient(
-      window.__NEOLOOP_CONNECTOR_SESSION__.baseUrl,
-      window.__NEOLOOP_CONNECTOR_SESSION__.requestProof,
-    )
-  : isLocalPreview
-    ? createMockConnectorClient()
-    : createUnavailableConnectorClient();
+let activeWorkbench: NeoLoopWorkbench | null = null;
+window.addEventListener("keydown", (event) => activeWorkbench?.handleGlobalKeydown(event));
 
-const workbench = new NeoLoopWorkbench(root, baseAdapter, connectorClient, role);
-window.addEventListener("keydown", (event) => workbench.handleGlobalKeydown(event));
-void workbench.start();
+function sessionFailureCode(error: unknown): string {
+  const message = error instanceof Error ? error.message : "未知错误";
+  return message.includes("SDK 未加载") ? "sdk_missing"
+    : message.includes("SDK 就绪超时") ? "sdk_timeout"
+      : message.includes("授权 API 不可用") ? "auth_api_unavailable"
+        : message.includes("未完成工作台授权") ? "auth_code_rejected"
+          : message.includes("登录窗口") ? "browser_oauth_unavailable"
+            : message.includes("Owner 浏览器登录失败:") ? message.split(":").at(-1) ?? "session_unavailable"
+            : message.match(/\((401|403|503)\)/u)?.[1] ? `exchange_${message.match(/\((401|403|503)\)/u)?.[1]}`
+              : "session_unavailable";
+}
+
+async function bootstrap(): Promise<void> {
+  if (isLocalPreview) {
+    const workbench = new NeoLoopWorkbench(mount, createMockBaseAdapter("owner"), createMockConnectorClient(), "owner");
+    activeWorkbench = workbench;
+    await workbench.start();
+    return;
+  }
+
+  const sessionHost = document.createElement("div");
+  const workbenchHost = document.createElement("div");
+  mount.replaceChildren(sessionHost, workbenchHost);
+
+  const renderWorkbench = async (
+    session: FeishuWorkbenchSession | null,
+    sessionState: string,
+  ): Promise<void> => {
+    const role = session?.role ?? "judge";
+    const connectorClient = session
+      ? new HttpConnectorClient(window.location.origin, () => session.authorization)
+      : createUnavailableConnectorClient();
+    workbenchHost.replaceChildren();
+    const workbench = new NeoLoopWorkbench(workbenchHost, createOfficialLarkBaseAdapter(role), connectorClient, role);
+    activeWorkbench = workbench;
+    await workbench.start();
+
+    const sessionNotice = document.createElement("div");
+    sessionNotice.className = `owner-session-notice ${session ? "ready" : "blocked"}`;
+    const label = document.createElement("span");
+    label.textContent = session
+      ? "Owner 短期会话已建立·连接器操作已开放"
+      : `Owner 短期会话未建立·连接器保持只读·${sessionState}`;
+    sessionNotice.append(label);
+    if (!session) {
+      const login = document.createElement("button");
+      login.type = "button";
+      login.textContent = "验证 Owner 身份";
+      login.addEventListener("click", async () => {
+        login.disabled = true;
+        login.textContent = "等待飞书授权…";
+        try {
+          const browserSession = await createBrowserFeishuWorkbenchSession();
+          await renderWorkbench(browserSession, "owner_session_ready");
+        } catch (error) {
+          login.disabled = false;
+          login.textContent = "重新验证 Owner 身份";
+          label.textContent = `Owner 短期会话未建立·连接器保持只读·${sessionFailureCode(error)}`;
+        }
+      });
+      sessionNotice.append(login);
+    }
+    sessionHost.replaceChildren(sessionNotice);
+  };
+
+  let automaticSession: FeishuWorkbenchSession | null = null;
+  let sessionState = "browser_oauth_required";
+  if (window.tt) {
+    try {
+      automaticSession = await createFeishuWorkbenchSession();
+      sessionState = "owner_session_ready";
+    } catch (error) {
+      sessionState = sessionFailureCode(error);
+    }
+  }
+  await renderWorkbench(automaticSession, sessionState);
+  await mountDashboardLifecycle(mount, bitable.dashboard);
+}
+
+void bootstrap();

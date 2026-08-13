@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import type {
   AnalysisAttemptReceipt,
   ConnectorStats,
@@ -52,6 +54,21 @@ interface AnalysisAttemptRow extends Record<string, unknown> {
   candidate_sha256: string;
   response_json: string;
   created_at: string;
+}
+
+interface WorkbenchOauthTicketRow extends Record<string, unknown> {
+  status: "pending" | "ready";
+  result_json: string | null;
+  expires_at: number;
+}
+
+export type WorkbenchOauthTicketResult =
+  | { status: "missing" }
+  | { status: "pending" }
+  | { status: "ready"; result: Record<string, unknown> };
+
+function oauthTicketSha256(ticket: string): string {
+  return createHash("sha256").update(`neoloop-workbench-oauth-ticket-v1\n${ticket}`, "utf8").digest("hex");
 }
 
 function connectorFromRow(row: ConnectorRow): StoredConnector {
@@ -119,6 +136,13 @@ export class SqliteGatewayStore implements GatewayStore {
       response_json TEXT NOT NULL,
       created_at TEXT NOT NULL,
       PRIMARY KEY (record_id, profile_id, attempt)
+    )`);
+    this.storage.sql.exec(`CREATE TABLE IF NOT EXISTS workbench_oauth_tickets (
+      ticket_sha256 TEXT PRIMARY KEY,
+      status TEXT NOT NULL CHECK (status IN ('pending', 'ready')),
+      result_json TEXT,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL
     )`);
   }
 
@@ -273,6 +297,58 @@ export class SqliteGatewayStore implements GatewayStore {
       ).toArray()[0];
       if (!existing) throw new Error("analysis_attempt_lookup_failed");
       return { inserted: false, receipt: { ...existing } };
+    });
+  }
+
+  async prepareWorkbenchOauthTicket(ticket: string, expiresAt: Date, now: Date): Promise<boolean> {
+    return this.storage.transactionSync(() => {
+      this.storage.sql.exec("DELETE FROM workbench_oauth_tickets WHERE expires_at <= ?", now.getTime());
+      const result = this.storage.sql.exec(
+        `INSERT OR IGNORE INTO workbench_oauth_tickets
+         (ticket_sha256, status, result_json, expires_at, created_at)
+         VALUES (?, 'pending', NULL, ?, ?)
+         RETURNING ticket_sha256`,
+        oauthTicketSha256(ticket),
+        expiresAt.getTime(),
+        now.getTime(),
+      );
+      return result.toArray().length === 1;
+    });
+  }
+
+  async completeWorkbenchOauthTicket(
+    ticket: string,
+    result: Record<string, unknown>,
+    now: Date,
+  ): Promise<boolean> {
+    return this.storage.transactionSync(() => {
+      this.storage.sql.exec("DELETE FROM workbench_oauth_tickets WHERE expires_at <= ?", now.getTime());
+      const updated = this.storage.sql.exec(
+        `UPDATE workbench_oauth_tickets
+         SET status = 'ready', result_json = ?
+         WHERE ticket_sha256 = ? AND status = 'pending' AND expires_at > ?
+         RETURNING ticket_sha256`,
+        JSON.stringify(result),
+        oauthTicketSha256(ticket),
+        now.getTime(),
+      );
+      return updated.toArray().length === 1;
+    });
+  }
+
+  async consumeWorkbenchOauthTicket(ticket: string, now: Date): Promise<WorkbenchOauthTicketResult> {
+    return this.storage.transactionSync(() => {
+      this.storage.sql.exec("DELETE FROM workbench_oauth_tickets WHERE expires_at <= ?", now.getTime());
+      const row = this.storage.sql.exec<WorkbenchOauthTicketRow>(
+        `SELECT status, result_json, expires_at FROM workbench_oauth_tickets
+         WHERE ticket_sha256 = ?`,
+        oauthTicketSha256(ticket),
+      ).toArray()[0];
+      if (!row) return { status: "missing" };
+      if (row.status === "pending") return { status: "pending" };
+      if (!row.result_json) return { status: "missing" };
+      this.storage.sql.exec("DELETE FROM workbench_oauth_tickets WHERE ticket_sha256 = ?", oauthTicketSha256(ticket));
+      return { status: "ready", result: JSON.parse(row.result_json) as Record<string, unknown> };
     });
   }
 

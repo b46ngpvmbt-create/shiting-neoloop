@@ -64,6 +64,10 @@ const ANALYSIS_REQUEST_KEYS = [
   "record_id",
 ] as const;
 
+function analysisRouteStatus(body: Record<string, unknown>): number {
+  return body.route === "continue" ? 200 : body.route === "retry" ? 202 : 409;
+}
+
 function response(result: GatewayResult): Response {
   return new Response(JSON.stringify(result.body), {
     status: result.status,
@@ -146,6 +150,10 @@ export class GatewayController {
         return response(await this.handleConnectors(request));
       }
 
+      if (url.pathname === "/api/v1/workflows/status") {
+        return response(await this.handleWorkflowStatus(request));
+      }
+
       const connectorAction = url.pathname.match(
         /^\/api\/v1\/connectors\/([a-z][a-z0-9_-]{2,63})\/(rotate-secret|disable)$/,
       );
@@ -162,6 +170,10 @@ export class GatewayController {
 
       if (url.pathname === "/api/v1/manual-feedback") {
         return response(await this.handleManualFeedback(request));
+      }
+
+      if (url.pathname === "/api/v1/analysis/terminal-stop") {
+        return response(await this.handleAnalysisTerminalStop(request));
       }
 
       const analysis = url.pathname.match(/^\/api\/v1\/analysis\/([a-z0-9-]{3,64})$/);
@@ -183,6 +195,12 @@ export class GatewayController {
       if (error instanceof InvalidUtf8BodyError) {
         return response(result(400, { error: "invalid_utf8" }));
       }
+      if (error instanceof FeishuAdapterError) {
+        return response(result(502, {
+          error: "analysis_upstream_failed",
+          upstream_error_code: error.code,
+        }));
+      }
       return response(result(500, { error: "internal_error" }));
     }
   }
@@ -202,6 +220,19 @@ export class GatewayController {
       error: authorization.code === "owner_auth_unconfigured"
         ? "analysis_auth_unconfigured"
         : "analysis_unauthorized",
+    });
+  }
+
+  private async handleWorkflowStatus(request: Request): Promise<GatewayResult> {
+    const denied = await this.requireOwner(request);
+    if (denied) return denied;
+    if (request.method !== "GET") return result(405, { error: "method_not_allowed" });
+    if (!this.dependencies.workflow) return result(503, { error: "workflow_status_unconfigured" });
+    const status = await this.dependencies.workflow.listWorkflowStatus();
+    return result(200, {
+      contract: "neoloop.workflow-status.v1",
+      ...status,
+      observed_at: this.dependencies.clock.now().toISOString(),
     });
   }
 
@@ -454,9 +485,29 @@ export class GatewayController {
       return result(400, { error: "invalid_analysis_request" });
     }
 
+    let candidate: unknown = parsed.candidate;
+    if (typeof candidate === "string") {
+      try {
+        candidate = JSON.parse(candidate) as unknown;
+      } catch {
+        return result(400, {
+          error: "analysis_candidate_text_invalid_json",
+          business_write_count: 0,
+          audit_write_count: 0,
+        });
+      }
+    }
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+      return result(400, {
+        error: "analysis_candidate_not_object",
+        business_write_count: 0,
+        audit_write_count: 0,
+      });
+    }
+
     const attempt = parsed.attempt;
     const candidateHash = canonicalJsonSha256(
-      parsed.candidate as JsonValue,
+      candidate as JsonValue,
       "neoloop:w2-analysis-candidate:v1",
     );
     const existingAttempt = await this.dependencies.store.getAnalysisAttempt(
@@ -473,7 +524,8 @@ export class GatewayController {
         });
       }
       try {
-        return result(200, JSON.parse(existingAttempt.response_json) as Record<string, unknown>);
+        const replay = JSON.parse(existingAttempt.response_json) as Record<string, unknown>;
+        return result(analysisRouteStatus(replay), replay);
       } catch {
         return result(500, {
           error: "analysis_attempt_receipt_corrupt",
@@ -536,7 +588,7 @@ export class GatewayController {
       observed_at: authoritative.created_at,
       request: aiRequest,
       attempt,
-      candidate: structuredClone(parsed.candidate),
+      candidate: structuredClone(candidate),
     });
     const writePlan = report.write_plan;
     if (
@@ -622,9 +674,34 @@ export class GatewayController {
           audit_write_count: 0,
         });
       }
-      return result(200, JSON.parse(stored.receipt.response_json) as Record<string, unknown>);
+      const replay = JSON.parse(stored.receipt.response_json) as Record<string, unknown>;
+      return result(analysisRouteStatus(replay), replay);
     }
-    return result(200, responseBody);
+    return result(analysisRouteStatus(responseBody), responseBody);
+  }
+
+  private async handleAnalysisTerminalStop(request: Request): Promise<GatewayResult> {
+    const denied = await this.requireAnalysis(request);
+    if (denied) return denied;
+    if (request.method !== "POST") return result(405, { error: "method_not_allowed" });
+    if (!isJsonRequest(request)) return result(415, { error: "unsupported_media_type" });
+    const rawBody = await readBoundedUtf8Body(request);
+    try {
+      const parsed = parseJsonObject(rawBody);
+      if (
+        Object.keys(parsed).length !== 1
+        || !("contract" in parsed)
+        || parsed.contract !== "neoloop.w2-analysis-terminal-stop.v1"
+      ) return result(400, { error: "invalid_terminal_stop_request" });
+      return result(409, {
+        error: "needs_human",
+        business_write_count: 0,
+        audit_write_count: 0,
+      });
+    } catch (error) {
+      if (error instanceof GatewayValidationError) return result(400, { error: error.code });
+      throw error;
+    }
   }
 
   private async buildAuthoritativeAiRequest(

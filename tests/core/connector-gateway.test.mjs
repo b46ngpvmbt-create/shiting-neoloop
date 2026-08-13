@@ -51,7 +51,10 @@ function importGateway(relativePath) {
   return import(pathToFileURL(join(buildRoot, "services/connector-gateway", relativePath)).href);
 }
 
-const { StaticBearerOwnerAuth } = await importGateway("auth.js");
+const { CompositeOwnerAuth, StaticBearerOwnerAuth, WorkbenchSessionOwnerAuth } = await importGateway("auth.js");
+const gatewayModule = await importGateway("index.js");
+const { popupResponse } = gatewayModule;
+const gatewayWorker = gatewayModule.default;
 const { GatewayController } = await importGateway("controller.js");
 const { FakeFeishuRawFeedbackAdapter } = await importGateway("fake-feishu-adapter.js");
 const {
@@ -63,6 +66,11 @@ const { MemoryGatewayStore } = await importGateway("memory-store.js");
 const { AesGcmSecretProtector } = await importGateway("secrets.js");
 const { SqliteGatewayStore } = await importGateway("sqlite-store.js");
 const {
+  FeishuWorkbenchSessionService,
+  issueWorkbenchSession,
+  verifyWorkbenchSession,
+} = await importGateway("session.js");
+const {
   deriveGatewayIdempotencyKey,
   signGatewayRequest,
 } = await importGateway("security.js");
@@ -71,6 +79,8 @@ const OWNER_TOKEN = "synthetic-owner-token-with-at-least-32-bytes";
 const MASTER_KEY = Buffer.alloc(32, 7).toString("base64url");
 const NOW = new Date("2026-08-11T08:00:00.000Z");
 const TIMESTAMP = String(NOW.getTime());
+const SESSION_KEY = "synthetic-workbench-session-signing-key-with-at-least-32-bytes";
+const OWNER_OPEN_ID = "ou_synthetic_owner";
 
 class SequenceIds {
   current = 0;
@@ -89,6 +99,11 @@ function harness() {
     store,
     feishu,
     analysis: feishu,
+    workflow: {
+      async listWorkflowStatus() {
+        return { total: 6, enabled: 0, disabled: 6 };
+      },
+    },
     ownerAuth: new StaticBearerOwnerAuth(OWNER_TOKEN),
     analysisAuth: new StaticBearerOwnerAuth(OWNER_TOKEN),
     secretProtector: new AesGcmSecretProtector(MASTER_KEY),
@@ -104,6 +119,22 @@ function harness() {
   return { controller, feishu, store };
 }
 
+test("owner reads exact workflow status while anonymous requests fail closed", async () => {
+  const { controller } = harness();
+  const accepted = await controller.handle(ownerRequest("/api/v1/workflows/status"));
+  assert.equal(accepted.status, 200);
+  assert.deepEqual(await accepted.json(), {
+    contract: "neoloop.workflow-status.v1",
+    total: 6,
+    enabled: 0,
+    disabled: 6,
+    observed_at: NOW.toISOString(),
+  });
+
+  const denied = await controller.handle(new Request("https://gateway.invalid/api/v1/workflows/status"));
+  assert.equal(denied.status, 401);
+});
+
 function ownerRequest(path, { method = "GET", body } = {}) {
   return new Request(`https://gateway.invalid${path}`, {
     method,
@@ -114,6 +145,219 @@ function ownerRequest(path, { method = "GET", body } = {}) {
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
+
+test("workbench session tokens are short-lived, owner-bound, and tamper-evident", async () => {
+  const token = issueWorkbenchSession({
+    signingKey: SESSION_KEY,
+    ownerOpenId: OWNER_OPEN_ID,
+    now: NOW,
+  });
+  assert.deepEqual(verifyWorkbenchSession(token, SESSION_KEY, NOW), {
+    ok: true,
+    subject: "workbench-owner",
+  });
+  assert.equal(
+    verifyWorkbenchSession(`${token.slice(0, -1)}x`, SESSION_KEY, NOW).ok,
+    false,
+  );
+  assert.equal(
+    verifyWorkbenchSession(token, SESSION_KEY, new Date(NOW.getTime() + 6 * 60 * 1000)).ok,
+    false,
+  );
+});
+
+test("Feishu login-free exchange returns only a short session after exact owner verification", async () => {
+  const calls = [];
+  const service = new FeishuWorkbenchSessionService({
+    appId: "cli_synthetic",
+    appSecret: "synthetic-app-secret-never-log",
+    ownerOpenId: OWNER_OPEN_ID,
+    sessionSigningKey: SESSION_KEY,
+    now: () => new Date(NOW),
+    fetch: async (url, init = {}) => {
+      calls.push({ url: String(url), init });
+      if (String(url).endsWith("/authen/v2/oauth/token")) {
+        return new Response(JSON.stringify({ code: 0, access_token: "u-synthetic-short-token", expires_in: 7200 }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      if (String(url).endsWith("/authen/v1/user_info")) {
+        return new Response(JSON.stringify({ code: 0, data: { open_id: OWNER_OPEN_ID, tenant_key: "tenant_synthetic" } }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      throw new Error("unexpected URL");
+    },
+  });
+  const redirectUri = "https://gateway.invalid/api/v1/session/callback";
+  const oauthTicket = "synthetic_workbench_ticket_1234567890";
+  const authorizationUrl = new URL(service.browserAuthorizationUrl(redirectUri, oauthTicket));
+  assert.equal(authorizationUrl.origin, "https://accounts.feishu.cn");
+  assert.equal(authorizationUrl.pathname, "/open-apis/authen/v1/authorize");
+  assert.equal(authorizationUrl.searchParams.get("client_id"), "cli_synthetic");
+  assert.equal(authorizationUrl.searchParams.get("response_type"), "code");
+  assert.equal(authorizationUrl.searchParams.get("redirect_uri"), redirectUri);
+  const state = authorizationUrl.searchParams.get("state");
+  assert.equal(typeof state, "string");
+  assert.equal(service.verifyBrowserCallback(state, redirectUri), true);
+  assert.equal(service.browserCallbackTicket(state, redirectUri), oauthTicket);
+  assert.equal(service.verifyBrowserCallback(state, "https://other.invalid/api/v1/session/callback"), false);
+
+  const result = await service.exchange("synthetic_auth_code_1234567890", redirectUri);
+  assert.deepEqual(Object.keys(result), ["contract", "authorization", "expires_at", "role"]);
+  assert.match(result.authorization, /^Session /);
+  assert.equal(result.role, "owner");
+  assert.equal(calls.length, 2);
+  assert.equal(JSON.parse(calls[0].init.body).redirect_uri, redirectUri);
+  assert.doesNotMatch(JSON.stringify(result), /u-synthetic-short-token|ou_synthetic_owner/);
+});
+
+test("browser OAuth callback posts the exact result before closing its popup", async () => {
+  const response = popupResponse("https://gateway.invalid", {
+    contract: "neoloop.workbench-session-popup.v1",
+    result: { authorization: "Session synthetic" },
+  });
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-security-policy") ?? "", /script-src 'nonce-/);
+  assert.match(html, /new BroadcastChannel\("neoloop-owner-oauth-v1"\)/);
+  assert.match(html, /window\.opener\.postMessage\(message,"https:\/\/gateway\.invalid"\)/);
+  assert.match(html, /window\.setTimeout\(\(\)=>window\.close\(\),700\)/);
+  assert.ok(html.indexOf("postMessage") < html.indexOf("setTimeout"));
+  assert.doesNotMatch(html, /Session synthetic/);
+});
+
+test("legacy browser OAuth start prepares the same durable one-time ticket before redirecting", async () => {
+  const prepared = [];
+  const stub = {
+    fetch: async (request) => {
+      const body = JSON.parse(await request.text());
+      prepared.push({ pathname: new URL(request.url).pathname, body });
+      return Response.json({ ok: true });
+    },
+  };
+  const response = await gatewayWorker.fetch(new Request("https://gateway.invalid/api/v1/session/start"), {
+    CONNECTOR_GATEWAY: {
+      idFromName: () => "synthetic-do-id",
+      get: () => stub,
+    },
+    TARGET_BASE_KEY: "synthetic-base",
+    FEISHU_APP_ID: "cli_synthetic",
+    FEISHU_APP_SECRET: "synthetic-app-secret-never-log",
+    FEISHU_OWNER_OPEN_ID: OWNER_OPEN_ID,
+    WORKBENCH_SESSION_SIGNING_KEY: SESSION_KEY,
+  });
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(prepared.length, 1);
+  assert.equal(prepared[0].pathname, "/internal/session/prepare");
+  assert.match(prepared[0].body.ticket, /^[A-Za-z0-9_-]{64}$/u);
+  const redirect = new URL(response.headers.get("location"));
+  const oauthState = redirect.searchParams.get("state");
+  assert.equal(typeof oauthState, "string");
+  const sessionService = new FeishuWorkbenchSessionService({
+    appId: "cli_synthetic",
+    appSecret: "synthetic-app-secret-never-log",
+    ownerOpenId: OWNER_OPEN_ID,
+    sessionSigningKey: SESSION_KEY,
+    now: () => new Date(),
+  });
+  assert.equal(
+    sessionService.browserCallbackTicket(oauthState, "https://gateway.invalid/api/v1/session/callback"),
+    prepared[0].body.ticket,
+  );
+});
+
+test("configured public origin pins OAuth redirect and internal session URLs behind workers.dev", async () => {
+  const prepared = [];
+  const stub = {
+    fetch: async (request) => {
+      const body = JSON.parse(await request.text());
+      prepared.push({ url: request.url, body });
+      return Response.json({ ok: true });
+    },
+  };
+  const response = await gatewayWorker.fetch(new Request(
+    "https://shiting-neoloop-connector-gateway.workers.dev/api/v1/session/start",
+    { headers: { "x-forwarded-host": "attacker.invalid", "x-forwarded-proto": "http" } },
+  ), {
+    CONNECTOR_GATEWAY: {
+      idFromName: () => "synthetic-do-id",
+      get: () => stub,
+    },
+    TARGET_BASE_KEY: "synthetic-base",
+    PUBLIC_ORIGIN: "https://shiting-neoloop-w2-edge.netlify.app",
+    FEISHU_APP_ID: "cli_synthetic",
+    FEISHU_APP_SECRET: "synthetic-app-secret-never-log",
+    FEISHU_OWNER_OPEN_ID: OWNER_OPEN_ID,
+    WORKBENCH_SESSION_SIGNING_KEY: SESSION_KEY,
+  });
+
+  assert.equal(response.status, 302);
+  assert.equal(prepared.length, 1);
+  assert.equal(new URL(prepared[0].url).origin, "https://shiting-neoloop-w2-edge.netlify.app");
+  assert.equal(new URL(prepared[0].url).pathname, "/internal/session/prepare");
+  const authorizationUrl = new URL(response.headers.get("location"));
+  assert.equal(
+    authorizationUrl.searchParams.get("redirect_uri"),
+    "https://shiting-neoloop-w2-edge.netlify.app/api/v1/session/callback",
+  );
+  assert.doesNotMatch(response.headers.get("location"), /attacker\.invalid|workers\.dev/u);
+});
+
+test("configured public origin pins popup postMessage and rejects non-origin values", async () => {
+  const callback = await gatewayWorker.fetch(new Request(
+    "https://shiting-neoloop-connector-gateway.workers.dev/api/v1/session/callback?state=invalid",
+    { headers: { "x-forwarded-host": "attacker.invalid", "x-forwarded-proto": "http" } },
+  ), {
+    PUBLIC_ORIGIN: "https://shiting-neoloop-w2-edge.netlify.app",
+    FEISHU_APP_ID: "cli_synthetic",
+    FEISHU_APP_SECRET: "synthetic-app-secret-never-log",
+    FEISHU_OWNER_OPEN_ID: OWNER_OPEN_ID,
+    WORKBENCH_SESSION_SIGNING_KEY: SESSION_KEY,
+  });
+  const html = await callback.text();
+  assert.equal(callback.status, 200);
+  assert.match(
+    html,
+    /window\.opener\.postMessage\(message,"https:\/\/shiting-neoloop-w2-edge\.netlify\.app"\)/u,
+  );
+  assert.doesNotMatch(html, /attacker\.invalid|workers\.dev/u);
+
+  for (const publicOrigin of [
+    "http://shiting-neoloop-w2-edge.netlify.app",
+    "https://user:pass@shiting-neoloop-w2-edge.netlify.app",
+    "https://shiting-neoloop-w2-edge.netlify.app/path",
+    "https://shiting-neoloop-w2-edge.netlify.app?query=1",
+    "https://shiting-neoloop-w2-edge.netlify.app#fragment",
+  ]) {
+    const rejected = await gatewayWorker.fetch(
+      new Request("https://gateway.invalid/api/v1/session/start"),
+      { PUBLIC_ORIGIN: publicOrigin },
+    );
+    assert.equal(rejected.status, 503, publicOrigin);
+    assert.deepEqual(await rejected.json(), { error: "public_origin_invalid" }, publicOrigin);
+  }
+});
+
+test("session owner auth composes with the existing owner bearer without weakening either", async () => {
+  const token = issueWorkbenchSession({ signingKey: SESSION_KEY, ownerOpenId: OWNER_OPEN_ID, now: NOW });
+  const auth = new CompositeOwnerAuth([
+    new StaticBearerOwnerAuth(OWNER_TOKEN),
+    new WorkbenchSessionOwnerAuth(SESSION_KEY, { source: "test", now: () => new Date(NOW) }),
+  ]);
+  assert.equal((await auth.authorize(new Request("https://gateway.invalid", {
+    headers: { authorization: `Session ${token}` },
+  }))).ok, true);
+  assert.equal((await auth.authorize(new Request("https://gateway.invalid", {
+    headers: { authorization: `Bearer ${OWNER_TOKEN}` },
+  }))).ok, true);
+  assert.equal((await auth.authorize(new Request("https://gateway.invalid", {
+    headers: { authorization: "Session forged" },
+  }))).ok, false);
+});
 
 function manifest(overrides = {}) {
   return {
@@ -588,7 +832,7 @@ function rawWire(recordId, record) {
       channel: record.request.channel,
       sender_role: metadata.sender_role,
       original_text: record.request.original_text,
-      original_text_mutable: false,
+      original_text_mutable: "false",
       received_at: Date.parse(record.request.received_at),
       source_tenant_scope: record.request.source_tenant_scope,
       source_record_id: record.request.source_record_id,
@@ -618,6 +862,7 @@ function openApiAdapter(fetchImpl) {
     ai_audit_fields: identityFieldMap(AI_AUDIT_FIELD_KEYS),
     api_origin: "https://open.feishu.invalid",
     fetch_impl: fetchImpl,
+    audit_readback_delays_ms: [0, 0, 0],
     now: () => new Date(NOW),
   });
 }
@@ -628,6 +873,36 @@ function jsonResponse(body, status = 200) {
     headers: { "content-type": "application/json" },
   });
 }
+
+test("Feishu adapter reads an exact complete workflow status projection", async () => {
+  const calls = [];
+  const adapter = openApiAdapter(async (input, init) => {
+    const url = String(input);
+    calls.push({ url, init });
+    if (url.endsWith("/tenant_access_token/internal/")) {
+      return jsonResponse({ code: 0, tenant_access_token: "synthetic-tenant-token", expire: 7140 });
+    }
+    if (url.endsWith("/open-apis/base/v3/bases/synthetic-base-token/workflows/list")) {
+      return jsonResponse({
+        code: 0,
+        data: {
+          items: [
+            { workflow_id: "wkfSyntheticA1", status: "enabled" },
+            { workflow_id: "wkfSyntheticB2", status: "disabled" },
+          ],
+          total: 2,
+          has_more: false,
+        },
+      });
+    }
+    throw new Error(`Unexpected mock URL ${url}`);
+  });
+
+  assert.deepEqual(await adapter.listWorkflowStatus(), { total: 2, enabled: 1, disabled: 1 });
+  const workflowCall = calls.find((call) => call.url.includes("/workflows/list"));
+  assert.deepEqual(JSON.parse(workflowCall.init.body), { page_size: 100 });
+  assert.equal(workflowCall.init.method, "POST");
+});
 
 test("Feishu adapter classifies network failures without echoing raw exception details", async () => {
   const cases = [
@@ -733,6 +1008,7 @@ test("production Feishu adapter gets an app token, creates with a stable client_
   assert.equal(readBack.content_fingerprint, record.content_fingerprint);
   const createCall = calls.find((call) => call.url.includes("client_token="));
   assert.ok(createCall);
+  assert.equal(JSON.parse(createCall.init.body).fields.original_text_mutable, "false");
   assert.equal(createCall.url.includes("ignore_consistency_check=false"), true);
   assert.equal(calls.filter((call) => call.url.endsWith("/tenant_access_token/internal/")).length, 1);
   assert.doesNotMatch(JSON.stringify(calls.map((call) => call.url)), /synthetic-app-secret-never-log/);
@@ -837,7 +1113,12 @@ test("AI audit ambiguous write exact-searches, verifies full readback, and repla
       searchAttempts += 1;
       return jsonResponse({
         code: 0,
-        data: { items: persistedFields ? [{ record_id: "rec-audit-001", fields: persistedFields }] : [] },
+        data: {
+          items: persistedFields ? [{
+            record_id: "rec-audit-001",
+            fields: { ...persistedFields, object_type: [persistedFields.object_type] },
+          }] : [],
+        },
       });
     }
     if (url.includes("synthetic-audit-table") && url.includes("/records?") && init.method === "POST") {
@@ -855,6 +1136,76 @@ test("AI audit ambiguous write exact-searches, verifies full readback, and repla
   assert.equal(createAttempts, 1);
   assert.equal(searchAttempts, 3);
   assert.equal(persistedFields.run_id, "SYN-RUN-OPENAPI-001");
+  assert.equal(persistedFields.missing_fields, '["facts"]');
+  assert.equal(persistedFields.confidence, "0");
+  assert.equal(persistedFields.retry_count, "0");
+  assert.equal(persistedFields.created_at, "2026-08-11T08:00:00.000Z");
+  assert.equal(persistedFields.updated_at, "2026-08-11T08:00:00.000Z");
+});
+
+test("AI audit successful create polls delayed search visibility without creating twice", async () => {
+  const auditRecord = {
+    audit_id: "SYN-AUDIT-OPENAPI-DELAYED-001",
+    object_ref: { object_type: "raw_feedback", object_id: "SYN-FEEDBACK-OPENAPI-DELAYED-001" },
+    category: "ai",
+    occurred_at: "2026-08-11T08:00:00.000Z",
+    clock_source: "test",
+    payload: {
+      attempt: 0,
+      envelope: {
+        node: "N1",
+        mode: "default",
+        version: "N1-1.0.0-draft.2",
+        run_id: "SYN-RUN-OPENAPI-DELAYED-001",
+        object_ref: { object_type: "raw_feedback", object_id: "SYN-FEEDBACK-OPENAPI-DELAYED-001" },
+        input_hash: "f".repeat(64),
+        payload: { fact_spans: [], request: null, request_evidence_span_index: null, entity_clues: { vehicle_ids: [], task_ids: [], station_names: [] } },
+        evidence_spans: [],
+        missing_fields: ["facts"],
+        confidence: 0,
+        status: "ok",
+        validation: { valid: true, errors: [] },
+        retry_count: 0,
+        human_revision: { state: "none" },
+      },
+    },
+  };
+  let persistedFields = null;
+  let createAttempts = 0;
+  let postCreateReads = 0;
+  const fetchImpl = async (input, init = {}) => {
+    const url = String(input);
+    if (url.endsWith("/tenant_access_token/internal/")) {
+      return jsonResponse({ code: 0, tenant_access_token: "synthetic-tenant-token", expire: 7140 });
+    }
+    if (url.includes("synthetic-audit-table") && url.includes("/records/search")) {
+      return jsonResponse({ code: 0, data: { items: [] } });
+    }
+    if (url.endsWith("/synthetic-audit-table/records/rec-audit-delayed-001")) {
+      postCreateReads += 1;
+      const visible = persistedFields && postCreateReads >= 3;
+      return jsonResponse({
+        code: 0,
+        data: {
+          record: visible ? {
+            record_id: "rec-audit-delayed-001",
+            fields: { ...persistedFields, object_type: [persistedFields.object_type] },
+          } : null,
+        },
+      }, visible ? 200 : 404);
+    }
+    if (url.includes("synthetic-audit-table") && url.includes("/records?") && init.method === "POST") {
+      createAttempts += 1;
+      persistedFields = JSON.parse(init.body).fields;
+      return jsonResponse({ code: 0, data: { record: { record_id: "rec-audit-delayed-001", fields: persistedFields } } });
+    }
+    throw new Error(`Unexpected mock URL ${url}`);
+  };
+
+  await openApiAdapter(fetchImpl).appendAiAudit(auditRecord, "d".repeat(64));
+
+  assert.equal(createAttempts, 1);
+  assert.equal(postCreateReads, 3);
 });
 
 function n1Candidate(originalText, feedbackId) {
@@ -974,6 +1325,40 @@ test("analysis endpoint re-reads authoritative feedback and executes only exact-
   assert.equal(feishu.recordsByKey.size, 1);
 });
 
+test("analysis accepts one strict JSON-text candidate layer emitted by Feishu and rejects invalid or nested text", async () => {
+  const { controller, feishu } = harness();
+  const connector = await createConnector(controller);
+  const ingested = await seedAnalysisFeedback(controller, connector.secret);
+  const candidate = n1Candidate(feedback().original_text, ingested.feedback_id);
+
+  const accepted = await controller.handle(analysisRequest(
+    "n1-default",
+    ingested.feedback_id,
+    JSON.stringify(candidate),
+  ));
+  assert.equal(accepted.status, 200);
+  assert.equal((await accepted.json()).route, "continue");
+  assert.equal(feishu.aiAudits.length, 1);
+
+  const invalid = await controller.handle(analysisRequest(
+    "n1-default",
+    ingested.feedback_id,
+    "{not-json}",
+    { attempt: 2 },
+  ));
+  assert.equal(invalid.status, 400);
+  assert.equal((await invalid.json()).error, "analysis_candidate_text_invalid_json");
+
+  const nested = await controller.handle(analysisRequest(
+    "n1-default",
+    ingested.feedback_id,
+    JSON.stringify(JSON.stringify(candidate)),
+    { attempt: 2 },
+  ));
+  assert.equal(nested.status, 400);
+  assert.equal((await nested.json()).error, "analysis_candidate_not_object");
+});
+
 test("analysis rejects submitted snapshots before execution and audits a stale candidate as repairable", async () => {
   const { controller, feishu } = harness();
   const connector = await createConnector(controller);
@@ -998,7 +1383,7 @@ test("analysis rejects submitted snapshots before execution and audits a stale c
     n1Candidate("合成反馈：旧正文。", ingested.feedback_id),
   ));
   const staleResult = await stale.json();
-  assert.equal(stale.status, 200);
+  assert.equal(stale.status, 202);
   assert.equal(staleResult.route, "retry");
   assert.equal(staleResult.classification, "repair_required");
   assert.equal(staleResult.business_write_count, 0);
@@ -1129,7 +1514,7 @@ test("analysis allows one repair, audits both attempts, and second schema failur
 
   const first = await controller.handle(analysisRequest("n1-default", ingested.feedback_id, invalidOne));
   const firstBody = await first.json();
-  assert.equal(first.status, 200);
+  assert.equal(first.status, 202);
   assert.equal(firstBody.route, "retry");
   assert.equal(firstBody.classification, "repair_required");
   assert.equal(firstBody.continue, false);
@@ -1144,7 +1529,7 @@ test("analysis allows one repair, audits both attempts, and second schema failur
     { attempt: 2 },
   ));
   const secondBody = await second.json();
-  assert.equal(second.status, 200);
+  assert.equal(second.status, 409);
   assert.equal(secondBody.route, "stop");
   assert.equal(secondBody.classification, "needs_human");
   assert.equal(secondBody.continue, false);
@@ -1176,7 +1561,7 @@ test("prompt injection stops on attempt one, emits one redacted audit, and canno
     n1Candidate(injectedText, ingested.feedback_id),
   ));
   const body = await injected.json();
-  assert.equal(injected.status, 200);
+  assert.equal(injected.status, 409);
   assert.equal(body.route, "stop");
   assert.equal(body.classification, "needs_human");
   assert.deepEqual(body.repair_errors, ["candidate_injection_boundary_violation"]);
@@ -1193,6 +1578,20 @@ test("prompt injection stops on attempt one, emits one redacted audit, and canno
   assert.equal(second.status, 409);
   assert.equal((await second.json()).error, "analysis_attempt_not_retryable");
   assert.equal(feishu.aiAudits.length, 1);
+});
+
+test("analysis terminal stop is authenticated, explicit, and always zero-write", async () => {
+  const { controller } = harness();
+  const response = await controller.handle(ownerRequest("/api/v1/analysis/terminal-stop", {
+    method: "POST",
+    body: { contract: "neoloop.w2-analysis-terminal-stop.v1" },
+  }));
+  assert.equal(response.status, 409);
+  assert.deepEqual(await response.json(), {
+    error: "needs_human",
+    business_write_count: 0,
+    audit_write_count: 0,
+  });
 });
 
 test("analysis emits no route and persists no attempt receipt until the audit append succeeds", async () => {

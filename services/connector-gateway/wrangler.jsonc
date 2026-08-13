@@ -4,6 +4,9 @@
   "main": "./index.ts",
   "compatibility_date": "2026-08-11",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "PUBLIC_ORIGIN": "https://shiting-neoloop-w2-edge.netlify.app"
+  },
   "assets": {
     "directory": "../../feishu/workbench-plugin/dist",
     "binding": "ASSETS",

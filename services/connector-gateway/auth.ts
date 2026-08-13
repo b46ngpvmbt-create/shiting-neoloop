@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 
 import type { OwnerAuthPort, OwnerAuthorization } from "./types.js";
+import { verifyWorkbenchSession } from "./session.js";
 
 export class StaticBearerOwnerAuth implements OwnerAuthPort {
   constructor(private readonly token: string) {}
@@ -20,5 +21,33 @@ export class StaticBearerOwnerAuth implements OwnerAuthPort {
       return { ok: false, code: "owner_unauthorized" };
     }
     return { ok: true, subject: "owner" };
+  }
+}
+
+export class WorkbenchSessionOwnerAuth implements OwnerAuthPort {
+  constructor(
+    private readonly signingKey: string,
+    private readonly clock: { now(): Date },
+  ) {}
+
+  async authorize(request: Request): Promise<OwnerAuthorization> {
+    const authorization = request.headers.get("authorization") ?? "";
+    const prefix = "Session ";
+    if (!authorization.startsWith(prefix)) return { ok: false, code: "owner_unauthorized" };
+    return verifyWorkbenchSession(authorization.slice(prefix.length), this.signingKey, this.clock.now());
+  }
+}
+
+export class CompositeOwnerAuth implements OwnerAuthPort {
+  constructor(private readonly ports: readonly OwnerAuthPort[]) {}
+
+  async authorize(request: Request): Promise<OwnerAuthorization> {
+    let unconfigured = false;
+    for (const port of this.ports) {
+      const result = await port.authorize(request);
+      if (result.ok) return result;
+      if (result.code === "owner_auth_unconfigured") unconfigured = true;
+    }
+    return { ok: false, code: unconfigured ? "owner_auth_unconfigured" : "owner_unauthorized" };
   }
 }

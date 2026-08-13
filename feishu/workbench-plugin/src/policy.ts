@@ -247,7 +247,7 @@ export function canPerform(role: WorkbenchRole, action: string): boolean {
 
 function matchesTimeRange(item: FeedbackItem, range: WorkbenchFilters["timeRange"]): boolean {
   if (range === "all") return true;
-  const reference = Date.parse("2026-08-11T23:59:59+08:00");
+  const reference = Date.now();
   const timestamp = Date.parse(item.receivedAt);
   const days = range === "today" ? 1 : range === "7d" ? 7 : 30;
   return timestamp >= reference - days * 24 * 60 * 60 * 1000;

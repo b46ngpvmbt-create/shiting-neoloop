@@ -1,6 +1,6 @@
 # Connector gateway
 
-This directory is the synthetic-only, private intake boundary for 石听 NeoLoop. It is implemented but not deployed. It does not contain credentials and its tests never call Feishu or Cloudflare.
+This directory is the synthetic-only, private intake boundary for 石听 NeoLoop. A Cloudflare Worker instance is deployed for the approved synthetic Base; this repository still contains no credentials and its tests never call Feishu or Cloudflare. Deployment presence does not mean a real external platform or real enterprise data is connected.
 
 ## Runtime shape
 
@@ -8,7 +8,11 @@ One SQLite-backed `GatewayDurableObject` is selected from the runtime-only `TARG
 
 The Worker entrypoint sends `/api/*` to the Durable Object before static assets. `wrangler.jsonc` binds `../../feishu/workbench-plugin/dist` as `ASSETS`; every non-API request is delegated to that binding. Static assets receive none of the runtime secrets. Never embed `OWNER_API_TOKEN` or `ANALYSIS_API_TOKEN` in browser JavaScript.
 
-Wrangler uses the current declarative Durable Object `exports` form with `storage: "sqlite"`; Wrangler rejects mixing that declaration with legacy `migrations`. It intentionally has no `vars` containing credentials.
+Browser Owner login uses a server-created, five-minute OAuth ticket. Only its domain-separated SHA-256 digest is stored in the Durable Object. The Feishu callback binds the short Owner session to that signed ticket; the embedded workbench polls the same Worker origin and consumes the result exactly once. This avoids Safari popup/iframe partitioning without localStorage, sessionStorage, long-lived browser credentials, or raw ticket persistence.
+
+`PUBLIC_ORIGIN` is the non-secret, canonical browser origin. The production Wrangler configuration pins it to `https://shiting-neoloop-w2-edge.netlify.app`, so requests proxied through `workers.dev` still use the Netlify callback URI, popup `postMessage` target, and internal session request origin. The runtime accepts only an exact HTTPS origin: credentials, paths, query strings, fragments, surrounding whitespace, and forwarded host/proto headers are rejected or ignored. When the variable is absent, local and test runtimes retain the incoming request origin for backward compatibility.
+
+Wrangler uses the current declarative Durable Object `exports` form with `storage: "sqlite"`; Wrangler rejects mixing that declaration with legacy `migrations`. Its only committed `vars` value is the non-secret `PUBLIC_ORIGIN`; it contains no credentials.
 
 ## Required runtime secrets
 
@@ -24,6 +28,7 @@ The connector master key is a base64url-encoded 32-byte AES key. Connector secre
 - `POST /api/v1/connectors/:id/feedback`: signed webhook or polling delivery.
 - `POST /api/v1/connectors/:id/batch`: signed batch of 1–100 normalized items; the whole batch is shape-validated before its first write.
 - `POST /api/v1/manual-feedback`: Owner-authenticated fallback using the same normalized ingest and receipt path.
+- `GET /api/v1/workflows/status`: Owner-only live workflow summary read from the target Base. The workbench displays “状态待同步” instead of a fabricated count when this read fails.
 - `POST /api/v1/reconciliation/:receipt_id/check`: Owner-only exact readback; it never retries a write.
 - `POST /api/v1/analysis/:profile`: N1/N2/N3 single-candidate validation and audit. The JSON body has exactly `contract`, `operation`, `record_id`, `profile_id`, `node`, `attempt`, and `candidate`. The gateway rereads authoritative raw feedback, constructs the request, runs `runOwnerFirstLiveAttempt` with the feedback's stable `created_at`, rereads for drift, and executes exactly one idempotent `append_ai_audit` operation. It has no business-write port.
 
@@ -59,4 +64,4 @@ The dedicated test compiles this directory and its imported NeoLoop dependencies
 node --test tests/core/connector-gateway.test.mjs
 ```
 
-Wrangler validation is dry-run only. Deployment and secret creation require separate user authorization.
+Local Wrangler validation is dry-run only. Production deployment and secret creation are separate, authorized release actions; the deployed runtime must be verified from Cloudflare and Feishu readback rather than inferred from local tests.

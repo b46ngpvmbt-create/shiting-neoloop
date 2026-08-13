@@ -179,10 +179,21 @@ export interface FeishuAnalysisPort {
   appendAiAudit(record: AuditRecord, operationKey: string): Promise<void>;
 }
 
+export interface WorkflowStatus {
+  total: number;
+  enabled: number;
+  disabled: number;
+}
+
+export interface FeishuWorkflowPort {
+  listWorkflowStatus(): Promise<WorkflowStatus>;
+}
+
 export interface GatewayDependencies {
   store: GatewayStore;
   feishu: FeishuRawFeedbackAdapter;
   analysis?: FeishuAnalysisPort;
+  workflow?: FeishuWorkflowPort;
   analysisAuth?: OwnerAuthPort;
   ownerAuth: OwnerAuthPort;
   secretProtector: SecretProtector;

@@ -19,7 +19,9 @@ npm run dev
 ../../node_modules/.bin/vite build
 ```
 
-`npm run build` 生成相对资源路径的 `dist/`。本任务没有执行发布、上传、飞书写入或真实连接器调用。
+`npm run build` 生成相对资源路径的 `dist/`。当前生产静态入口已发布到
+`https://shiting-neoloop-w2-edge.netlify.app/`；将该 HTTPS 地址填入飞书应用模式
+自定义插件后，才算完成飞书宿主内嵌。直接在普通浏览器打开时不会回退到 mock 数据。
 
 ## SDK 边界
 

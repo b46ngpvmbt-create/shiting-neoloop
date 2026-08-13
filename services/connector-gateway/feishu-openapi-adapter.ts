@@ -1,6 +1,11 @@
 import type { AiNodeEnvelope, AuditRecord, JsonValue, StoredRawFeedback } from "../../src/neoloop/contracts/model.js";
 import { FeishuAdapterError } from "./feishu-adapter.js";
-import type { FeishuAnalysisPort, FeishuRawFeedbackAdapter } from "./types.js";
+import type {
+  FeishuAnalysisPort,
+  FeishuRawFeedbackAdapter,
+  FeishuWorkflowPort,
+  WorkflowStatus,
+} from "./types.js";
 
 const TOKEN_PATH = "/open-apis/auth/v3/tenant_access_token/internal/";
 
@@ -74,6 +79,7 @@ export interface FeishuOpenApiAdapterConfig {
   ai_audit_fields: AiAuditFieldMap;
   api_origin?: string;
   request_timeout_ms?: number;
+  audit_readback_delays_ms?: readonly number[];
   fetch_impl?: typeof fetch;
   now?: () => Date;
 }
@@ -94,15 +100,29 @@ type FeishuApiOperation =
   | "raw_read"
   | "audit_search"
   | "audit_create"
-  | "audit_latest_search";
+  | "audit_read"
+  | "audit_latest_search"
+  | "workflow_list";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function scalarText(value: unknown): string | null {
+  const normalized = Array.isArray(value) && value.length === 1 ? value[0] : value;
+  if (typeof normalized === "string") return normalized;
+  if (isObject(normalized)) {
+    for (const key of ["text", "value", "name"] as const) {
+      if (typeof normalized[key] === "string") return normalized[key];
+    }
+  }
+  return null;
+}
+
 function requiredString(value: unknown, code: string): string {
-  if (typeof value !== "string" || value.length === 0) throw new FeishuAdapterError(code, "unknown");
-  return value;
+  const normalized = scalarText(value);
+  if (typeof normalized !== "string" || normalized.length === 0) throw new FeishuAdapterError(code, "unknown");
+  return normalized;
 }
 
 function jsonText(value: unknown): string {
@@ -110,9 +130,10 @@ function jsonText(value: unknown): string {
 }
 
 function parseJsonText(value: unknown, fallback: JsonValue): JsonValue {
-  if (typeof value !== "string") return fallback;
+  const normalized = scalarText(value);
+  if (normalized === null) return fallback;
   try {
-    return JSON.parse(value) as JsonValue;
+    return JSON.parse(normalized) as JsonValue;
   } catch {
     return fallback;
   }
@@ -159,10 +180,11 @@ function classifyNetworkFailure(error: unknown): string {
   return "feishu_network_error";
 }
 
-export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAnalysisPort {
+export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAnalysisPort, FeishuWorkflowPort {
   private readonly injectedFetch: typeof fetch | null;
   private readonly apiOrigin: string;
   private readonly timeoutMs: number;
+  private readonly auditReadbackDelaysMs: readonly number[];
   private readonly now: () => Date;
   private cachedToken: { value: string; expires_at_ms: number } | null = null;
 
@@ -181,6 +203,13 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     this.injectedFetch = config.fetch_impl ?? null;
     this.apiOrigin = (config.api_origin ?? "https://open.feishu.cn").replace(/\/$/u, "");
     this.timeoutMs = config.request_timeout_ms ?? 8_000;
+    this.auditReadbackDelaysMs = config.audit_readback_delays_ms ?? [0, 250, 750, 1_500];
+    if (
+      this.auditReadbackDelaysMs.length === 0
+      || this.auditReadbackDelaysMs.some((delay) => !Number.isSafeInteger(delay) || delay < 0 || delay > 5_000)
+    ) {
+      throw new Error("audit_readback_delays_ms must contain one or more safe delays between 0 and 5000 ms");
+    }
     this.now = config.now ?? (() => new Date());
   }
 
@@ -221,6 +250,41 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
 
   private recordsPath(tableId: string): string {
     return `${this.apiOrigin}/open-apis/bitable/v1/apps/${encodeURIComponent(this.config.app_token)}/tables/${encodeURIComponent(tableId)}/records`;
+  }
+
+  async listWorkflowStatus(): Promise<WorkflowStatus> {
+    const { response, payload } = await this.authorizedJson(
+      `${this.apiOrigin}/open-apis/base/v3/bases/${encodeURIComponent(this.config.app_token)}/workflows/list`,
+      { method: "POST", body: JSON.stringify({ page_size: 100 }) },
+      false,
+    );
+    this.ensureSuccess(response, payload, false, "workflow_list");
+    const data = payload.data;
+    if (!isObject(data) || !Array.isArray(data.items)) {
+      throw new FeishuAdapterError("invalid_workflow_list", "not_written");
+    }
+    if (data.has_more === true || data.items.length > 100) {
+      throw new FeishuAdapterError("workflow_list_not_complete", "not_written");
+    }
+    const ids = new Set<string>();
+    let enabled = 0;
+    let disabled = 0;
+    for (const item of data.items) {
+      if (!isObject(item) || typeof item.workflow_id !== "string" || !/^wkf[A-Za-z0-9]+$/u.test(item.workflow_id)) {
+        throw new FeishuAdapterError("invalid_workflow_identity", "not_written");
+      }
+      if (ids.has(item.workflow_id)) {
+        throw new FeishuAdapterError("duplicate_workflow_identity", "not_written");
+      }
+      ids.add(item.workflow_id);
+      if (item.status === "enabled") enabled += 1;
+      else if (item.status === "disabled") disabled += 1;
+      else throw new FeishuAdapterError("invalid_workflow_status", "not_written");
+    }
+    if (typeof data.total !== "number" || !Number.isSafeInteger(data.total) || data.total !== data.items.length) {
+      throw new FeishuAdapterError("workflow_total_mismatch", "not_written");
+    }
+    return { total: data.total, enabled, disabled };
   }
 
   private async authorizedJson(
@@ -280,7 +344,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       [map.channel]: record.request.channel,
       [map.sender_role]: metadata.sender_role ?? "unknown_synthetic_sender",
       [map.original_text]: record.request.original_text,
-      [map.original_text_mutable]: false,
+      [map.original_text_mutable]: "false",
       [map.received_at]: Date.parse(record.request.received_at),
       [map.source_tenant_scope]: record.request.source_tenant_scope,
       [map.source_record_id]: record.request.source_record_id ?? "",
@@ -437,14 +501,14 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       [map.input_hash]: envelope.input_hash,
       [map.payload]: jsonText(envelope.payload),
       [map.evidence_spans]: jsonText(envelope.evidence_spans),
-      [map.missing_fields]: envelope.missing_fields,
-      [map.confidence]: envelope.confidence ?? 0,
+      [map.missing_fields]: jsonText(envelope.missing_fields),
+      [map.confidence]: String(envelope.confidence ?? 0),
       [map.status]: envelope.status,
       [map.validation]: jsonText(envelope.validation),
-      [map.retry_count]: envelope.retry_count,
+      [map.retry_count]: String(envelope.retry_count),
       [map.human_revision]: jsonText(envelope.human_revision),
-      [map.created_at]: Date.parse(record.occurred_at),
-      [map.updated_at]: Date.parse(record.occurred_at),
+      [map.created_at]: record.occurred_at,
+      [map.updated_at]: record.occurred_at,
       [map.schema_version]: "1.0.0-draft.2",
       [map.data_scope]: "synthetic_experiment",
       [map.evidence_class]: "synthetic_experiment",
@@ -476,15 +540,58 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
     return this.wireRecord(existing[0]);
   }
 
+  private async awaitAuditReadback(runId: unknown): Promise<FeishuRecordWire | null> {
+    for (const delay of this.auditReadbackDelaysMs) {
+      if (delay > 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, delay));
+      }
+      const readBack = await this.searchAuditRun(runId);
+      if (readBack) return readBack;
+    }
+    return null;
+  }
+
+  private async readAuditRecord(recordId: string): Promise<FeishuRecordWire | null> {
+    const { response, payload } = await this.authorizedJson(
+      `${this.recordsPath(this.config.ai_audit_table_id)}/${encodeURIComponent(recordId)}`,
+      { method: "GET" },
+      false,
+    );
+    if (response.status === 404) return null;
+    this.ensureSuccess(response, payload, false, "audit_read");
+    const data = payload.data;
+    return this.wireRecord(isObject(data) ? data.record : null);
+  }
+
+  private async awaitAuditRecordReadback(recordId: string): Promise<FeishuRecordWire | null> {
+    for (const delay of this.auditReadbackDelaysMs) {
+      if (delay > 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, delay));
+      }
+      const readBack = await this.readAuditRecord(recordId);
+      if (readBack) return readBack;
+    }
+    return null;
+  }
+
   private assertAuditEquivalent(actual: Record<string, unknown>, expected: Record<string, unknown>): void {
     const map = this.config.ai_audit_fields;
-    const mismatched = AI_AUDIT_FIELD_KEYS.find((key) => (
-      JSON.stringify(actual[map[key]]) !== JSON.stringify(expected[map[key]])
-    ));
+    const mismatched = AI_AUDIT_FIELD_KEYS.find((key) => {
+      const actualValue = actual[map[key]];
+      const expectedValue = expected[map[key]];
+      if (
+        key === "object_type"
+        && Array.isArray(actualValue)
+        && actualValue.length === 1
+      ) {
+        return JSON.stringify(actualValue[0]) !== JSON.stringify(expectedValue);
+      }
+      return JSON.stringify(actualValue) !== JSON.stringify(expectedValue);
+    });
     if (mismatched) throw new FeishuAdapterError("ai_audit_idempotency_conflict", "not_written");
   }
 
-  private async createAuditAttempt(fields: Record<string, unknown>, operationKey: string): Promise<void> {
+  private async createAuditAttempt(fields: Record<string, unknown>, operationKey: string): Promise<string> {
     const url = new URL(this.recordsPath(this.config.ai_audit_table_id));
     url.searchParams.set("client_token", clientToken(operationKey));
     url.searchParams.set("ignore_consistency_check", "false");
@@ -494,6 +601,8 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       true,
     );
     this.ensureSuccess(response, payload, true, "audit_create");
+    const data = payload.data;
+    return this.wireRecord(isObject(data) ? data.record : null).record_id;
   }
 
   async appendAiAudit(record: AuditRecord, operationKey: string): Promise<void> {
@@ -508,11 +617,12 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       return;
     }
     for (let attempt = 0; attempt < 2; attempt += 1) {
+      let createdRecordId: string;
       try {
-        await this.createAuditAttempt(fields, operationKey);
+        createdRecordId = await this.createAuditAttempt(fields, operationKey);
       } catch (error) {
         if (!(error instanceof FeishuAdapterError) || error.certainty !== "unknown") throw error;
-        const recovered = await this.searchAuditRun(runId);
+        const recovered = await this.awaitAuditReadback(runId);
         if (recovered) {
           this.assertAuditEquivalent(recovered.fields, fields);
           return;
@@ -520,7 +630,7 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
         if (attempt === 1) throw error;
         continue;
       }
-      const readBack = await this.searchAuditRun(runId);
+      const readBack = await this.awaitAuditRecordReadback(createdRecordId);
       if (!readBack) throw new FeishuAdapterError("ai_audit_readback_missing", "unknown");
       this.assertAuditEquivalent(readBack.fields, fields);
       return;
@@ -546,7 +656,6 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
               { field_name: map.status, operator: "is", value: ["ok"] },
             ],
           },
-          sort: [{ field_name: map.created_at, desc: true }],
         }),
       },
       false,
@@ -567,11 +676,15 @@ export class FeishuOpenApiAdapter implements FeishuRawFeedbackAdapter, FeishuAna
       input_hash: requiredString(fields[map.input_hash], "audit_input_hash_missing"),
       payload: parseJsonText(fields[map.payload], null),
       evidence_spans: parseJsonText(fields[map.evidence_spans], []) as unknown as AiNodeEnvelope<JsonValue>["evidence_spans"],
-      missing_fields: Array.isArray(fields[map.missing_fields]) ? fields[map.missing_fields] as string[] : [],
-      confidence: typeof confidence === "number" ? confidence : null,
+      missing_fields: parseJsonText(fields[map.missing_fields], []) as unknown as string[],
+      confidence: typeof confidence === "number"
+        ? confidence
+        : scalarText(confidence) !== null && Number.isFinite(Number(scalarText(confidence)))
+          ? Number(scalarText(confidence))
+          : null,
       status: requiredString(fields[map.status], "audit_status_missing") as AiNodeEnvelope<JsonValue>["status"],
       validation: parseJsonText(fields[map.validation], { valid: false, errors: ["invalid readback"] }) as AiNodeEnvelope<JsonValue>["validation"],
-      retry_count: fields[map.retry_count] === 1 ? 1 : 0,
+      retry_count: Number(fields[map.retry_count]) === 1 ? 1 : 0,
       human_revision: parseJsonText(fields[map.human_revision], { state: "pending" }) as AiNodeEnvelope<JsonValue>["human_revision"],
     };
   }
