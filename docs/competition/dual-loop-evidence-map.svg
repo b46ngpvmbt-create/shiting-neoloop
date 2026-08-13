@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">石听 NeoLoop 双循环证据图</title>
+  <desc id="desc">六类授权渠道进入个案闭环，关闭后进入改进闭环，复发时返回处置与改进。固定合成故事链为 SYN-CASE-017 到 SYN-CLUSTER-001 到 SYN-IMPROVEMENT-001。</desc>
+  <defs>
+    <style>
+      .sans{font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}.serif{font-family:"Songti SC",STSong,serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}.ink{fill:#182018}.muted{fill:#596158}.tiny{font-size:18px;letter-spacing:2px}.small{font-size:20px}.body{font-size:23px}.label{font-size:18px;font-weight:700}.title{font-size:52px;font-weight:650}.sub{font-size:28px;font-weight:650}.line{stroke:#aaa69a;stroke-width:2}.darkline{stroke:#182018;stroke-width:3}.green{fill:#1b6147}.paper{fill:#f2eee4}.surface{fill:#fbfaf6}.accent{fill:#d4ff54}.blue{fill:#4f76d9}.violet{fill:#8e66c7}.amber{fill:#d59427}.rose{fill:#c55757}.teal{fill:#2f8c80}
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="#1b6147"/></marker>
+  </defs>
+  <rect width="1600" height="900" class="paper"/>
+  <rect x="60" y="42" width="10" height="76" class="green"/>
+  <text x="96" y="67" class="sans green tiny">石听 NEOLOOP · 合成设计回放</text>
+  <text x="96" y="116" class="serif ink title">两条循环，共用一条证据链</text>
+  <text x="1060" y="76" class="sans muted small">全片业务对象均为合成样例</text>
+  <text x="1060" y="106" class="sans muted small">不写数据 · 不触发飞书 · 不控制车辆</text>
+
+  <line x1="60" y1="146" x2="1540" y2="146" class="darkline"/>
+  <text x="60" y="184" class="sans green tiny">01 / 授权渠道入口</text>
+  <g class="sans">
+    <g transform="translate(60 205)"><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="18" y="36" class="ink body" font-weight="700">App 评价</text><text x="18" y="63" class="muted small">官方接口 / Webhook</text></g>
+    <g transform="translate(290 205)"><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="18" y="36" class="ink body" font-weight="700">客服记录</text><text x="18" y="63" class="muted small">客服系统事件</text></g>
+    <g transform="translate(520 205)"><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="18" y="36" class="ink body" font-weight="700">热线转写</text><text x="18" y="63" class="muted small">经授权语音转写</text></g>
+    <g transform="translate(750 205)"><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="18" y="36" class="ink body" font-weight="700">服务邮件</text><text x="18" y="63" class="muted small">授权邮箱接入</text></g>
+    <g transform="translate(980 205)"><rect width="230" height="82" fill="#182018"/><text x="18" y="36" fill="#fbfaf6" class="body" font-weight="700">飞书</text><text x="18" y="63" fill="#c9cec8" class="small">群 / 表单 / 机器人</text></g>
+    <g transform="translate(1210 205)"><rect width="330" height="82" class="surface" stroke="#aaa69a"/><text x="18" y="36" class="ink body" font-weight="700">经授权公开平台</text><text x="18" y="63" class="muted small">仅使用授权 API</text></g>
+  </g>
+
+  <rect x="60" y="310" width="1480" height="70" fill="#182018"/>
+  <text x="90" y="340" class="sans" fill="#9dad9f" font-size="17">不可变原始反馈池</text>
+  <text x="90" y="365" class="mono" fill="#fbfaf6" font-size="22" font-weight="700">SYN-RUNTIME-FEEDBACK-017-MAIN</text>
+  <path d="M580 345 H820" stroke="#d4ff54" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="850" y="350" class="sans" fill="#fbfaf6" font-size="20">来源、授权范围、接收时间、幂等键</text>
+
+  <g transform="translate(60 410)">
+    <line x1="0" y1="0" x2="690" y2="0" stroke="#4f76d9" stroke-width="6"/>
+    <text x="0" y="42" class="sans blue tiny">02 / 个案闭环</text>
+    <text x="0" y="82" class="serif ink sub">解决一次反馈</text>
+    <g transform="translate(0 108)" class="sans">
+      <g><rect width="220" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">01 接入幂等</text><text x="16" y="62" class="small muted">W1 · 原文不可覆盖</text></g>
+      <g transform="translate(220 0)"><rect width="235" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">02 AI 分诊</text><text x="16" y="62" class="small muted">W2 · N1–N3</text></g>
+      <g transform="translate(455 0)"><rect width="235" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">03 实体关联</text><text x="16" y="62" class="small muted">W3 · N4</text></g>
+      <g transform="translate(0 82)"><rect width="220" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">04 人工确认</text><text x="16" y="62" class="small muted">实体 / 责任分开</text></g>
+      <g transform="translate(220 82)"><rect width="235" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">05 工单与 SLA</text><text x="16" y="62" class="small muted">W4 · 原时钟保留</text></g>
+      <g transform="translate(455 82)"><rect width="235" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">06 回访关闭</text><text x="16" y="62" class="small muted">W5 · N7 · 人审</text></g>
+    </g>
+  </g>
+
+  <path d="M770 580 H840" stroke="#1b6147" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="760" y="552" class="sans green small">关闭后进入观察</text>
+
+  <g transform="translate(850 410)">
+    <line x1="0" y1="0" x2="690" y2="0" stroke="#8e66c7" stroke-width="6"/>
+    <text x="0" y="42" class="sans violet tiny">03 / 改进闭环</text>
+    <text x="0" y="82" class="serif ink sub">减少同类问题复发</text>
+    <g transform="translate(0 108)" class="sans">
+      <g><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">01 跨事件聚类</text><text x="16" y="62" class="small muted">W6 · N5</text></g>
+      <g transform="translate(230 0)"><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">02 根因假设</text><text x="16" y="62" class="small muted">N6 · 证据 + 反证</text></g>
+      <g transform="translate(460 0)"><rect width="230" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">03 人工立项</text><text x="16" y="62" class="small muted">H1 · 授权关口</text></g>
+      <g transform="translate(0 82)"><rect width="345" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">04 7/30 天观察</text><text x="16" y="62" class="small muted">标注时钟来源与分母</text></g>
+      <g transform="translate(345 82)"><rect width="345" height="82" class="surface" stroke="#aaa69a"/><text x="16" y="34" class="label ink">05 归档或复发重开</text><text x="16" y="62" class="small muted">W6 · 不覆盖旧记录</text></g>
+    </g>
+  </g>
+
+  <path d="M1430 686 C1430 750 1240 762 1110 728" fill="none" stroke="#8e66c7" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="1190" y="770" class="sans violet small">复发：返回处置与改进</text>
+
+  <line x1="60" y1="796" x2="1540" y2="796" class="darkline"/>
+  <text x="60" y="830" class="sans green tiny">固定合成故事链</text>
+  <text x="350" y="832" class="mono ink body" font-weight="700">SYN-CASE-017</text>
+  <text x="580" y="832" class="sans green body">→</text>
+  <text x="630" y="832" class="mono ink body" font-weight="700">SYN-CLUSTER-001</text>
+  <text x="920" y="832" class="sans green body">→</text>
+  <text x="970" y="832" class="mono ink body" font-weight="700">SYN-IMPROVEMENT-001</text>
+  <g transform="translate(60 864)" class="sans">
+    <circle cx="8" cy="0" r="8" class="violet"/><text x="24" y="6" class="small muted">AI 候选</text>
+    <circle cx="185" cy="0" r="8" class="blue"/><text x="201" y="6" class="small muted">确定性工作流</text>
+    <circle cx="410" cy="0" r="8" class="rose"/><text x="426" y="6" class="small muted">硬规则</text>
+    <circle cx="545" cy="0" r="8" class="amber"/><text x="561" y="6" class="small muted">人工关口</text>
+    <circle cx="710" cy="0" r="8" class="teal"/><text x="726" y="6" class="small muted">证据状态</text>
+  </g>
+</svg>
