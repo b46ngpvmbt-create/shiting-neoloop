@@ -1,0 +1,1083 @@
+{
+  "manifest_version": "0.1.6",
+  "project": "石听 NeoLoop",
+  "team": "石听未来",
+  "value_statement": "让每条反馈都找到一辆车、一个任务、一个责任人和一次改进。",
+  "fact_class": "solution_design",
+  "deployment_status": "draft_not_configured_in_feishu",
+  "default_schema_version": "1.0.0-draft.2",
+  "default_data_scope": "synthetic_experiment",
+  "contract_sources": {
+    "canonical_manifest": "../../data/canonical/manifest.json",
+    "canonical_tables": "../../data/canonical/tables",
+    "typescript_contract": "../../src/neoloop/contracts/model.ts",
+    "w6_internal_action_freeze": {
+      "record": "../../src/neoloop/records/2026-08-03-t3-r6-p1-fix-3.md",
+      "record_sha256": "066fbf566dfb23eefc640d3e366e2af6d2bc774e33f78b4f3823987c06d99a14",
+      "model_sha256": "622e65f2d4ee3b9fc0757a914fc57401c4b1f0cde264747c638a06c7408cc753",
+      "repository_sha256": "1714941412abd7965f823b873257f99f26cba84210cf87c457bd0ec5c5b7428b",
+      "w6_improvement_sha256": "34ea5299c82211ec19e0042a0ff3624d9fa5c36936336514fdb42344fa7cbd85",
+      "index_sha256": "c111b505a23ff807a616311567c7c3b1f66da8d2a4eb88f2e5e30b76fb2e4cd3",
+      "w6_repository_test_sha256": "be8210c323c5a95a13824ba476c5ba31896f676fb626a0a7f73fb74d6132b0fb",
+      "w6_improvement_test_sha256": "c807ccb527db285a3a02a1c9ff2b46206dcac7edfa1c2cdde1c4fb0b3b242972"
+    },
+    "batch_d1_observation_checkpoints_freeze": {
+      "record": "../../src/neoloop/records/2026-08-03-t3-r7-batch-d1-observation-checkpoints.md",
+      "record_sha256": "105455035fea536757bdc52e199ff8ca6eb631e623626ab1e6e5e0760aa71acd",
+      "model_sha256": "622e65f2d4ee3b9fc0757a914fc57401c4b1f0cde264747c638a06c7408cc753",
+      "repository_sha256": "1714941412abd7965f823b873257f99f26cba84210cf87c457bd0ec5c5b7428b",
+      "w6_improvement_sha256": "fcf3393c67ea1539e98545179898e04a3f48c392011afaae81d339a141a73b07",
+      "index_sha256": "c111b505a23ff807a616311567c7c3b1f66da8d2a4eb88f2e5e30b76fb2e4cd3",
+      "w6_repository_test_sha256": "be8210c323c5a95a13824ba476c5ba31896f676fb626a0a7f73fb74d6132b0fb",
+      "w6_improvement_test_sha256": "314055ff5956ed9da5a3db53456f176875e407db84077cb1e6f0f123f4055028"
+    },
+    "r10_feishu_reopen_projector_freeze": {
+      "core": "../../src/neoloop/adapters/feishu/w6-reopen-projector.ts",
+      "core_sha256": "47a429d650e663d008b25dd023f7fc2ed71286bf92708de1252db7fa302b7ffd",
+      "test": "../../tests/core/feishu-w6-reopen-projector.test.mjs",
+      "test_sha256": "13e38abf203fc13695ff2e0dda81193088187cc22dfb3c0f3f53bd8452a726dd",
+      "record": "../../src/neoloop/records/2026-08-04-t3-r10-feishu-reopen-projector.md",
+      "record_sha256": "81634c132c7206f9230a1000d8f808b8c49b77654ffd4cda5ec28c798acf4f10"
+    }
+  },
+  "field_alignment": {
+    "non_empty_canonical_samples": "common_fields_plus_table_fields_must_equal_the_union_of_sample_record_keys",
+    "ai_audit_empty_seed": "common_fields_plus_t3_ai_envelope_fields",
+    "aliases_allowed": false
+  },
+  "counts": {
+    "tables": 10,
+    "frontend_views": 5,
+    "logical_business_roles": 3,
+    "ai_nodes": 7,
+    "workflows": 6
+  },
+  "common_fields": [
+    { "key": "schema_version", "type": "text", "required": true },
+    { "key": "data_scope", "type": "single_select", "required": true, "allowed": ["synthetic_experiment"] },
+    { "key": "evidence_class", "type": "single_select", "required": true, "allowed": ["public_fact", "enterprise_pending", "solution_design", "synthetic_experiment"] },
+    { "key": "created_at", "type": "datetime", "required": true },
+    { "key": "updated_at", "type": "datetime", "required": true },
+    { "key": "source_kind", "type": "text", "required": true }
+  ],
+  "tables": [
+    {
+      "key": "raw_feedback",
+      "canonical_table_key": "raw_feedback",
+      "name": "原始反馈",
+      "primary_business_key": "feedback_id",
+      "purpose": "保存不可被 AI 覆盖的反馈原文、来源与幂等信息。",
+      "fields": [
+        { "key": "feedback_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": true },
+        { "key": "channel", "type": "single_select", "required": true },
+        { "key": "sender_role", "type": "text", "required": true },
+        { "key": "original_text", "type": "long_text", "required": true, "ai_write": false },
+        { "key": "original_text_mutable", "type": "boolean", "required": true, "expected": false },
+        { "key": "received_at", "type": "datetime", "required": true },
+        { "key": "source_tenant_scope", "type": "text", "required": true },
+        { "key": "source_record_id", "type": "text", "required": true },
+        { "key": "source_timezone", "type": "text", "required": true },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_locator", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true },
+        { "key": "authorization_scope", "type": "single_select", "required": true },
+        { "key": "idempotency_key", "type": "text", "required": true },
+        { "key": "linked_case_id", "type": "relation_one", "target": "cases", "required": false },
+        { "key": "candidate_vehicle_id", "type": "relation_one", "target": "vehicles", "required": false },
+        { "key": "candidate_task_id", "type": "relation_one", "target": "delivery_tasks", "required": false },
+        { "key": "processing_status", "type": "single_select", "required": true, "allowed": ["待分诊", "人工处理", "已建案", "已忽略"] }
+      ],
+      "write_guards": ["original_text_is_immutable_after_ingest", "only_authorized_human_can_mark_ignored", "same_idempotency_key_never_overwrites_existing_business_record", "intake_active_observation_recurrence_never_relinks_feedback_or_changes_processing_status"]
+    },
+    {
+      "key": "cases",
+      "canonical_table_key": "cases",
+      "name": "反馈案件",
+      "primary_business_key": "case_id",
+      "purpose": "承载单案事实、风险、关联、状态、证据与 SLA。",
+      "fields": [
+        { "key": "case_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": true },
+        { "key": "title", "type": "text", "required": true },
+        { "key": "summary", "type": "long_text", "required": true },
+        { "key": "category_domain", "type": "single_select", "required": true },
+        { "key": "category_detail", "type": "single_select", "required": true },
+        { "key": "rule_risk", "type": "single_select", "required": false, "allowed": ["P0", "P1", "P2", "P3"] },
+        { "key": "ai_risk", "type": "single_select", "required": true, "allowed": ["P0", "P1", "P2", "P3"] },
+        { "key": "final_risk", "type": "single_select", "required": true, "allowed": ["P0", "P1", "P2", "P3"] },
+        { "key": "status", "type": "single_select", "required": true, "allowed": ["待补充", "待关联", "待派单", "处理中", "待验证", "待回访", "已关闭", "已合并"] },
+        { "key": "missing_fields", "type": "multi_select", "required": true },
+        { "key": "entity_candidates", "type": "json", "required": true },
+        { "key": "formal_entity", "type": "json", "required": false, "human_confirmed": true },
+        { "key": "formal_entity_confirmation_status", "type": "single_select", "required": true },
+        { "key": "evidence_completeness", "type": "text", "required": true },
+        { "key": "evidence_summary", "type": "long_text", "required": true },
+        { "key": "sla_started_at", "type": "datetime", "required": true, "reset_on_reassignment": false },
+        { "key": "sla_due_at", "type": "datetime", "required": true },
+        { "key": "sla_rule_version", "type": "text", "required": true },
+        { "key": "candidate_generation_mode", "type": "single_select", "required": true },
+        { "key": "suggested_team", "type": "text", "required": true },
+        { "key": "routing_rule_candidate_id", "type": "relation_one", "target": "routing_matrix", "required": false },
+        { "key": "cluster_id", "type": "relation_one", "target": "clusters", "required": false },
+        { "key": "pending_confirmation_items", "type": "multi_select", "required": true },
+        { "key": "closed_at", "type": "datetime", "required": false },
+        { "key": "record_mode", "type": "single_select", "required": true, "allowed": ["legacy_snapshot", "scenario_runtime"] },
+        { "key": "workflow_readiness", "type": "single_select", "required": false },
+        { "key": "legacy_association_mode", "type": "text", "required": true },
+        { "key": "legacy_reviewer", "type": "text", "required": true },
+        { "key": "legacy_status", "type": "text", "required": true },
+        { "key": "migration_note", "type": "long_text", "required": false },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_locator", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["final_risk_is_max_of_hard_rule_and_ai_suggestion_unless_authorized_human_adjusts_with_audit", "ai_never_confirms_formal_entity", "case_close_requires_authorized_human", "reassignment_never_resets_sla_start", "legacy_snapshot_requires_replay_reset_before_workflow_evidence", "intake_active_observation_recurrence_never_writes_case_cluster_id_or_case_status"]
+    },
+    {
+      "key": "work_orders",
+      "canonical_table_key": "work_orders",
+      "name": "处置工单",
+      "primary_business_key": "work_order_id",
+      "purpose": "记录责任承接、处置动作、证据、验证和升级轨迹。",
+      "fields": [
+        { "key": "work_order_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": true },
+        { "key": "case_id", "type": "relation_one", "target": "cases", "required": true },
+        { "key": "team", "type": "text", "required": true, "human_confirmed": true },
+        { "key": "assignee_role", "type": "text", "required": true, "human_confirmed": true },
+        { "key": "action", "type": "long_text", "required": true },
+        { "key": "accepted_at", "type": "datetime", "required": false },
+        { "key": "due_at", "type": "datetime", "required": true },
+        { "key": "completed_at", "type": "datetime", "required": false },
+        { "key": "disposition_evidence", "type": "long_text", "required": true },
+        { "key": "validation_result", "type": "single_select", "required": true },
+        { "key": "escalation_level", "type": "single_select", "required": true },
+        { "key": "first_response_target_minutes", "type": "number", "required": true },
+        { "key": "sla_reset_count", "type": "number", "required": true, "expected": 0 },
+        { "key": "status", "type": "single_select", "required": true, "allowed": ["待接单", "处理中", "待验证", "已完成", "已取消"] },
+        { "key": "legacy_recorded_at", "type": "datetime", "required": true },
+        { "key": "legacy_routing_correct", "type": "text", "required": true },
+        { "key": "legacy_status", "type": "text", "required": true },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_locator", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["assignee_requires_authorized_human_confirmation", "completion_requires_validation_evidence", "escalation_is_not_a_case_status", "sla_reset_count_remains_zero_on_reassignment"]
+    },
+    {
+      "key": "clusters",
+      "canonical_table_key": "clusters",
+      "name": "问题簇",
+      "primary_business_key": "cluster_id",
+      "purpose": "管理跨事件聚类、根因假设、证据、审核和复发记录。",
+      "fields": [
+        { "key": "cluster_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": true },
+        { "key": "name", "type": "text", "required": true },
+        { "key": "category_domain", "type": "single_select", "required": true },
+        { "key": "member_case_ids", "type": "relation_many", "target": "cases", "required": true },
+        { "key": "clustering_mode", "type": "single_select", "required": true, "allowed": ["跨事件聚类"] },
+        { "key": "clustering_version", "type": "text", "required": true },
+        { "key": "deterministic_fingerprint", "type": "text", "required": true },
+        { "key": "root_cause_hypothesis", "type": "long_text", "required": true, "human_confirmed": false },
+        { "key": "supporting_evidence", "type": "json", "required": true },
+        { "key": "counter_evidence", "type": "json", "required": true },
+        {
+          "key": "recurrence_records",
+          "type": "json",
+          "required": true,
+          "visibility_contract": {
+            "raw_read_logical_roles": ["improvement_insight"],
+            "forbidden_raw_read_logical_roles": ["feedback_understanding", "case_coordination"],
+            "low_privilege_view_projection": {
+              "hidden_in_views": ["issue_map", "improvement_tracking"],
+              "view_count_covered_by_P03": 5
+            },
+            "P03_unprivileged_access_contract": {
+              "existing_evidence_unit_ref": "P03",
+              "access_surfaces": ["all_five_business_views", "direct_clusters_table_access"],
+              "expected_raw_visibility": "not_visible",
+              "verification_status": "not_tested",
+              "result": null,
+              "evidence": null
+            }
+          }
+        },
+        { "key": "highest_risk", "type": "single_select", "required": true, "allowed": ["P0", "P1", "P2", "P3"] },
+        { "key": "next_step", "type": "long_text", "required": true },
+        { "key": "migration_review_required", "type": "boolean", "required": true },
+        { "key": "status", "type": "single_select", "required": true, "allowed": ["候选", "待审核", "改进中", "观察中", "已归档", "已驳回"] },
+        { "key": "legacy_status", "type": "text", "required": true },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_locator", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["different_events_are_never_auto_merged_into_one_case", "root_cause_is_hypothesis_until_human_review", "archived_cluster_can_reopen_on_new_recurrence", "active_observation_intake_writes_only_one_way_member_case_ids_and_append_only_recurrence_records_after_repository_receipt_and_human_authorization"]
+    },
+    {
+      "key": "improvements",
+      "canonical_table_key": "improvements",
+      "name": "改进项目",
+      "primary_business_key": "improvement_id",
+      "purpose": "记录版本化改进措施、观察窗、结果和人工结论。",
+      "fields": [
+        { "key": "improvement_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": false },
+        { "key": "cluster_id", "type": "relation_one", "target": "clusters", "required": true },
+        { "key": "version", "type": "text", "required": true },
+        { "key": "owner_role", "type": "text", "required": true },
+        { "key": "measure", "type": "long_text", "required": true },
+        { "key": "observation_window_days", "type": "multi_select", "required": true },
+        { "key": "clock_source", "type": "single_select", "required": true, "allowed": ["real", "test", "synthetic_history"] },
+        { "key": "metric_formula", "type": "long_text", "required": true },
+        { "key": "day_7_result", "type": "long_text", "required": false },
+        { "key": "day_30_result", "type": "long_text", "required": false },
+        { "key": "human_conclusion", "type": "long_text", "required": false, "human_confirmed": true },
+        { "key": "status", "type": "single_select", "required": true, "allowed": ["待立项", "执行中", "观察中", "已完成", "已终止"] },
+        { "key": "derived_from_legacy_cluster_id", "type": "text", "required": true },
+        { "key": "migration_note", "type": "long_text", "required": true },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["clock_source_is_always_visible", "no_recurrence_rate_without_business_volume_denominator", "human_conclusion_required_before_completion", "status_follows_cluster_status_invariant", "intake_active_observation_recurrence_never_mutates_improvement_cycle_or_status"]
+    },
+    {
+      "key": "vehicles",
+      "canonical_table_key": "vehicles",
+      "name": "车辆档案",
+      "primary_business_key": "vehicle_id",
+      "purpose": "保存只读关联所需的车辆合成快照，不提供控制动作。",
+      "fields": [
+        { "key": "vehicle_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": true },
+        { "key": "model", "type": "text", "required": true },
+        { "key": "version", "type": "text", "required": true },
+        { "key": "station_id", "type": "text", "required": true },
+        { "key": "station_name", "type": "text", "required": true },
+        { "key": "city", "type": "text", "required": true },
+        { "key": "status_snapshot", "type": "single_select", "required": true },
+        { "key": "snapshot_at", "type": "datetime", "required": true },
+        { "key": "controls_available", "type": "boolean", "required": true, "expected": false },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_locator", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["no_vehicle_control_action_fields", "controls_available_is_false", "ai_never_invents_vehicle_id"]
+    },
+    {
+      "key": "delivery_tasks",
+      "canonical_table_key": "delivery_tasks",
+      "name": "配送任务",
+      "primary_business_key": "task_id",
+      "purpose": "保存案件关联证据所需的配送任务合成快照。",
+      "fields": [
+        { "key": "task_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": true },
+        { "key": "vehicle_id", "type": "relation_one", "target": "vehicles", "required": true },
+        { "key": "station_id", "type": "text", "required": true },
+        { "key": "route", "type": "text", "required": true },
+        { "key": "task_status", "type": "single_select", "required": true },
+        { "key": "anomaly_code", "type": "text", "required": true },
+        { "key": "started_at", "type": "datetime", "required": true },
+        { "key": "ended_at", "type": "datetime", "required": false },
+        { "key": "source_at", "type": "datetime", "required": true },
+        { "key": "state_mutable_by_neoloop", "type": "boolean", "required": true, "expected": false },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_locator", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["neoloop_does_not_change_enterprise_task_status", "state_mutable_by_neoloop_is_false", "ai_never_invents_task_id"]
+    },
+    {
+      "key": "routing_matrix",
+      "canonical_table_key": "routing_matrix",
+      "name": "站点责任矩阵",
+      "primary_business_key": "routing_rule_id",
+      "purpose": "版本化保存站点、问题类型、责任团队、审核人、升级路径与 SLA 规则。",
+      "fields": [
+        { "key": "routing_rule_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": false },
+        { "key": "region", "type": "text", "required": true },
+        { "key": "station_id", "type": "text", "required": true },
+        { "key": "issue_type", "type": "single_select", "required": true },
+        { "key": "default_team", "type": "text", "required": true },
+        { "key": "reviewer_role", "type": "text", "required": true },
+        { "key": "escalation_path", "type": "json", "required": true },
+        { "key": "sla_version", "type": "text", "required": true },
+        { "key": "effective_at", "type": "datetime", "required": false },
+        { "key": "status", "type": "single_select", "required": true },
+        { "key": "derived_from_legacy_case_id", "type": "text", "required": true },
+        { "key": "note", "type": "long_text", "required": true },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["routing_suggestion_never_becomes_formal_assignee_without_human_confirmation", "rule_changes_are_versioned"]
+    },
+    {
+      "key": "knowledge_index",
+      "canonical_table_key": "knowledge_index",
+      "name": "知识索引",
+      "primary_business_key": "knowledge_id",
+      "purpose": "索引经人审核的 SOP 和答复模板。",
+      "fields": [
+        { "key": "knowledge_id", "type": "text", "required": true, "unique": true },
+        { "key": "legacy_id", "type": "text", "required": false },
+        { "key": "title", "type": "text", "required": true },
+        { "key": "document_link", "type": "url", "required": false },
+        { "key": "applicable_scope", "type": "text", "required": true },
+        { "key": "owner_role", "type": "text", "required": true },
+        { "key": "version", "type": "text", "required": true },
+        { "key": "approval_status", "type": "single_select", "required": true },
+        { "key": "effective_at", "type": "datetime", "required": false },
+        { "key": "citation_allowed_for_n7", "type": "boolean", "required": true },
+        { "key": "note", "type": "long_text", "required": true },
+        { "key": "source_name", "type": "text", "required": true },
+        { "key": "source_sha256", "type": "text", "required": true }
+      ],
+      "write_guards": ["n7_only_cites_approved_effective_knowledge", "citation_allowed_for_n7_must_be_true", "publication_requires_authorized_human"]
+    },
+    {
+      "key": "ai_audit",
+      "canonical_table_key": "ai_audit",
+      "name": "AI 审计",
+      "primary_business_key": "run_id",
+      "canonical_sample_state": "empty_seed_no_observed_record_keys",
+      "purpose": "追溯每次节点运行、校验、重试和人工修改；空种子不伪造运行记录。",
+      "fields": [
+        { "key": "node", "type": "single_select", "required": true, "allowed": ["N1", "N2", "N3", "N4", "N5", "N6", "N7"] },
+        { "key": "mode", "type": "text", "required": true },
+        { "key": "version", "type": "text", "required": true },
+        { "key": "run_id", "type": "text", "required": true, "unique": true },
+        { "key": "object_ref", "type": "json", "required": true },
+        { "key": "input_hash", "type": "text", "required": true },
+        { "key": "payload", "type": "json", "required": true },
+        { "key": "evidence_spans", "type": "json", "required": true },
+        { "key": "missing_fields", "type": "multi_select", "required": true },
+        { "key": "confidence", "type": "number", "required": true },
+        { "key": "status", "type": "single_select", "required": true, "allowed": ["ok", "needs_human", "refused", "error"] },
+        { "key": "validation", "type": "json", "required": true },
+        { "key": "retry_count", "type": "number", "required": true, "allowed": [0, 1] },
+        { "key": "human_revision", "type": "json", "required": true }
+      ],
+      "write_guards": ["at_most_one_same_version_schema_repair_retry", "public_export_is_redacted", "unneeded_sensitive_original_text_is_not_duplicated"]
+    }
+  ],
+  "frontend_views": [
+    {
+      "key": "feedback_inbox",
+      "name": "反馈收件箱",
+      "role_owner": "feedback_understanding",
+      "source_tables": ["raw_feedback", "cases"],
+      "shows": ["feedback_id", "channel", "processing_status", "linked_case_id", "candidate_vehicle_id", "candidate_task_id", "missing_fields", "status"],
+      "hides": ["payload", "administrator_configuration"]
+    },
+    {
+      "key": "case_cockpit",
+      "name": "案件驾驶舱",
+      "role_owner": "case_coordination",
+      "source_tables": ["cases", "work_orders", "vehicles", "delivery_tasks", "ai_audit"],
+      "shows": ["case_id", "summary", "entity_candidates", "formal_entity", "formal_entity_confirmation_status", "evidence_summary", "status", "sla_started_at", "sla_due_at"],
+      "hides": ["payload", "administrator_configuration"]
+    },
+    {
+      "key": "sla_board",
+      "name": "SLA 协同板",
+      "role_owner": "case_coordination",
+      "source_tables": ["work_orders", "cases"],
+      "shows": ["work_order_id", "case_id", "team", "assignee_role", "due_at", "escalation_level", "status", "validation_result"],
+      "hides": ["original_feedback_text_when_not_required"]
+    },
+    {
+      "key": "issue_map",
+      "name": "问题地图",
+      "role_owner": "improvement_insight",
+      "source_tables": ["clusters", "cases", "vehicles", "delivery_tasks"],
+      "shows": ["cluster_id", "name", "member_case_ids", "category_domain", "highest_risk", "status"],
+      "hides": ["final_root_cause_claim", "recurrence_records"]
+    },
+    {
+      "key": "improvement_tracking",
+      "name": "改进追踪",
+      "role_owner": "improvement_insight",
+      "source_tables": ["improvements", "clusters"],
+      "shows": ["improvement_id", "cluster_id", "measure", "observation_window_days", "clock_source", "day_7_result", "day_30_result", "human_conclusion", "status"],
+      "hides": ["recurrence_rate_without_denominator", "recurrence_records"]
+    }
+  ],
+  "logical_business_roles": [
+    {
+      "key": "feedback_understanding",
+      "name": "反馈理解角色",
+      "nature": "logical_view_and_orchestration_group_not_independent_agent_runtime",
+      "owns_nodes": [{ "node": "N1", "mode": "default" }, { "node": "N2", "mode": "default" }, { "node": "N3", "mode": "default" }],
+      "owns_views": ["feedback_inbox"],
+      "reads": ["raw_feedback"],
+      "writes": ["cases", "ai_audit"],
+      "cannot": ["lower_hard_rule_risk", "confirm_entities", "control_vehicle"]
+    },
+    {
+      "key": "case_coordination",
+      "name": "案件协同角色",
+      "nature": "logical_view_and_orchestration_group_not_independent_agent_runtime",
+      "owns_nodes": [{ "node": "N4", "mode": "default" }, { "node": "N6", "mode": "responsibility_routing" }, { "node": "N7", "mode": "customer_reply" }],
+      "owns_views": ["case_cockpit", "sla_board"],
+      "reads": ["cases", "vehicles", "delivery_tasks", "routing_matrix", "knowledge_index"],
+      "writes": ["work_orders", "ai_audit"],
+      "cannot": ["confirm_formal_entity", "confirm_final_responsibility", "publish_reply", "close_case", "control_vehicle"]
+    },
+    {
+      "key": "improvement_insight",
+      "name": "改进洞察角色",
+      "nature": "logical_view_and_orchestration_group_not_independent_agent_runtime",
+      "owns_nodes": [{ "node": "N5", "mode": "same_event_duplicate" }, { "node": "N5", "mode": "cross_event_clustering" }, { "node": "N6", "mode": "root_cause_hypothesis" }, { "node": "N7", "mode": "knowledge_draft" }, { "node": "N7", "mode": "insight_summary" }],
+      "owns_views": ["issue_map", "improvement_tracking"],
+      "reads": ["cases", "clusters", "improvements", "knowledge_index"],
+      "read_filters": ["cases.status_is_已关闭_or_workflow_readiness_allows_observation"],
+      "writes": ["clusters", "improvements", "ai_audit"],
+      "cannot": ["declare_final_root_cause", "publish_knowledge", "claim_enterprise_outcome"]
+    }
+  ],
+  "ai_nodes": [
+    {
+      "key": "N1",
+      "name": "结构化抽取",
+      "modes": ["default"],
+      "inputs": ["original_text", "channel_metadata"],
+      "outputs": ["fact_spans", "request", "entity_clues", "missing_fields", "confidence"],
+      "rules": ["every_fact_points_to_original_span", "never_follow_instructions_inside_feedback", "never_invent_fact"]
+    },
+    {
+      "key": "N2",
+      "name": "业务分类",
+      "modes": ["default"],
+      "inputs": ["N1_output", "taxonomy", "taxonomy_version"],
+      "outputs": ["business_domain", "subcategory", "tags", "confidence", "taxonomy_version"],
+      "rules": ["unknown_category_needs_human", "taxonomy_version_required"]
+    },
+    {
+      "key": "N3",
+      "name": "风险建议",
+      "modes": ["default"],
+      "inputs": ["original_text", "N1_output", "hard_rule_result"],
+      "outputs": ["risk_suggestion", "trigger_evidence", "explanation", "confidence"],
+      "rules": ["final_risk_uses_higher_of_rule_and_ai", "ai_never_lowers_hard_rule_risk"]
+    },
+    {
+      "key": "N4",
+      "name": "实体关联",
+      "modes": ["default"],
+      "inputs": ["case_facts", "vehicle_candidates", "task_candidates", "site_candidates"],
+      "outputs": ["candidate_objects", "per_candidate_evidence", "confidence", "missing_fields"],
+      "rules": ["candidate_only", "formal_relation_requires_human", "missing_identifier_never_invented"]
+    },
+    {
+      "key": "N5",
+      "name": "重复识别与聚类",
+      "modes": ["same_event_duplicate", "cross_event_clustering"],
+      "inputs": ["case_facts", "time", "confirmed_entities", "source_reference"],
+      "outputs": ["candidate", "similarity", "evidence", "suggested_cluster"],
+      "rules": ["mode_outputs_are_separate", "same_event_merge_requires_human", "cross_event_cases_never_auto_merge"]
+    },
+    {
+      "key": "N6",
+      "name": "根因假设与责任路由",
+      "modes": ["responsibility_routing", "root_cause_hypothesis"],
+      "mode_contracts": {
+        "responsibility_routing": {
+          "version": "N6-responsibility-routing-1.0.0-draft.2",
+          "inputs": ["evidence", "responsibility_matrix", "issue_cluster", "resolution_records"],
+          "outputs": ["candidates", "human_confirmation_required"]
+        },
+        "root_cause_hypothesis": {
+          "version": "N6-root-cause-1.0.0-draft.3",
+          "inputs": ["evidence", "issue_cluster", "resolution_records", "hypothesis_catalog"],
+          "outputs": ["hypotheses", "human_review_required", "final_root_cause"],
+          "hypothesis_catalog": {
+            "required": true,
+            "item_fields": ["hypothesis_id", "factor_label", "phenomenon_label", "uncertainty_options"],
+            "uncertainty_option_fields": ["uncertainty_id", "label"],
+            "rules": [
+              "hypothesis_id_must_be_unique_and_payload_referenced",
+              "uncertainty_id_must_be_globally_unique_and_payload_referenced",
+              "statement_must_equal_deterministic_catalog_rendering",
+              "labels_must_not_contain_causal_assertions_or_workflow_instructions"
+            ]
+          }
+        }
+      },
+      "inputs": ["evidence", "responsibility_matrix", "issue_cluster", "resolution_records", "hypothesis_catalog"],
+      "outputs": ["candidates", "human_confirmation_required", "hypotheses", "human_review_required", "final_root_cause"],
+      "rules": ["mode_outputs_are_separate", "never_final_responsibility", "never_final_technical_root_cause"]
+    },
+    {
+      "key": "N7",
+      "name": "回复、知识与洞察草稿",
+      "modes": ["customer_reply", "knowledge_draft", "insight_summary"],
+      "inputs": ["reviewed_facts", "resolution_result", "reviewed_knowledge_index"],
+      "outputs": ["draft", "citations", "missing_fields", "confidence"],
+      "rules": ["reviewed_knowledge_only", "human_review_before_publication", "no_compensation_or_recovery_commitment"]
+    }
+  ],
+  "ai_envelope": {
+    "required": ["node", "mode", "version", "run_id", "object_ref", "input_hash", "payload", "evidence_spans", "missing_fields", "confidence", "status", "validation", "retry_count", "human_revision"],
+    "object_ref": { "required": ["object_type", "object_id"] },
+    "validation": { "required": ["valid", "errors"] },
+    "human_revision": {
+      "required": ["state"],
+      "optional": ["revised_payload", "note"],
+      "state_allowed": ["none", "pending", "accepted", "rejected", "modified"]
+    },
+    "status_allowed": ["ok", "needs_human", "refused", "error"],
+    "schema_repair_retry_limit": 1,
+    "on_second_schema_failure": "stop_chain_and_route_to_human"
+  },
+  "workflows": [
+    {
+      "key": "W1",
+      "name": "接入幂等",
+      "triggers": ["new_form", "manual_import", "openapi_request"],
+      "steps": ["validate_or_generate_idempotency_key", "preserve_original_text", "preserve_authorization_scope", "create_or_return_existing_feedback"],
+      "success": "new_key_creates_feedback_same_key_returns_existing_feedback_id",
+      "failure": "no_existing_business_record_is_overwritten"
+    },
+    {
+      "key": "W2",
+      "name": "风险分诊",
+      "triggers": ["raw_feedback_processing_status_is_待分诊"],
+      "steps": ["run_hard_rules", "run_N1", "run_N2", "run_N3", "validate_outputs", "create_case"],
+      "success": "case_is_待补充_or_待关联_and_feedback_is_已建案",
+      "failure": "after_one_schema_repair_retry_feedback_is_人工处理_and_chain_stops"
+    },
+    {
+      "key": "W3",
+      "name": "关联派单",
+      "triggers": ["case_is_待关联", "same_event_duplicate_check_completed"],
+      "steps": ["run_N4", "run_N6_responsibility_routing", "show_candidate_evidence", "human_confirm_entity", "human_confirm_responsibility_and_sla_version", "create_work_order"],
+      "success": "case_moves_to_待派单_then_处理中_after_acceptance",
+      "failure": "missing_or_weak_evidence_moves_case_to_待补充_without_inventing_identifier"
+    },
+    {
+      "key": "W4",
+      "name": "SLA 协同",
+      "triggers": ["work_order_created", "due_soon", "overdue"],
+      "steps": ["send_reminder", "escalate_when_due", "record_takeover", "record_resolution_evidence"],
+      "success": "status_and_time_trace_update_without_resetting_sla_start",
+      "failure": "notify_administrator_keep_original_status_and_sla_start"
+    },
+    {
+      "key": "W5",
+      "name": "解决验证与回访",
+      "triggers": ["work_order_submits_closure_request"],
+      "steps": ["validate_resolution_evidence", "run_N7_customer_reply", "human_review_reply", "follow_up", "authorized_human_decides_close_or_return"],
+      "success": "follow_up_is_recorded_and_authorized_human_may_close_case",
+      "failure": "insufficient_evidence_or_abnormal_follow_up_returns_case_to_处理中"
+    },
+    {
+      "key": "W6",
+      "name": "问题簇与复发监测",
+      "triggers": ["new_case_created", "case_closed", "closed_case_during_active_observation", "observation_window_due"],
+      "steps": ["run_N5_same_event_before_dispatch", "human_merge_or_keep_separate", "run_N5_cross_event_after_close", "human_review_cluster", "run_N6_root_cause_hypothesis", "run_N7_knowledge_or_insight_draft", "manage_improvement", "enter_observation", "intake_active_observation_recurrence", "record_day_7", "record_day_30"],
+      "internal_authorized_actions": [
+        {
+          "action": "intake_active_observation_recurrence",
+          "classification": "W6_internal_authorized_action_not_a_seventh_workflow",
+          "phase": "cross_event_improvement_observation",
+          "trigger": "closed_case_during_active_observation",
+          "sequence": [
+            { "order": 1, "step": "run_N5_existing_cluster_candidate", "actor": "ai", "transaction_boundary": "pre_authorization_outside_resource_lock", "requires": ["repository_issued_W5_closure", "active_observation_state", "candidate_kind_existing_cluster", "automatic_merge_false", "automatic_case_relink_false"] },
+            { "order": 2, "step": "repository_issue_action_scoped_N5_receipt", "actor": "repository", "transaction_boundary": "pre_authorization_repository_validation", "requires": ["exact_N5_request_envelope_input_hash", "authoritative_W5_provenance", "exact_cluster_member_union", "shared_guard_violatesW6ActiveIntakeObservationWindow_passed_before_receipt_issue"] },
+            { "order": 3, "step": "authorized_human_recurrence_intake", "actor": "human", "transaction_boundary": "separate_human_authorization_transaction", "requires": ["unconsumed_action_scoped_N5_receipt", "recurrence_intake_policy"] },
+            { "order": 4, "step": "commit_intake_under_full_case_cluster_improvement_lock", "actor": "repository", "transaction_boundary": "single_atomic_intake_transaction", "requires": ["all_case_locks", "cluster_lock", "improvement_lock", "same_event", "same_transition", "same_authorization_target", "single_use_N5_receipt", "N5_validation_and_human_authorization_capabilities_consumed_before_final_guard", "shared_guard_violatesW6ActiveIntakeObservationWindow_passed_against_authoritative_state_inside_full_lock_before_state_fingerprint_CAS_and_business_commit"] }
+          ],
+          "active_observation_window_guard": {
+            "guard_id": "violatesW6ActiveIntakeObservationWindow",
+            "shared_implementation": true,
+            "guard_points": [
+              {
+                "point": "before_action_scoped_N5_receipt_issue",
+                "sequence_order": 2,
+                "state_source": "authoritative_cycle_checkpoint_and_closed_case_state"
+              },
+              {
+                "point": "inside_full_case_cluster_improvement_lock_before_state_fingerprint_CAS_and_business_commit",
+                "sequence_order": 4,
+                "state_source": "latest_authoritative_cycle_checkpoint_and_closed_case_state",
+                "capability_state_at_guard": "N5_validation_and_human_authorization_capabilities_consumed"
+              }
+            ],
+            "base_window": "opened_at < closed_at <= min(occurred_at, day30ExpectedAt)",
+            "day_7_sealed_when": ["same_cycle_day_7_checkpoint_exists", "occurred_at > day7ExpectedAt"],
+            "sealed_day_7_rejection": "closed_at <= day7ExpectedAt",
+            "equal_millisecond_rejected_after_day_7_sealed": true,
+            "day_30_eligibility_after_day_7_sealed": "closed_at > day7ExpectedAt_and_closed_at <= min(occurred_at, day30ExpectedAt)",
+            "checkpoint_first_intake_second": "a_checkpoint_committed_before_final_intake_guard_closes_day_7_and_rejects_closed_at_less_than_or_equal_to_day7ExpectedAt",
+            "final_guard_precedes_state_fingerprint_CAS": true
+          },
+          "receipt_isolation": {
+            "repository_issued": true,
+            "opaque": true,
+            "single_use": true,
+            "cross_reuse": "forbidden",
+            "forbidden_directions": ["N5_receipt_to_N6_start_improvement", "N6_receipt_to_N5_active_intake"],
+            "n5_receipt": { "action": "intake_active_observation_recurrence", "node": "N5", "mode": "cross_event_clustering", "version": "N5-cross-event-1.0.0-draft.2", "validator_version": "w6-n5-active-intake-validation-v1" },
+            "n6_receipt": { "action": "start_improvement", "node": "N6", "mode": "root_cause_hypothesis", "version": "N6-root-cause-1.0.0-draft.3", "validator_version": "w6-n6-validation-v1" }
+          },
+          "write_boundary": {
+            "allowed_field_writes": ["logical://tables/clusters/fields/member_case_ids"],
+            "append_only_writes": ["logical://tables/clusters/fields/recurrence_records", "logical://tables/ai_audit"],
+            "forbidden_field_writes": [
+              "logical://tables/cases/fields/cluster_id",
+              "logical://tables/cases/fields/status",
+              "logical://tables/raw_feedback/fields/linked_case_id",
+              "logical://tables/raw_feedback/fields/processing_status",
+              "logical://tables/clusters/fields/status",
+              "logical://tables/improvements/fields/status",
+              "logical://tables/improvements/fields/day_7_result",
+              "logical://tables/improvements/fields/day_30_result",
+              "logical://tables/improvements/fields/human_conclusion"
+            ],
+            "forbidden_record_mutations": ["logical://tables/cases", "logical://tables/raw_feedback", "logical://tables/improvements", "runtime://W6/observation_cycle"],
+            "relation_direction": "clusters.member_case_ids_is_one_way_and_never_backfills_cases.cluster_id",
+            "cluster_status_effect": "unchanged_观察中",
+            "improvement_status_effect": "unchanged_观察中",
+            "observation_cycle_effect": "unchanged"
+          },
+          "checkpoint_interlock_ref": "logical://workflows/W6/observation_phase_contract/checkpoint_contract",
+          "outcome_recording_contract": {
+            "capability_consumption_outcome": "record_separately_as_private_security_state",
+            "business_commit_outcome": "record_separately_as_committed_or_rejected",
+            "business_write_outcome": "record_separately_as_exact_business_write_set",
+            "w6_state_write_outcome": "record_separately_as_exact_durable_W6_state_write_set",
+            "final_guard_rejection_after_capability_consumption": {
+              "consumed_capabilities": ["N5_action_scoped_validation_capability", "human_recurrence_authorization_capability"],
+              "capability_consumption": "consumed",
+              "business_commit": "rejected",
+              "business_writes": [],
+              "w6_state_writes": []
+            },
+            "capability_consumption_is_not_business_or_W6_durable_write": true
+          },
+          "archive_and_publication_contract": {
+            "archive_requires": ["exact_day_7_checkpoint", "exact_day_30_checkpoint", "authorized_human", "non_empty_human_conclusion"],
+            "automatic_archive": false,
+            "automatic_knowledge_publication": false,
+            "automatic_final_root_cause": false
+          },
+          "failure_closed": ["no_write_without_N5_receipt", "no_write_without_human_authorization", "no_partial_write_on_lock_or_CAS_failure", "checkpoint_first_intake_second_cutoff_rejection_has_zero_business_writes", "checkpoint_first_intake_second_cutoff_rejection_has_zero_W6_durable_state_writes", "consumed_capabilities_are_recorded_as_private_security_state_not_business_or_W6_durable_writes", "preserve_case_and_feedback_records", "preserve_improvement_and_observation_cycle", "never_publish_unreviewed_knowledge"]
+        }
+      ],
+      "reopen_projection_contract": {
+        "contract_id": "W6_R10_feishu_reopen_projection_v1",
+        "projector_key": "neoloop.feishu.w6-reopen.v1",
+        "classification": "W6_projection_side_effect_not_a_seventh_workflow",
+        "workflow_id": "W6",
+        "source_action": "reopen_recurrence",
+        "fact_class": "solution_design",
+        "deployment_status": "offline_contract_not_configured_untested",
+        "workflow_count_effect": "unchanged_6",
+        "base_table_count_effect": "unchanged_10",
+        "R9_state_machine_effect": "unchanged_R9_remains_authoritative",
+        "real_executor_in_scope": false,
+        "contract_layers": {
+          "trusted_source": "verified_w6_reopen_projection_source.v1",
+          "base_before": "w6_reopen_projection_before.v1",
+          "trusted_capability": "w6_reopen_projection_capability.v1",
+          "private_sealed_plan": "w6_reopen_projection_plan.v1",
+          "trusted_execution_evidence": "w6_reopen_projection_execution_evidence.v1",
+          "base_observed": "w6_reopen_projection_observed.v1",
+          "planning_order": ["trusted_source", "base_before", "trusted_capability", "private_sealed_plan"],
+          "redelivery_order": ["trusted_source", "private_sealed_plan", "found_binding_recheck_via_existing_sealPlanIfAbsent", "trusted_execution_evidence", "base_observed"]
+        },
+        "semantic_replay_contract": {
+          "exact": {
+            "source_semantics": "authorized_exact_semantic_replay",
+            "decision": "no_op",
+            "projection_plan_count": 0,
+            "base_write_count": 0
+          },
+          "near": {
+            "source_semantics": "authorized_near_semantic_conflict",
+            "decision": "reject",
+            "error": "event_conflict",
+            "projection_plan_count": 0,
+            "base_write_count": 0
+          },
+          "miss": {
+            "source_semantics": "authorized_committed_new_reopen",
+            "decision": "apply_once",
+            "maximum_projection_plan_count": 1,
+            "requires_first_committed_reopen_receipt": true
+          }
+        },
+        "recurrence_record_union": {
+          "container_ref": "logical://tables/clusters/fields/recurrence_records",
+          "variants": ["preserved_non_R10_plain_JSON_record", "reopen_snapshot.v1"],
+          "preserved_non_R10_record": {
+            "descriptor_safe_plain_JSON_required": true,
+            "projection_contract_must_not_equal": "reopen_snapshot.v1",
+            "preserve_original_order": true,
+            "preserve_exact_own_keys_and_values": true,
+            "interpret_or_rewrite": false
+          },
+          "reopen_snapshot_v1": {
+            "projection_contract": "reopen_snapshot.v1",
+            "exact_fields": ["projection_contract", "data_scope", "evidence_class", "source_receipt_sha256", "projection_idempotency_key", "committed_at", "previous_projection", "previous_projection_sha256"],
+            "previous_projection_exact_fields": ["day_7_result", "day_30_result", "human_conclusion"],
+            "append_only": true,
+            "append_position": "array_tail"
+          }
+        },
+        "snapshot_and_clear_contract": {
+          "snapshot_source": "trusted_Base_before_not_runtime_inference",
+          "snapshot_previous_projection_fields": ["improvements.day_7_result", "improvements.day_30_result", "improvements.human_conclusion"],
+          "snapshot_destination": "clusters.recurrence_records.reopen_snapshot.v1.previous_projection",
+          "clear_current_projection_fields_to_null": ["improvements.day_7_result", "improvements.day_30_result", "improvements.human_conclusion"],
+          "same_sealed_plan_required": true,
+          "legal_miss_snapshot_append_count": 1,
+          "semantic_replay_snapshot_append_count": 0,
+          "onsite_atomicity_status": "not_tested"
+        },
+        "exact_write_allowlist": [
+          "clusters.member_case_ids",
+          "clusters.status",
+          "clusters.recurrence_records",
+          "clusters.updated_at",
+          "improvements.status",
+          "improvements.day_7_result",
+          "improvements.day_30_result",
+          "improvements.human_conclusion",
+          "improvements.updated_at"
+        ],
+        "write_target_counts": {
+          "clusters": 4,
+          "improvements": 5,
+          "total": 9
+        },
+        "business_key_selectors": [
+          { "target": "clusters", "field": "cluster_id" },
+          { "target": "improvements", "field": "improvement_id" }
+        ],
+        "selector_contract": {
+          "exact_single_record_required": true,
+          "zero_or_multiple_matches": "projection_conflict_zero_write",
+          "business_id_is_not_feishu_record_id": true,
+          "real_resource_identifiers_in_manifest": false,
+          "opaque_locator_is_private_executor_material": true
+        },
+        "base_receipt_storage_contract": {
+          "source_receipt_id_allowed_in_Base": false,
+          "source_receipt_sha256_allowed_only_in_reopen_snapshot": true,
+          "canonical_receipt_material_is_private_outbox_only": true
+        },
+        "found_binding_recheck_contract": {
+          "applies_to_lookup_outcome": "found",
+          "authoritative_plan_source": "ProjectionOutboxLookup.found.plan",
+          "existing_port_method": "sealPlanIfAbsent",
+          "port_signature_change": false,
+          "binding_dimensions": ["source_receipt_id", "source_receipt_sha256_digest_owner", "canonical_receipt_material", "sealed_plan"],
+          "order": [
+            "verify_lookup_authoritative_plan_against_trusted_source",
+            "call_existing_sealPlanIfAbsent_with_authoritative_plan_and_current_canonical_receipt_material",
+            "require_existing_same",
+            "require_returned_plan_exactly_matches_lookup_authoritative_plan",
+            "load_trusted_execution_evidence",
+            "load_Base_observed",
+            "reconcile"
+          ],
+          "continue_only_when": "existing_same_and_returned_plan_exactly_matches_lookup_authoritative_plan",
+          "outcome_mapping": {
+            "receipt_conflict": "commit_proof_mismatch",
+            "digest_conflict": "projection_conflict",
+            "plan_conflict": "projection_conflict",
+            "returned_plan_mismatch": "projection_conflict",
+            "sealed_after_found": "projection_dependency_failure"
+          },
+          "reads_forbidden_before_recheck": ["trusted_execution_evidence", "Base_observed", "trusted_capability", "trusted_clock"],
+          "canonical_receipt_material_scope": "private_trusted_source_and_outbox_only",
+          "new_initial_execution_owner_granted": false,
+          "new_execution_directive_granted": false,
+          "new_execution_right_granted": false
+        },
+        "plan_directive_artifact_boundary": {
+          "private_plan_type": "ProjectionWritePlan",
+          "private_execution_directive_types": ["ApplyOnceProjectionExecutionDirective", "ClusterRepairProjectionExecutionDirective", "ImprovementRepairProjectionExecutionDirective"],
+          "public_artifact_type": "RedactedProjectionArtifact",
+          "plan_patch_or_directive_allowed_in_public_artifact": false,
+          "found_binding_recheck_may_create_execution_directive": false,
+          "ordinary_facade_found_or_existing_same_execution_right": "none"
+        },
+        "capability_attestation_contract": {
+          "attestation_contract": "w6_reopen_projection_capability.v1",
+          "verification_status_allowed": ["synthetic_fixture", "not_tested", "onsite_verified"],
+          "execution_mode_allowed": ["atomic_all_targets", "sealed_outbox_cas", "insufficient"],
+          "states_are_mutually_exclusive": true,
+          "not_tested_requires": {
+            "execution_mode": "insufficient",
+            "recurrence_visibility_no_broader_than_source_fields": false,
+            "permission_snapshot_sha256": null,
+            "permission_revision": null,
+            "issued_at": null,
+            "expires_at": null,
+            "evidence_unit_ref": null,
+            "verified_by_role": null
+          },
+          "synthetic_fixture_requires": {
+            "data_scope": "synthetic_experiment",
+            "evidence_class": "synthetic_experiment",
+            "verified_by_role": "test_harness",
+            "real_executor_allowed": false
+          },
+          "onsite_verified_requires": {
+            "normalized_existing_evidence_unit_ref": "P02+P03",
+            "component_evidence_unit_refs": ["P02", "P03"],
+            "creates_new_probe": false,
+            "creates_new_evidence_unit": false,
+            "permission_snapshot_sha256_required": true,
+            "permission_revision_required": true,
+            "issued_at_and_expires_at_required": true,
+            "verified_by_role": "authorized_competition_operator"
+          },
+          "current_onsite_state": {
+            "verification_status": "not_tested",
+            "execution_mode": "insufficient",
+            "permission_snapshot_sha256": null,
+            "permission_revision": null,
+            "evidence_unit_ref": null,
+            "result": null,
+            "evidence": null,
+            "real_feishu_operations": 0,
+            "lark_cli_login_operations": 0,
+            "openapi_calls": 0
+          }
+        },
+        "raw_recurrence_visibility_ref": "logical://tables/clusters/fields/recurrence_records/visibility_contract",
+        "public_artifact_and_private_material_contract": {
+          "public_artifact_is_minimum_redacted": true,
+          "private_only": ["source_receipt_id", "canonical_receipt_material", "ProjectionWritePlan", "business_key_selectors", "opaque_record_locator", "permission_snapshot", "capability_attestation", "trusted_execution_evidence"],
+          "raw_history_or_principal_grant_claims_allowed_in_public_artifact": false,
+          "provider_error_or_stack_passthrough_allowed": false
+        },
+        "error_closed_set": [
+          "invalid_projection_input",
+          "unverified_commit",
+          "commit_proof_mismatch",
+          "event_conflict",
+          "projection_conflict",
+          "sensitive_output_rejected",
+          "platform_capability_insufficient",
+          "projection_dependency_failure"
+        ],
+        "onsite_boundary": {
+          "platform_atomic_all_targets": "not_tested",
+          "durable_sealed_outbox_CAS": "not_tested",
+          "worker_lease": "not_tested",
+          "exactly_once": "not_tested",
+          "real_Base_resources": null,
+          "deployment_claim": false
+        },
+        "failure_closed": ["no_projection_without_verified_committed_source", "no_write_on_exact_or_near", "no_second_snapshot_on_replay", "no_write_outside_exact_nine_field_allowlist", "no_raw_recurrence_visibility_beyond_improvement_insight", "no_execution_when_capability_is_not_tested_or_insufficient", "no_public_private_material_leak", "no_real_platform_capability_claim"]
+      },
+      "observation_phase_contract": {
+        "contract_id": "W6_batch_d1_observation_actions_v1",
+        "classification": "W6_internal_observation_actions_not_a_seventh_workflow",
+        "deployment_status": "draft_not_configured_untested",
+        "scope": {
+          "workflow_id": "W6",
+          "included_actions": ["enter_observation", "record_day_7", "record_day_30"],
+          "excluded_actions": ["archive_observation", "reopen_recurrence"],
+          "excluded_action_categories": ["archive", "reopen"],
+          "committed_reopen_history_use": "read_only_checkpoint_source_not_a_reopen_action",
+          "workflow_count_effect": "unchanged_6",
+          "base_table_count_effect": "unchanged_10",
+          "deployment_effect": "offline_contract_only_not_configured_untested"
+        },
+        "action_order": ["enter_observation", "record_day_7", "record_day_30"],
+        "trusted_generation_contract": {
+          "system_origin_fields": ["cycle_id", "clock_source", "occurred_at", "history_id", "receipt_id", "checkpoint_id"],
+          "trusted_sources": ["system_id_port", "trusted_clock_port", "repository_authoritative_state"],
+          "enter_caller_must_not_supply": ["cycle_id", "clock_source", "occurred_at", "history_id", "receipt_id", "checkpoint_id", "observation_history", "authorization_grant", "authorization_principal", "authorization_policy_version"],
+          "checkpoint_cycle_id_rule": "caller_may_reference_only_the_existing_system_generated_active_cycle_id_and_repository_must_revalidate_it",
+          "checkpoint_caller_must_not_supply": ["clock_source", "occurred_at", "history_id", "receipt_id", "checkpoint_id", "recurrence_case_ids", "observation_history", "authorization_grant", "authorization_principal", "authorization_policy_version"],
+          "runtime_only_not_base_canonical_fields": ["runtime://W6/observation_cycles", "runtime://W6/observation_checkpoints", "runtime://W6/history_entries", "runtime://W6/transition_receipts", "runtime://W6/improvements/current_observation_cycle_id"]
+        },
+        "actions": {
+          "enter_observation": {
+            "action": "enter_observation",
+            "phase": "observation",
+            "classification": "W6_internal_authorized_observation_action_not_a_seventh_workflow",
+            "command_contract": {
+              "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "actor", "reason"],
+              "caller_forbidden_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/enter_caller_must_not_supply",
+              "exact_shape_required": true
+            },
+            "ai_used": false,
+            "authorization": {
+              "required": true,
+              "actor_kind": "authorized_human",
+              "phase": "observation",
+              "await_boundary": "outside_resource_lock",
+              "resource_locks_held_while_awaiting": [],
+              "business_writes_while_awaiting": [],
+              "denial_or_invalid_grant_effect": "zero_target_business_writes"
+            },
+            "transaction": {
+              "boundary": "single_atomic_enter_observation_transaction_after_authorization",
+              "lock_scope": ["all_authoritative_case_resources", "cluster_resource", "improvement_resource"],
+              "trusted_clock_revalidation_inside_full_lock": true,
+              "state_fingerprint_CAS_inside_full_lock": true,
+              "external_or_provider_awaits_inside_lock": [],
+              "all_or_nothing": true
+            },
+            "write_boundary": {
+              "allowed_base_field_writes": ["logical://tables/clusters/fields/status", "logical://tables/improvements/fields/status", "logical://common_fields/updated_at"],
+              "updated_at_record_targets": ["logical://tables/clusters", "logical://tables/improvements"],
+              "runtime_state_writes": ["runtime://W6/improvements/current_observation_cycle_id"],
+              "runtime_append_only_writes": ["runtime://W6/observation_cycles", "runtime://W6/history_entries", "runtime://W6/transition_receipts"],
+              "forbidden_record_mutations": ["logical://tables/cases", "logical://tables/raw_feedback", "logical://tables/work_orders"],
+              "forbidden_base_field_writes": ["logical://tables/improvements/fields/day_7_result", "logical://tables/improvements/fields/day_30_result", "logical://tables/improvements/fields/human_conclusion"],
+              "runtime_refs_never_create_base_canonical_fields": true
+            },
+            "failure_closed": ["authorization_wait_holds_zero_resource_locks", "authorization_denial_or_wrong_channel_has_zero_target_business_writes", "trusted_clock_drift_has_zero_target_business_writes", "CAS_or_lock_conflict_has_zero_partial_writes"]
+          },
+          "record_day_7": {
+            "action": "record_day_7",
+            "phase": "observation",
+            "classification": "W6_internal_deterministic_checkpoint_action_not_a_seventh_workflow",
+            "command_contract": {
+              "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+              "caller_forbidden_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/checkpoint_caller_must_not_supply",
+              "exact_shape_required": true
+            },
+            "invocation": {
+              "mode": "deterministic_system",
+              "caller_actor_allowed": false,
+              "ai_invocation_allowed": false,
+              "authorizer_call_allowed": false,
+              "authorization_state": "not_required"
+            },
+            "transaction": {
+              "boundary": "separate_deterministic_day_7_checkpoint_transaction",
+              "shared_with_enter_or_other_checkpoint": false,
+              "exact_clock_and_active_cycle_revalidated_inside_full_lock": true,
+              "external_or_provider_awaits_inside_lock": [],
+              "all_or_nothing": true
+            },
+            "source_ref": "logical://workflows/W6/observation_phase_contract/recurrence_source_contract",
+            "write_boundary_ref": "logical://workflows/W6/observation_phase_contract/checkpoint_write_boundary",
+            "failure_closed": ["wrong_cycle_clock_or_horizon_has_zero_business_writes", "lock_wait_clock_drift_has_zero_business_writes", "missing_or_uncommitted_source_has_zero_business_writes"]
+          },
+          "record_day_30": {
+            "action": "record_day_30",
+            "phase": "observation",
+            "classification": "W6_internal_deterministic_checkpoint_action_not_a_seventh_workflow",
+            "command_contract": {
+              "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+              "caller_forbidden_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/checkpoint_caller_must_not_supply",
+              "exact_shape_required": true
+            },
+            "invocation": {
+              "mode": "deterministic_system",
+              "caller_actor_allowed": false,
+              "ai_invocation_allowed": false,
+              "authorizer_call_allowed": false,
+              "authorization_state": "not_required"
+            },
+            "transaction": {
+              "boundary": "separate_deterministic_day_30_checkpoint_transaction",
+              "shared_with_enter_or_other_checkpoint": false,
+              "exact_clock_and_active_cycle_revalidated_inside_full_lock": true,
+              "external_or_provider_awaits_inside_lock": [],
+              "all_or_nothing": true
+            },
+            "source_ref": "logical://workflows/W6/observation_phase_contract/recurrence_source_contract",
+            "write_boundary_ref": "logical://workflows/W6/observation_phase_contract/checkpoint_write_boundary",
+            "requires_same_cycle_day_7_checkpoint": true,
+            "cumulative_includes_day_7": true,
+            "failure_closed": ["missing_same_cycle_day_7_has_zero_business_writes", "wrong_cycle_clock_or_horizon_has_zero_business_writes", "lock_wait_clock_drift_has_zero_business_writes", "non_cumulative_source_has_zero_business_writes"]
+          }
+        },
+        "recurrence_source_contract": {
+          "allowed_authoritative_sources": ["committed_active_observation_intake_history_for_same_cycle", "committed_recurrence_reopen_cycle_facts_for_same_cycle"],
+          "reopen_history_mode": "read_only_source_only_reopen_action_excluded_from_batch_d1",
+          "excluded_sources": ["candidate", "authorization_only", "receipt_only", "rejected", "rolled_back", "uncommitted", "other_cycle"],
+          "window_rule": "opened_at < authoritative_closed_at <= checkpoint_expected_at",
+          "day_7_window": "same_cycle_opened_at_to_exact_day_7_expected_at",
+          "day_30_window": "same_cycle_opened_at_to_exact_day_30_expected_at",
+          "day_30_cumulatively_includes_day_7": true,
+          "related_task_volume_rule": "null_or_positive_safe_integer_not_less_than_authoritative_recurrence_count",
+          "missing_denominator": "recurrence_count_preserved_and_recurrence_rate_null"
+        },
+        "checkpoint_contract": {
+          "authorization_and_checkpoint_transaction_shared": false,
+          "day_7_and_day_30_transaction_shared": false,
+          "clock_source": "authoritative_observation_cycle_clock",
+          "day_7_expected_at": "opened_at_plus_exactly_7_days",
+          "day_30_expected_at": "opened_at_plus_exactly_30_days",
+          "exact_expected_at_required": true,
+          "active_cycle_revalidated_before_and_inside_lock": true,
+          "source_ref": "logical://workflows/W6/observation_phase_contract/recurrence_source_contract",
+          "day_30_requires_same_cycle_day_7": true,
+          "day_30_cumulative_includes_day_7": true,
+          "missing_denominator": "recurrence_count_preserved_and_recurrence_rate_null"
+        },
+        "checkpoint_write_boundary": {
+          "allowed_base_field_writes": [],
+          "runtime_append_only_writes": ["runtime://W6/observation_checkpoints", "runtime://W6/history_entries", "runtime://W6/transition_receipts"],
+          "forbidden_record_mutations": ["logical://tables/cases", "logical://tables/raw_feedback", "logical://tables/work_orders"],
+          "forbidden_base_field_writes": ["logical://tables/clusters/fields/member_case_ids", "logical://tables/clusters/fields/status", "logical://tables/improvements/fields/status", "logical://tables/improvements/fields/human_conclusion"],
+          "runtime_refs_never_create_base_canonical_fields": true
+        },
+        "audit_repair_contract": {
+          "applies_to": ["enter_observation", "record_day_7", "record_day_30"],
+          "business_success_audit_failure_state": "audit_pending",
+          "business_result_remains_authoritative": true,
+          "same_event_same_payload": "return_cached_business_result_and_repair_only_the_same_failed_audit",
+          "same_event_different_payload": "event_conflict",
+          "audit_only_repair_allowed_writes": ["runtime://W6/workflow_audit"],
+          "event_replay_business_writes": [],
+          "event_replay_forbidden_actions": ["repeat_human_authorization", "repeat_business_commit", "regenerate_cycle_id", "regenerate_history_id", "regenerate_receipt_id", "regenerate_checkpoint_id", "rerun_AI"],
+          "audit_repair_and_event_replay_are_separate_outcomes": true
+        },
+        "failure_closed": ["enter_authorization_wait_has_zero_locks_and_zero_writes", "enter_commit_is_atomic_inside_full_resource_lock", "day_7_and_day_30_have_no_caller_actor_AI_or_authorizer", "checkpoint_sources_are_committed_history_only", "day_30_is_cumulative", "null_denominator_means_null_rate", "audit_pending_repairs_audit_only", "event_replay_never_repeats_business", "archive_and_reopen_actions_remain_excluded", "workflow_count_remains_6", "no_runtime_cycle_history_receipt_field_is_added_to_base_canonical_schema"]
+      },
+      "success": "human_decisions_control_merge_cluster_improvement_active_recurrence_intake_and_enter_observation_while_day_7_day_30_are_deterministic_and_batch_d1_excludes_archive_reopen",
+      "failure": "preserve_observation_state_and_report_recurrence_count_only_when_business_volume_denominator_is_missing"
+    }
+  ],
+  "integration_order": [
+    { "workflow": "W1", "phase": "default" },
+    { "workflow": "W2", "phase": "default" },
+    { "workflow": "W6", "phase": "same_event_duplicate" },
+    { "workflow": "W3", "phase": "default" },
+    { "workflow": "W4", "phase": "default" },
+    { "workflow": "W5", "phase": "default" },
+    { "workflow": "W6", "phase": "cross_event_improvement_observation" }
+  ],
+  "human_gates": [
+    "risk_downgrade",
+    "formal_entity_relation",
+    "responsibility_confirmation",
+    "external_reply_publication",
+    "case_closure",
+    "final_root_cause",
+    "knowledge_publication"
+  ],
+  "forbidden_automatic_actions": [
+    "vehicle_control",
+    "dispatch_control",
+    "automatic_accident_liability",
+    "automatic_compensation",
+    "automatic_recovery_time_commitment",
+    "automatic_final_technical_root_cause",
+    "automatic_unreviewed_knowledge_publication"
+  ],
+  "permission_assumptions": [
+    "all_feishu_capabilities_are_untested_until_day_1_evidence_exists",
+    "document_anonymous_access_and_base_unprivileged_access_are_separate_tests",
+    "miaoda_and_aily_do_not_replace_base_core",
+    "openapi_is_disabled_until_self_built_app_and_minimum_permissions_are_approved",
+    "logical_business_roles_do_not_imply_platform_accounts_or_permission_roles"
+  ],
+  "evidence_class_contract": ["public_fact", "enterprise_pending", "solution_design", "synthetic_experiment"]
+}
