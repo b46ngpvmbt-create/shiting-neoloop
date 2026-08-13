@@ -1,9 +1,9 @@
 # T3-R10｜飞书 W6 复发重开离线投影合同
 
-日期：2026-08-04
-冻结回开纠正日期：2026-08-05
-任务线：T3 工程内核
-实施范围：R10 G0—G6.5，仅离线 projector 合同与合成测试
+日期：2026-08-04  
+冻结回开纠正日期：2026-08-05  
+任务线：T3 工程内核  
+实施范围：R10 G0—G6.5，仅离线 projector 合同与合成测试  
 结论：`已纠正`
 
 ## 1. 收口结论
@@ -183,5 +183,5 @@ G6.5 首次创建本记录；本次冻结回开收口只更新本记录。授权
 3. 真实 executor、permission recheck、selector→locator 解析、durable outbox、单 owner lease、每目标 CAS/ack 与崩溃续跑需要另立规格和故障注入，不能由当前 Base 状态或本地测试推定。
 4. 只有 core、test、record 三个最终 SHA 均在文件外冻结后，G7 才能从 logical `0.1.6` 开始，再按 build → derivatives 顺序推进。旧 logical/build 及全部 derivatives 均基于已被推翻的旧冻结，已经作废；本记录落盘时 G7 尚未放行，本轮也未运行 validator。record SHA 由主控在本文件外计算，本记录不自引用自身 SHA。
 
-最终结论：P0=0、P1=0、P2=0。
+最终结论：P0=0、P1=0、P2=0。  
 偏航结论：`已纠正`

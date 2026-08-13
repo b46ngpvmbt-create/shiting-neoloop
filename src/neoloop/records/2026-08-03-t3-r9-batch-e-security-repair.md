@@ -1,8 +1,8 @@
 # T3-R9｜Batch E 语义重放安全收口
 
-日期：2026-08-03
-任务线：T3 工程内核
-对应主线：W6 跨事件聚类、改进与复发观察
+日期：2026-08-03  
+任务线：T3 工程内核  
+对应主线：W6 跨事件聚类、改进与复发观察  
 结论：`已纠正`
 
 ## 1. 收口结论
@@ -134,5 +134,5 @@ R9 最终候选（记录文件自身 SHA 在正式交接中给出）：
 - Batch C 的 `improvement_batch_c`、D1 的 `observation_batch_d`、Batch E 的 `observation_batch_e` 及既有 `W6-BATCH-C-WORKFLOW-AUDIT-*` 兼容键未改变。
 - Lunar OS bridge 按总控命令未重试；未删除、覆盖或改写 `.codex/PROJECT_UPDATE.md`，不声称同步成功。
 
-P0=0、P1=0、P2=0。
+P0=0、P1=0、P2=0。  
 偏航结论：`已纠正`
