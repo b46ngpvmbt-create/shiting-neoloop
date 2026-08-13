@@ -40,7 +40,36 @@ next-env.d.ts
 /netlify-dist/
 /.wrangler/
 /outputs/
+/output/
 /work/
+/tsconfig.tsbuildinfo
+
+# Local resumable website workflow state
+/.codex/website-workflow-state.json
+
+# Local browser and document-rendering scratch files
+/.playwright-cli/
+/tmp/
+
+# Local Codex project-memory bridge state
+/.codex/
+
+# Local narration-synced video build products and cloned-voice inputs
+/video/neoloop-demo/node_modules/
+/video/neoloop-demo/output/
+/video/neoloop-demo/private/
+/video/neoloop-demo/public/audio/
+/video/neoloop-demo/public/audio-cloned/
+/video/neoloop-demo/public/audio-v3/
+/video/neoloop-demo/public/audio-v7/
+/video/neoloop-demo/public/captures/
+/video/neoloop-demo/public/master-sources/
+
+# Local Feishu capability-probe state and real resource mappings
+/feishu/config/*.local.json
+/feishu/.local/
+/feishu/workbench-plugin/dist-v7/
+/feishu-field-create-auth*.png
 
 # Local Netlify folder
 .netlify
