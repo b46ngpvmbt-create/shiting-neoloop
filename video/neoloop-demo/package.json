@@ -1,0 +1,30 @@
+{
+  "name": "shiting-neoloop-demo-video",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts NeoLoopDemo output/石听NeoLoop_4分36秒_Demo_v1.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:v2": "remotion render src/index.ts NeoLoopFeishuWebV2 output/石听NeoLoop_4分36秒_飞书实操增强版_v2.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:v3": "remotion render src/index.ts NeoLoopFeishuWebV3 output/石听NeoLoop_飞书落地演示_无底字幕_v3.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:v4": "remotion render src/index.ts NeoLoopFeishuWebV4 output/石听NeoLoop_飞书落地演示_无遮挡页面_v4.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:v5": "remotion render src/index.ts NeoLoopWorkbenchUsageV5 output/石听NeoLoop_工作台使用说明录屏_v5.mp4 --codec=h264 --crf=18",
+    "render:v6": "remotion render src/index.ts NeoLoopFeishuWorkbenchTutorialV6 output/石听NeoLoop_飞书落地工作台使用教程_v6.mp4 --codec=h264 --crf=18 --muted",
+    "render:v7": "remotion render src/index.ts NeoLoopFeishuWorkbenchTutorialV7 output/石听NeoLoop_飞书落地工作台交互教程_小何旁白_v7.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:final": "remotion render src/index.ts NeoLoopFinalSubmissionDemo output/石听NeoLoop_3分54秒_自由展示区总演示_v8.mp4 --codec=h264 --crf=18 --audio-codec=aac"
+  },
+  "dependencies": {
+    "@remotion/captions": "4.0.507",
+    "@remotion/cli": "latest",
+    "@remotion/media": "latest",
+    "memfs": "3.4.3",
+    "react": "latest",
+    "react-dom": "latest",
+    "remotion": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "typescript": "5.9.3"
+  }
+}

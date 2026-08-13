@@ -1,0 +1,41 @@
+[
+  {"text":"我们是石听未来，作品是石听 NeoLoop。","startMs":0,"endMs":3900,"timestampMs":0,"confidence":1},
+  {"text":"让每条反馈都找到一辆车、一个任务、一个责任人和一次改进。","startMs":3900,"endMs":10400,"timestampMs":3900,"confidence":1},
+  {"text":"系统包含个案闭环和改进闭环，但不执行车辆控制。","startMs":10400,"endMs":15336,"timestampMs":10400,"confidence":1},
+
+  {"text":"现在看到的是真实飞书环境中的合成演示版。","startMs":15336,"endMs":19700,"timestampMs":15336,"confidence":1},
+  {"text":"一个统一 Base 承载十张业务表、二百四十个字段和五个业务视图；","startMs":19700,"endMs":27100,"timestampMs":19700,"confidence":1},
+  {"text":"六条工作流处于启用配置状态。","startMs":27100,"endMs":30200,"timestampMs":27100,"confidence":1},
+  {"text":"这里展示的是当前落地结构，不等同于真实企业生产上线。","startMs":30200,"endMs":34536,"timestampMs":30200,"confidence":1},
+
+  {"text":"反馈可以从 App、客服、热线转写、邮件、飞书和经授权公开平台进入。","startMs":34536,"endMs":42500,"timestampMs":34536,"confidence":1},
+  {"text":"接入层保留来源、原文、接收时间和幂等键，再形成反馈案件。","startMs":42500,"endMs":49600,"timestampMs":42500,"confidence":1},
+  {"text":"未配置的渠道只保留接入契约，不宣称已经接通。","startMs":49600,"endMs":53520,"timestampMs":49600,"confidence":1},
+
+  {"text":"案件进入分诊后，硬规则先于 AI。","startMs":53520,"endMs":57800,"timestampMs":53520,"confidence":1},
+  {"text":"AI 只提出事实、风险、车辆、任务和责任候选；证据不足时必须停下。","startMs":57800,"endMs":65600,"timestampMs":57800,"confidence":1},
+  {"text":"正式实体和责任由授权人员分别确认，确认后才进入工单与 SLA 协同。","startMs":65600,"endMs":73200,"timestampMs":65600,"confidence":1},
+  {"text":"提醒、升级和改派都不能重置原始 SLA 起点。","startMs":73200,"endMs":77520,"timestampMs":73200,"confidence":1},
+
+  {"text":"单个案件关闭后仍会进入跨事件观察。","startMs":77520,"endMs":81600,"timestampMs":77520,"confidence":1},
+  {"text":"相似事件保留各自记录，只关联到同一个问题簇。","startMs":81600,"endMs":86400,"timestampMs":81600,"confidence":1},
+  {"text":"根因仍是假设，负责人确认后才形成改进项目，","startMs":86400,"endMs":91600,"timestampMs":86400,"confidence":1},
+  {"text":"并在七天和三十天观察；复发时重新进入处置和改进。","startMs":91600,"endMs":96888,"timestampMs":91600,"confidence":1},
+
+  {"text":"飞书适合承载数据和确定性流程，Web 沙盘补充展示人工治理细节。","startMs":96888,"endMs":104200,"timestampMs":96888,"confidence":1},
+  {"text":"这里先把实体候选退回补证，记录原因、返回节点和下一责任人；","startMs":104200,"endMs":110600,"timestampMs":104200,"confidence":1},
+  {"text":"补充证据后重新提交，再分别通过实体和责任关口，","startMs":110600,"endMs":115900,"timestampMs":110600,"confidence":1},
+  {"text":"创建工单、完成回访并关闭个案。","startMs":115900,"endMs":119300,"timestampMs":115900,"confidence":1},
+  {"text":"随后，案件进入问题簇候选和改进立项。","startMs":119300,"endMs":123100,"timestampMs":119300,"confidence":1},
+  {"text":"这个沙盘不保存数据，也不触发真实飞书工作流。","startMs":123100,"endMs":127296,"timestampMs":123100,"confidence":1},
+
+  {"text":"AI 审计保留输入、候选、证据和人工决定。","startMs":127296,"endMs":132200,"timestampMs":127296,"confidence":1},
+  {"text":"P0、P1 硬规则优先，风险只允许上调；","startMs":132200,"endMs":137000,"timestampMs":132200,"confidence":1},
+  {"text":"字段不足、权限不足或节点失败时，系统保持原状态并转人工。","startMs":137000,"endMs":143800,"timestampMs":137000,"confidence":1},
+  {"text":"系统不自动判责、赔偿或确认最终技术根因。","startMs":143800,"endMs":147576,"timestampMs":143800,"confidence":1},
+
+  {"text":"Web 体验展示交互，飞书展示当前落地，离线包证明工程材料可复核。","startMs":147576,"endMs":155000,"timestampMs":147576,"confidence":1},
+  {"text":"三层证据共同追踪 SYN-CASE-017、SYN-CLUSTER-001","startMs":155000,"endMs":162500,"timestampMs":155000,"confidence":1},
+  {"text":"和 SYN-IMPROVEMENT-001。","startMs":162500,"endMs":165500,"timestampMs":162500,"confidence":1},
+  {"text":"石听 NeoLoop，让每条反馈都找到一辆车、一个任务、一个责任人和一次改进。","startMs":165500,"endMs":173040,"timestampMs":165500,"confidence":1}
+]
