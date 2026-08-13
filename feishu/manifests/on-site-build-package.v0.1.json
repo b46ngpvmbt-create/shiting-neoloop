@@ -1,0 +1,1354 @@
+{
+  "package_version": "0.1.5",
+  "project": "石听 NeoLoop",
+  "fact_class": "solution_design",
+  "deployment_status": "offline_draft_not_configured_in_feishu",
+  "permission_status": "P01-P13_all_untested",
+  "schema_version": "1.0.0-draft.2",
+  "source_of_truth": {
+    "path": "./neoloop-logical-manifest.v0.1.json",
+    "sha256": "c4e9790c724723864869365bebfc98a3d72baceb5e643386df5b1685a43d8f60",
+    "manifest_version": "0.1.6",
+    "resolution_rule": "All field types, required flags, enums, relations, source write guards, node inputs and outputs, envelope fields, workflow triggers and source steps are resolved from this manifest at execution time.",
+    "second_field_contract_allowed": false,
+    "selector_syntax": "logical://{collection}/{canonical_key_or_property}/{property}[/{nested_key}[/{nested_property}]]"
+  },
+  "counts": {
+    "tables": 10,
+    "business_views": 5,
+    "logical_roles": 3,
+    "ai_nodes": 7,
+    "workflows": 6
+  },
+  "onsite_entry_gate": {
+    "permission_matrix": "../runbooks/day-1-permission-matrix.md",
+    "permission_runbook": "../runbooks/day-1-permission-acceptance.md",
+    "build_runbook": "../runbooks/on-site-build-runbook.md",
+    "rule": "Use the actual P01-P13 result branch. Untested capabilities remain untested and are never inferred from visible product entries.",
+    "base_core_requires": ["P02", "P03"],
+    "anonymous_document_is_separate": "P01",
+    "ai_requires": ["P04"],
+    "workflow_requires": ["P05"],
+    "approval_native_or_protected_field_fallback": "P06",
+    "knowledge_requires_or_base_fallback": "P08",
+    "non_d0_enhancements": ["P09", "P10", "P11", "P12", "P13"],
+    "r10_reopen_projection": {
+      "existing_capability_evidence_ref": "P02+P03",
+      "component_evidence_units": ["P02", "P03"],
+      "automation_permission_gate": "P05",
+      "approval_or_protected_field_gate": "P06",
+      "verification_status": "not_tested",
+      "execution_mode": "insufficient",
+      "automatic_projection_enabled": false,
+      "manual_stop_required": true,
+      "result": null,
+      "evidence": null
+    }
+  },
+  "field_contract_resolution": {
+    "effective_field_order": "logical.common_fields in source order, followed by logical.tables[canonical_table_key].fields in source order",
+    "type_ref": "logical://common_fields_or_tables/{field_key}/type",
+    "required_ref": "logical://common_fields_or_tables/{field_key}/required",
+    "enum_ref": "logical://common_fields_or_tables/{field_key}/allowed",
+    "relation_ref": "logical://tables/{canonical_table_key}/fields/{field_key}/target",
+    "source_write_guard_ref": "logical://tables/{canonical_table_key}/write_guards",
+    "human_confirmation_ref": "logical://tables/{canonical_table_key}/fields/{field_key}/human_confirmed",
+    "rule": "No type, required flag, enum or relation target may be invented or overridden in this package. Unsupported physical types stop the build and require a documented adapter decision from the controller."
+  },
+  "physical_field_mapping_draft": {
+    "verification_status": "未测试",
+    "permission_gate": "P02",
+    "source_type_to_proposed_feishu_type": {
+      "text": "文本",
+      "long_text": "多行文本",
+      "single_select": "单选",
+      "multi_select": "多选",
+      "boolean": "复选框",
+      "number": "数字",
+      "datetime": "日期时间",
+      "url": "超链接",
+      "json": "多行文本加 JSON 结构校验",
+      "relation_one": "单向单条关联",
+      "relation_many": "单向多条关联"
+    },
+    "required_enforcement": "Where the platform supports required fields, enforce the logical required flag directly. Otherwise use a protected preflight view or verified automation/manual checklist and record P02 as limited; never silently weaken the logical contract.",
+    "unsupported_type_stop": "Record F04 and request a controller adapter decision. This draft mapping is not proof that the tenant supports the physical type.",
+    "raw_json_field_visibility_contracts": [
+      {
+        "field_ref": "logical://tables/clusters/fields/recurrence_records",
+        "source_visibility_ref": "logical://tables/clusters/fields/recurrence_records/visibility_contract",
+        "proposed_physical_type": "多行文本加 JSON 结构校验",
+        "raw_read_logical_roles": ["improvement_insight"],
+        "forbidden_raw_read_logical_roles": ["feedback_understanding", "case_coordination"],
+        "unprivileged_access_surfaces": ["all_five_business_views", "direct_clusters_table_access"],
+        "expected_unprivileged_visibility": "not_visible",
+        "permission_gates": ["P02", "P03"],
+        "verification_status": "not_tested",
+        "result": null,
+        "evidence": null
+      }
+    ]
+  },
+  "field_protection_resolution": {
+    "categories": [
+      "controlled_workflow_write",
+      "authorized_human_write",
+      "automation_system_write",
+      "ai_candidate_write",
+      "immutable_or_snapshot_read_only",
+      "append_only_audit"
+    ],
+    "resolution_precedence": ["exact_field_override", "common_field_override", "table_default", "global_default"],
+    "global_default": "controlled_workflow_write",
+    "common_field_overrides": {
+      "schema_version": "immutable_or_snapshot_read_only",
+      "data_scope": "immutable_or_snapshot_read_only",
+      "evidence_class": "immutable_or_snapshot_read_only",
+      "created_at": "immutable_or_snapshot_read_only",
+      "updated_at": "automation_system_write",
+      "source_kind": "immutable_or_snapshot_read_only"
+    },
+    "table_defaults": {
+      "raw_feedback": "controlled_workflow_write",
+      "cases": "controlled_workflow_write",
+      "work_orders": "controlled_workflow_write",
+      "clusters": "controlled_workflow_write",
+      "improvements": "controlled_workflow_write",
+      "vehicles": "immutable_or_snapshot_read_only",
+      "delivery_tasks": "immutable_or_snapshot_read_only",
+      "routing_matrix": "authorized_human_write",
+      "knowledge_index": "authorized_human_write",
+      "ai_audit": "append_only_audit"
+    },
+    "exact_field_overrides": [
+      { "field_ref": "logical://tables/raw_feedback/fields/original_text", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/raw_feedback/fields/original_text_mutable", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/raw_feedback/fields/idempotency_key", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/cases/fields/rule_risk", "category": "automation_system_write" },
+      { "field_ref": "logical://tables/cases/fields/formal_entity", "category": "authorized_human_write" },
+      { "field_ref": "logical://tables/cases/fields/sla_started_at", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/cases/fields/record_mode", "category": "automation_system_write" },
+      { "field_ref": "logical://tables/work_orders/fields/team", "category": "authorized_human_write" },
+      { "field_ref": "logical://tables/work_orders/fields/assignee_role", "category": "authorized_human_write" },
+      { "field_ref": "logical://tables/work_orders/fields/sla_reset_count", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/clusters/fields/deterministic_fingerprint", "category": "automation_system_write" },
+      { "field_ref": "logical://tables/clusters/fields/root_cause_hypothesis", "category": "ai_candidate_write" },
+      { "field_ref": "logical://tables/improvements/fields/clock_source", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/improvements/fields/metric_formula", "category": "immutable_or_snapshot_read_only" },
+      { "field_ref": "logical://tables/improvements/fields/human_conclusion", "category": "authorized_human_write" }
+    ],
+    "state_action_overlays": [
+      { "field_ref": "logical://tables/raw_feedback/fields/processing_status", "action": "mark_已忽略", "actor": "authorized_human" },
+      { "field_ref": "logical://tables/cases/fields/final_risk", "action": "downgrade", "actor": "authorized_human_with_audit" },
+      { "field_ref": "logical://tables/cases/fields/status", "action": "mark_已关闭", "actor": "authorized_human" },
+      { "field_ref": "logical://tables/work_orders/fields/status", "action": "mark_已完成", "actor": "authorized_human_after_validation" },
+      { "field_ref": "logical://tables/clusters/fields/status", "action": "approve_archive_or_reopen", "actor": "authorized_human" },
+      { "field_ref": "logical://tables/improvements/fields/status", "action": "mark_已完成_or_已终止", "actor": "authorized_human" },
+      { "field_ref": "logical://tables/knowledge_index/fields/approval_status", "action": "approve_or_publish", "actor": "authorized_human" }
+    ],
+    "action_scoped_write_contracts": [
+      {
+        "action": "intake_active_observation_recurrence",
+        "workflow_id": "W6",
+        "phase": "cross_event_improvement_observation",
+        "source_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence/write_boundary",
+        "allowed_field_writes": ["logical://tables/clusters/fields/member_case_ids"],
+        "append_only_writes": ["logical://tables/clusters/fields/recurrence_records", "logical://tables/ai_audit"],
+        "business_atomic_commit_writes": ["logical://tables/clusters/fields/member_case_ids", "logical://tables/clusters/fields/recurrence_records"],
+        "workflow_audit_compensation": "outside_business_atomic_commit_same_workflow_audit_id_repair_only",
+        "active_observation_window_guard_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence/active_observation_window_guard",
+        "guard_points": [
+          {
+            "point": "before_action_scoped_N5_receipt_issue",
+            "sequence_order": 2,
+            "requires": "shared_guard_violatesW6ActiveIntakeObservationWindow_passed_before_receipt_issue"
+          },
+          {
+            "point": "inside_full_case_cluster_improvement_lock_before_state_fingerprint_CAS_and_business_commit",
+            "sequence_order": 4,
+            "requires": "N5_validation_and_human_authorization_capabilities_consumed_then_shared_guard_violatesW6ActiveIntakeObservationWindow_passed_against_latest_authoritative_state"
+          }
+        ],
+        "guard_rule": {
+          "base_window": "opened_at < closed_at <= min(occurred_at, day30ExpectedAt)",
+          "day_7_sealed_when": ["same_cycle_day_7_checkpoint_exists", "occurred_at > day7ExpectedAt"],
+          "sealed_day_7_rejection": "closed_at <= day7ExpectedAt",
+          "equal_millisecond_rejected_after_day_7_sealed": true,
+          "post_day_7_day_30_eligibility": "closed_at > day7ExpectedAt_and_closed_at <= min(occurred_at, day30ExpectedAt)"
+        },
+        "cutoff_rejection_outcome": {
+          "consumed_capabilities": ["N5_action_scoped_validation_capability", "human_recurrence_authorization_capability"],
+          "capability_consumption": "consumed_when_final_guard_rejects_after_N5_and_human_capabilities_are_consumed",
+          "business_commit": "rejected",
+          "business_writes": [],
+          "w6_state_writes": []
+        },
+        "outcome_recording": "capability_consumption_business_commit_business_writes_and_w6_state_writes_are_recorded_separately",
+        "forbidden_field_writes": [
+          "logical://tables/cases/fields/cluster_id",
+          "logical://tables/cases/fields/status",
+          "logical://tables/raw_feedback/fields/linked_case_id",
+          "logical://tables/raw_feedback/fields/processing_status",
+          "logical://tables/clusters/fields/status",
+          "logical://tables/improvements/fields/status",
+          "logical://tables/improvements/fields/day_7_result",
+          "logical://tables/improvements/fields/day_30_result",
+          "logical://tables/improvements/fields/human_conclusion"
+        ],
+        "forbidden_record_mutations": ["logical://tables/cases", "logical://tables/raw_feedback", "logical://tables/improvements", "runtime://W6/observation_cycle"],
+        "relation_direction": "clusters.member_case_ids_is_one_way_and_never_backfills_cases.cluster_id",
+        "cluster_status_effect": "unchanged_观察中",
+        "improvement_status_effect": "unchanged_观察中",
+        "observation_cycle_effect": "unchanged",
+        "verification_status": "not_configured_untested"
+      },
+      {
+        "action": "enter_observation",
+        "workflow_id": "W6",
+        "phase": "observation",
+        "classification": "W6_internal_authorized_observation_action_not_a_seventh_workflow",
+        "source_ref": "logical://workflows/W6/observation_phase_contract/actions/enter_observation",
+        "command_contract_ref": "logical://workflows/W6/observation_phase_contract/actions/enter_observation/command_contract",
+        "authorization_contract_ref": "logical://workflows/W6/observation_phase_contract/actions/enter_observation/authorization",
+        "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "actor", "reason"],
+        "caller_forbidden_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/enter_caller_must_not_supply",
+        "human_authorization": {
+          "required": true,
+          "phase": "observation",
+          "await_boundary": "outside_resource_lock",
+          "resource_locks_held_while_awaiting": [],
+          "business_writes_while_awaiting": []
+        },
+        "transaction": {
+          "boundary": "single_atomic_enter_observation_transaction_after_authorization",
+          "full_lock_scope": ["all_authoritative_case_resources", "cluster_resource", "improvement_resource"],
+          "trusted_clock_revalidation_inside_full_lock": true,
+          "state_fingerprint_CAS_inside_full_lock": true,
+          "external_or_provider_awaits_inside_lock": [],
+          "all_or_nothing": true
+        },
+        "allowed_base_field_writes": [
+          "logical://tables/clusters/fields/status",
+          "logical://tables/improvements/fields/status",
+          "logical://common_fields/updated_at"
+        ],
+        "updated_at_record_targets": [
+          "logical://tables/clusters",
+          "logical://tables/improvements"
+        ],
+        "runtime_state_writes": ["runtime://W6/improvements/current_observation_cycle_id"],
+        "runtime_append_only_writes": [
+          "runtime://W6/observation_cycles",
+          "runtime://W6/history_entries",
+          "runtime://W6/transition_receipts"
+        ],
+        "forbidden_record_mutations": [
+          "logical://tables/cases",
+          "logical://tables/raw_feedback",
+          "logical://tables/work_orders"
+        ],
+        "forbidden_base_field_writes": [
+          "logical://tables/improvements/fields/day_7_result",
+          "logical://tables/improvements/fields/day_30_result",
+          "logical://tables/improvements/fields/human_conclusion"
+        ],
+        "runtime_refs_never_create_base_canonical_fields": true,
+        "failure_outcome": {
+          "authorization_denial_or_wrong_channel": "zero_target_business_writes",
+          "trusted_clock_drift": "zero_target_business_writes",
+          "CAS_or_lock_conflict": "zero_partial_writes"
+        },
+        "verification_status": "not_configured_untested"
+      },
+      {
+        "action": "record_day_7",
+        "workflow_id": "W6",
+        "phase": "observation",
+        "classification": "W6_internal_deterministic_checkpoint_action_not_a_seventh_workflow",
+        "source_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_7",
+        "command_contract_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_7/command_contract",
+        "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+        "caller_forbidden_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/checkpoint_caller_must_not_supply",
+        "invocation": {
+          "mode": "deterministic_system",
+          "caller_actor_allowed": false,
+          "ai_invocation_allowed": false,
+          "authorizer_call_allowed": false,
+          "authorization_state": "not_required"
+        },
+        "transaction": {
+          "boundary": "separate_deterministic_day_7_checkpoint_transaction",
+          "shared_with_enter_or_other_checkpoint": false,
+          "exact_clock_and_active_cycle_revalidated_inside_full_lock": true,
+          "external_or_provider_awaits_inside_lock": [],
+          "all_or_nothing": true
+        },
+        "recurrence_source_ref": "logical://workflows/W6/observation_phase_contract/recurrence_source_contract",
+        "checkpoint_contract_ref": "logical://workflows/W6/observation_phase_contract/checkpoint_contract",
+        "allowed_base_field_writes": [],
+        "runtime_append_only_writes": [
+          "runtime://W6/observation_checkpoints",
+          "runtime://W6/history_entries",
+          "runtime://W6/transition_receipts"
+        ],
+        "forbidden_record_mutations": [
+          "logical://tables/cases",
+          "logical://tables/raw_feedback",
+          "logical://tables/work_orders"
+        ],
+        "runtime_refs_never_create_base_canonical_fields": true,
+        "failure_outcome": "wrong_cycle_clock_horizon_lock_drift_or_uncommitted_source_has_zero_business_writes",
+        "verification_status": "not_configured_untested"
+      },
+      {
+        "action": "record_day_30",
+        "workflow_id": "W6",
+        "phase": "observation",
+        "classification": "W6_internal_deterministic_checkpoint_action_not_a_seventh_workflow",
+        "source_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_30",
+        "command_contract_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_30/command_contract",
+        "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+        "caller_forbidden_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/checkpoint_caller_must_not_supply",
+        "invocation": {
+          "mode": "deterministic_system",
+          "caller_actor_allowed": false,
+          "ai_invocation_allowed": false,
+          "authorizer_call_allowed": false,
+          "authorization_state": "not_required"
+        },
+        "transaction": {
+          "boundary": "separate_deterministic_day_30_checkpoint_transaction",
+          "shared_with_enter_or_other_checkpoint": false,
+          "exact_clock_and_active_cycle_revalidated_inside_full_lock": true,
+          "external_or_provider_awaits_inside_lock": [],
+          "all_or_nothing": true
+        },
+        "recurrence_source_ref": "logical://workflows/W6/observation_phase_contract/recurrence_source_contract",
+        "checkpoint_contract_ref": "logical://workflows/W6/observation_phase_contract/checkpoint_contract",
+        "requires_same_cycle_day_7_checkpoint": true,
+        "day_30_cumulative_includes_day_7": true,
+        "allowed_base_field_writes": [],
+        "runtime_append_only_writes": [
+          "runtime://W6/observation_checkpoints",
+          "runtime://W6/history_entries",
+          "runtime://W6/transition_receipts"
+        ],
+        "forbidden_record_mutations": [
+          "logical://tables/cases",
+          "logical://tables/raw_feedback",
+          "logical://tables/work_orders"
+        ],
+        "runtime_refs_never_create_base_canonical_fields": true,
+        "failure_outcome": "missing_day_7_wrong_cycle_clock_horizon_lock_drift_or_non_cumulative_source_has_zero_business_writes",
+        "verification_status": "not_configured_untested"
+      }
+    ],
+    "projection_scoped_write_contracts": [
+      {
+        "projector_key": "neoloop.feishu.w6-reopen.v1",
+        "workflow_id": "W6",
+        "classification": "W6_projection_side_effect_not_a_seventh_workflow",
+        "source_ref": "logical://workflows/W6/reopen_projection_contract",
+        "exact_write_allowlist": [
+          "clusters.member_case_ids",
+          "clusters.status",
+          "clusters.recurrence_records",
+          "clusters.updated_at",
+          "improvements.status",
+          "improvements.day_7_result",
+          "improvements.day_30_result",
+          "improvements.human_conclusion",
+          "improvements.updated_at"
+        ],
+        "write_target_counts": {
+          "clusters": 4,
+          "improvements": 5,
+          "total": 9
+        },
+        "all_other_fields_and_tables": "forbidden",
+        "verification_status": "not_configured_untested"
+      }
+    ],
+    "raw_field_visibility_contracts": [
+      {
+        "field_ref": "logical://tables/clusters/fields/recurrence_records",
+        "source_visibility_ref": "logical://tables/clusters/fields/recurrence_records/visibility_contract",
+        "raw_read_logical_roles": ["improvement_insight"],
+        "forbidden_raw_read_logical_roles": ["feedback_understanding", "case_coordination"],
+        "hidden_in_business_views": ["issue_map", "improvement_tracking"],
+        "P03_unprivileged_access_surfaces": ["all_five_business_views", "direct_clusters_table_access"],
+        "expected_unprivileged_visibility": "not_visible",
+        "verification_status": "not_tested",
+        "result": null,
+        "evidence": null
+      }
+    ],
+    "resolution_assertion": "Every one of the 240 effective fields must resolve to exactly one category by first-match precedence. Action overlays narrow transitions but never create another field contract.",
+    "fallback_rule": "If the tenant cannot enforce a category, use a protected view plus an explicit human checklist, keep the fallback verification status untested until exercised, and record P03/P06 as limited."
+  },
+  "build_phases": [
+    {
+      "order": 1,
+      "id": "permission_branch",
+      "depends_on": [],
+      "action": "Select the documented branch from actual P01-P13 evidence; do not change an untested result."
+    },
+    {
+      "order": 2,
+      "id": "create_table_shells",
+      "depends_on": ["permission_branch"],
+      "action": "Create ten empty table shells in table_build_order, without importing data or adding relations."
+    },
+    {
+      "order": 3,
+      "id": "create_non_relation_fields",
+      "depends_on": ["create_table_shells"],
+      "action": "Resolve the effective field order from the logical manifest and create common plus non-relation fields."
+    },
+    {
+      "order": 4,
+      "id": "create_relations",
+      "depends_on": ["create_non_relation_fields"],
+      "action": "Create relation fields only after every target table shell exists, in relation_build_order."
+    },
+    {
+      "order": 5,
+      "id": "verify_zero_formula_contract",
+      "depends_on": ["create_relations"],
+      "action": "Verify that the frozen logical contract contains zero formula fields. Do not add lookup or formula helper fields."
+    },
+    {
+      "order": 6,
+      "id": "apply_field_protection",
+      "depends_on": ["verify_zero_formula_contract"],
+      "action": "Apply the global overlay and each table protection plan; verify with an unprivileged account when P03 permits."
+    },
+    {
+      "order": 7,
+      "id": "create_views",
+      "depends_on": ["apply_field_protection"],
+      "action": "Create five business views; cross-table fields remain linked-record drill-downs and do not become new canonical fields."
+    },
+    {
+      "order": 8,
+      "id": "map_logical_roles",
+      "depends_on": ["create_views"],
+      "action": "Document three logical visibility groups and human gates without claiming a real Feishu role mapping."
+    },
+    {
+      "order": 9,
+      "id": "configure_ai_nodes",
+      "depends_on": ["apply_field_protection", "map_logical_roles"],
+      "action": "When P04 evidence permits, configure N1-N7 against the shared envelope; otherwise install the manual execution and audit fallback only."
+    },
+    {
+      "order": 10,
+      "id": "configure_workflows",
+      "depends_on": ["create_views", "configure_ai_nodes"],
+      "action": "When P05 evidence permits, configure workflow phases in integration_order; otherwise use protected status fields, checklists and audit entries."
+    },
+    {
+      "order": 11,
+      "id": "collect_evidence_and_freeze",
+      "depends_on": ["configure_workflows"],
+      "action": "Run positive, boundary and failure checks, fill evidence units, then freeze the resource mapping locally."
+    }
+  ],
+  "table_build_order": [
+    { "order": 1, "table_ref": "logical://tables/vehicles", "primary_business_key_ref": "logical://tables/vehicles/primary_business_key" },
+    { "order": 2, "table_ref": "logical://tables/delivery_tasks", "primary_business_key_ref": "logical://tables/delivery_tasks/primary_business_key" },
+    { "order": 3, "table_ref": "logical://tables/routing_matrix", "primary_business_key_ref": "logical://tables/routing_matrix/primary_business_key" },
+    { "order": 4, "table_ref": "logical://tables/knowledge_index", "primary_business_key_ref": "logical://tables/knowledge_index/primary_business_key" },
+    { "order": 5, "table_ref": "logical://tables/raw_feedback", "primary_business_key_ref": "logical://tables/raw_feedback/primary_business_key" },
+    { "order": 6, "table_ref": "logical://tables/cases", "primary_business_key_ref": "logical://tables/cases/primary_business_key" },
+    { "order": 7, "table_ref": "logical://tables/work_orders", "primary_business_key_ref": "logical://tables/work_orders/primary_business_key" },
+    { "order": 8, "table_ref": "logical://tables/clusters", "primary_business_key_ref": "logical://tables/clusters/primary_business_key" },
+    { "order": 9, "table_ref": "logical://tables/improvements", "primary_business_key_ref": "logical://tables/improvements/primary_business_key" },
+    { "order": 10, "table_ref": "logical://tables/ai_audit", "primary_business_key_ref": "logical://tables/ai_audit/primary_business_key" }
+  ],
+  "tables": [
+    {
+      "canonical_table_key": "raw_feedback",
+      "display_name_ref": "logical://tables/raw_feedback/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/raw_feedback/fields"],
+      "primary_business_key_ref": "logical://tables/raw_feedback/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/raw_feedback",
+      "protection": {
+        "mode": "immutable_ingest_source_with_human_status_control",
+        "read_only_fields": ["original_text", "original_text_mutable", "idempotency_key"],
+        "human_only_actions": ["mark_ignored"],
+        "write_guards_ref": "logical://tables/raw_feedback/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "cases",
+      "display_name_ref": "logical://tables/cases/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/cases/fields"],
+      "primary_business_key_ref": "logical://tables/cases/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/cases",
+      "protection": {
+        "mode": "candidate_ai_and_authorized_human_confirmation",
+        "read_only_fields": ["rule_risk", "sla_started_at", "record_mode"],
+        "human_confirmation_fields": ["formal_entity"],
+        "human_only_actions": ["risk_downgrade_with_audit", "confirm_formal_entity", "close_case"],
+        "write_guards_ref": "logical://tables/cases/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "work_orders",
+      "display_name_ref": "logical://tables/work_orders/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/work_orders/fields"],
+      "primary_business_key_ref": "logical://tables/work_orders/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/work_orders",
+      "protection": {
+        "mode": "human_assignment_and_evidence_before_completion",
+        "read_only_fields": ["sla_reset_count"],
+        "human_confirmation_fields": ["team", "assignee_role"],
+        "human_only_actions": ["confirm_responsibility", "validate_completion"],
+        "write_guards_ref": "logical://tables/work_orders/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "clusters",
+      "display_name_ref": "logical://tables/clusters/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/clusters/fields"],
+      "primary_business_key_ref": "logical://tables/clusters/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/clusters",
+      "protection": {
+        "mode": "hypothesis_until_human_review",
+        "read_only_fields": ["deterministic_fingerprint"],
+        "human_confirmation_fields": [],
+        "human_only_actions": ["merge_same_event_cases", "approve_cluster", "intake_active_observation_recurrence", "confirm_or_reject_final_root_cause", "archive_or_reopen_cluster"],
+        "write_guards_ref": "logical://tables/clusters/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "improvements",
+      "display_name_ref": "logical://tables/improvements/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/improvements/fields"],
+      "primary_business_key_ref": "logical://tables/improvements/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/improvements",
+      "protection": {
+        "mode": "visible_clock_and_human_conclusion",
+        "read_only_fields": ["clock_source", "metric_formula"],
+        "human_confirmation_fields": ["human_conclusion"],
+        "human_only_actions": ["complete_or_terminate_improvement"],
+        "write_guards_ref": "logical://tables/improvements/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "vehicles",
+      "display_name_ref": "logical://tables/vehicles/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/vehicles/fields"],
+      "primary_business_key_ref": "logical://tables/vehicles/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/vehicles",
+      "protection": {
+        "mode": "read_only_snapshot",
+        "read_only_fields": ["vehicle_id", "status_snapshot", "snapshot_at", "controls_available"],
+        "human_confirmation_fields": [],
+        "human_only_actions": [],
+        "write_guards_ref": "logical://tables/vehicles/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "delivery_tasks",
+      "display_name_ref": "logical://tables/delivery_tasks/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/delivery_tasks/fields"],
+      "primary_business_key_ref": "logical://tables/delivery_tasks/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/delivery_tasks",
+      "protection": {
+        "mode": "read_only_snapshot",
+        "read_only_fields": ["task_id", "task_status", "source_at", "state_mutable_by_neoloop"],
+        "human_confirmation_fields": [],
+        "human_only_actions": [],
+        "write_guards_ref": "logical://tables/delivery_tasks/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "routing_matrix",
+      "display_name_ref": "logical://tables/routing_matrix/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/routing_matrix/fields"],
+      "primary_business_key_ref": "logical://tables/routing_matrix/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/routing_matrix",
+      "protection": {
+        "mode": "versioned_human_maintained_reference",
+        "read_only_fields": ["routing_rule_id", "sla_version", "effective_at"],
+        "human_confirmation_fields": [],
+        "human_only_actions": ["activate_new_routing_version"],
+        "write_guards_ref": "logical://tables/routing_matrix/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "knowledge_index",
+      "display_name_ref": "logical://tables/knowledge_index/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/knowledge_index/fields"],
+      "primary_business_key_ref": "logical://tables/knowledge_index/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/knowledge_index",
+      "protection": {
+        "mode": "reviewed_reference_only",
+        "read_only_fields": ["knowledge_id", "version", "approval_status", "effective_at", "citation_allowed_for_n7"],
+        "human_confirmation_fields": [],
+        "human_only_actions": ["approve_and_publish_knowledge"],
+        "write_guards_ref": "logical://tables/knowledge_index/write_guards"
+      }
+    },
+    {
+      "canonical_table_key": "ai_audit",
+      "display_name_ref": "logical://tables/ai_audit/name",
+      "field_contract_refs": ["logical://common_fields", "logical://tables/ai_audit/fields"],
+      "primary_business_key_ref": "logical://tables/ai_audit/primary_business_key",
+      "field_sequence_ref": "logical://effective_fields/ai_audit",
+      "protection": {
+        "mode": "append_only_audit_redacted_on_export",
+        "read_only_fields": ["node", "mode", "version", "run_id", "object_ref", "input_hash", "payload", "evidence_spans", "missing_fields", "confidence", "status", "validation", "retry_count", "human_revision"],
+        "human_confirmation_fields": [],
+        "human_only_actions": ["append_human_revision_without_overwriting_original_run"],
+        "write_guards_ref": "logical://tables/ai_audit/write_guards"
+      }
+    }
+  ],
+  "relation_build_order": [
+    { "order": 1, "field_ref": "logical://tables/delivery_tasks/fields/vehicle_id" },
+    { "order": 2, "field_ref": "logical://tables/cases/fields/routing_rule_candidate_id" },
+    { "order": 3, "field_ref": "logical://tables/cases/fields/cluster_id" },
+    { "order": 4, "field_ref": "logical://tables/raw_feedback/fields/candidate_vehicle_id" },
+    { "order": 5, "field_ref": "logical://tables/raw_feedback/fields/candidate_task_id" },
+    { "order": 6, "field_ref": "logical://tables/raw_feedback/fields/linked_case_id" },
+    { "order": 7, "field_ref": "logical://tables/work_orders/fields/case_id" },
+    { "order": 8, "field_ref": "logical://tables/clusters/fields/member_case_ids" },
+    { "order": 9, "field_ref": "logical://tables/improvements/fields/cluster_id" }
+  ],
+  "formula_and_dependency_policy": {
+    "canonical_formula_fields": [],
+    "decision": "Do not add formula or lookup fields to the frozen ten-table contract. Cross-table information is opened through relation drill-down. Any future physical helper field requires controller approval and a schema revision.",
+    "dependency_order": ["table_shells", "non_relation_fields", "relations", "protection", "views", "logical_roles", "ai_nodes_or_manual_fallback", "workflows_or_manual_fallback"]
+  },
+  "business_views": [
+    {
+      "view_id": "feedback_inbox",
+      "definition_ref": "logical://frontend_views/feedback_inbox",
+      "host_table_ref": "logical://tables/raw_feedback",
+      "hidden_policy_ref": "logical://frontend_views/feedback_inbox/hides",
+      "filter": { "all": [{ "field_ref": "logical://tables/raw_feedback/fields/processing_status", "operator": "in", "value": ["待分诊", "人工处理", "已建案"] }] },
+      "sort": [{ "field_ref": "logical://tables/raw_feedback/fields/received_at", "direction": "desc" }, { "field_ref": "logical://tables/raw_feedback/fields/feedback_id", "direction": "asc" }],
+      "visible_field_refs": ["logical://tables/raw_feedback/fields/feedback_id", "logical://tables/raw_feedback/fields/received_at", "logical://tables/raw_feedback/fields/channel", "logical://tables/raw_feedback/fields/sender_role", "logical://tables/raw_feedback/fields/processing_status", "logical://tables/raw_feedback/fields/linked_case_id", "logical://tables/raw_feedback/fields/candidate_vehicle_id", "logical://tables/raw_feedback/fields/candidate_task_id"],
+      "linked_drill_down": [{ "relation_field_ref": "logical://tables/raw_feedback/fields/linked_case_id", "target_table": "cases", "visible_field_refs": ["logical://tables/cases/fields/missing_fields", "logical://tables/cases/fields/status"] }],
+      "allowed_actions": ["open_source_record", "open_linked_case", "request_human_triage", "authorized_human_mark_ignored"],
+      "human_gate_actions": ["authorized_human_mark_ignored"],
+      "empty_state": "当前没有待处理合成反馈；先检查筛选条件，再按 W1 测试步骤新增 SYN-PERMISSION-TEST 记录。"
+    },
+    {
+      "view_id": "case_cockpit",
+      "definition_ref": "logical://frontend_views/case_cockpit",
+      "host_table_ref": "logical://tables/cases",
+      "hidden_policy_ref": "logical://frontend_views/case_cockpit/hides",
+      "filter": { "all": [{ "field_ref": "logical://tables/cases/fields/status", "operator": "not_in", "value": ["已关闭", "已合并"] }] },
+      "sort": [{ "field_ref": "logical://tables/cases/fields/final_risk", "direction": "custom", "value_order": ["P0", "P1", "P2", "P3"] }, { "field_ref": "logical://tables/cases/fields/sla_due_at", "direction": "asc" }],
+      "visible_field_refs": ["logical://tables/cases/fields/case_id", "logical://tables/cases/fields/summary", "logical://tables/cases/fields/final_risk", "logical://tables/cases/fields/status", "logical://tables/cases/fields/entity_candidates", "logical://tables/cases/fields/formal_entity", "logical://tables/cases/fields/formal_entity_confirmation_status", "logical://tables/cases/fields/evidence_summary", "logical://tables/cases/fields/pending_confirmation_items", "logical://tables/cases/fields/sla_started_at", "logical://tables/cases/fields/sla_due_at"],
+      "linked_drill_down": [{ "reverse_relation_field_ref": "logical://tables/work_orders/fields/case_id", "target_table": "work_orders", "visible_field_refs": ["logical://tables/work_orders/fields/work_order_id", "logical://tables/work_orders/fields/team", "logical://tables/work_orders/fields/assignee_role", "logical://tables/work_orders/fields/status"] }],
+      "allowed_actions": ["inspect_candidate_evidence", "request_entity_confirmation", "request_responsibility_confirmation", "request_case_closure"],
+      "human_gate_actions": ["formal_entity_relation", "responsibility_confirmation", "case_closure"],
+      "empty_state": "当前没有活跃案件；不得用历史快照伪造工作流运行，可按 scenario_runtime 合成用例执行。"
+    },
+    {
+      "view_id": "sla_board",
+      "definition_ref": "logical://frontend_views/sla_board",
+      "host_table_ref": "logical://tables/work_orders",
+      "hidden_policy_ref": "logical://frontend_views/sla_board/hides",
+      "filter": { "all": [{ "field_ref": "logical://tables/work_orders/fields/status", "operator": "not_in", "value": ["已完成", "已取消"] }] },
+      "sort": [{ "field_ref": "logical://tables/work_orders/fields/due_at", "direction": "asc" }, { "field_ref": "logical://tables/work_orders/fields/escalation_level", "direction": "desc" }],
+      "visible_field_refs": ["logical://tables/work_orders/fields/work_order_id", "logical://tables/work_orders/fields/case_id", "logical://tables/work_orders/fields/team", "logical://tables/work_orders/fields/assignee_role", "logical://tables/work_orders/fields/accepted_at", "logical://tables/work_orders/fields/due_at", "logical://tables/work_orders/fields/escalation_level", "logical://tables/work_orders/fields/status", "logical://tables/work_orders/fields/validation_result", "logical://tables/work_orders/fields/disposition_evidence"],
+      "linked_drill_down": [{ "relation_field_ref": "logical://tables/work_orders/fields/case_id", "target_table": "cases", "visible_field_refs": ["logical://tables/cases/fields/final_risk", "logical://tables/cases/fields/sla_started_at", "logical://tables/cases/fields/status"] }],
+      "allowed_actions": ["accept_work_order", "record_resolution_evidence", "request_completion_validation", "record_takeover"],
+      "human_gate_actions": ["responsibility_confirmation", "case_closure"],
+      "empty_state": "当前没有未完成工单；保留 SLA 起点与审计，不为展示而创建或回写正式记录。"
+    },
+    {
+      "view_id": "issue_map",
+      "definition_ref": "logical://frontend_views/issue_map",
+      "host_table_ref": "logical://tables/clusters",
+      "hidden_policy_ref": "logical://frontend_views/issue_map/hides",
+      "filter": { "all": [{ "field_ref": "logical://tables/clusters/fields/status", "operator": "not_in", "value": ["已归档", "已驳回"] }] },
+      "sort": [{ "field_ref": "logical://tables/clusters/fields/highest_risk", "direction": "custom", "value_order": ["P0", "P1", "P2", "P3"] }, { "field_ref": "logical://common_fields/updated_at", "direction": "desc" }],
+      "visible_field_refs": ["logical://tables/clusters/fields/cluster_id", "logical://tables/clusters/fields/name", "logical://tables/clusters/fields/member_case_ids", "logical://tables/clusters/fields/category_domain", "logical://tables/clusters/fields/highest_risk", "logical://tables/clusters/fields/root_cause_hypothesis", "logical://tables/clusters/fields/supporting_evidence", "logical://tables/clusters/fields/counter_evidence", "logical://tables/clusters/fields/status"],
+      "raw_field_visibility_contract": {
+        "field_ref": "logical://tables/clusters/fields/recurrence_records",
+        "source_contract_ref": "logical://tables/clusters/fields/recurrence_records/visibility_contract",
+        "projection": "hidden",
+        "permission_gate": "P03",
+        "verification_status": "not_tested",
+        "result": null,
+        "evidence": null
+      },
+      "linked_drill_down": [{ "relation_field_ref": "logical://tables/clusters/fields/member_case_ids", "target_table": "cases", "visible_field_refs": ["logical://tables/cases/fields/case_id", "logical://tables/cases/fields/final_risk", "logical://tables/cases/fields/status"] }],
+      "allowed_actions": ["review_cluster_candidate", "inspect_supporting_and_counter_evidence", "request_improvement_creation", "intake_active_observation_recurrence", "authorized_human_archive_or_reopen"],
+      "human_gate_actions": ["active_observation_recurrence_intake", "final_root_cause", "knowledge_publication"],
+      "empty_state": "当前没有待审问题簇；同事件并案与跨事件聚类必须分开，不能为填充视图自动合并案件。"
+    },
+    {
+      "view_id": "improvement_tracking",
+      "definition_ref": "logical://frontend_views/improvement_tracking",
+      "host_table_ref": "logical://tables/improvements",
+      "hidden_policy_ref": "logical://frontend_views/improvement_tracking/hides",
+      "filter": { "all": [{ "field_ref": "logical://tables/improvements/fields/status", "operator": "not_in", "value": ["已终止"] }] },
+      "sort": [{ "field_ref": "logical://tables/improvements/fields/status", "direction": "custom", "value_order": ["待立项", "执行中", "观察中", "已完成"] }, { "field_ref": "logical://common_fields/updated_at", "direction": "desc" }],
+      "visible_field_refs": ["logical://tables/improvements/fields/improvement_id", "logical://tables/improvements/fields/cluster_id", "logical://tables/improvements/fields/version", "logical://tables/improvements/fields/owner_role", "logical://tables/improvements/fields/measure", "logical://tables/improvements/fields/observation_window_days", "logical://tables/improvements/fields/clock_source", "logical://tables/improvements/fields/metric_formula", "logical://tables/improvements/fields/day_7_result", "logical://tables/improvements/fields/day_30_result", "logical://tables/improvements/fields/human_conclusion", "logical://tables/improvements/fields/status"],
+      "linked_drill_down": [{ "relation_field_ref": "logical://tables/improvements/fields/cluster_id", "target_table": "clusters", "visible_field_refs": ["logical://tables/clusters/fields/name", "logical://tables/clusters/fields/highest_risk", "logical://tables/clusters/fields/status"] }],
+      "raw_field_visibility_contract": {
+        "field_ref": "logical://tables/clusters/fields/recurrence_records",
+        "source_contract_ref": "logical://tables/clusters/fields/recurrence_records/visibility_contract",
+        "projection": "hidden",
+        "permission_gate": "P03",
+        "verification_status": "not_tested",
+        "result": null,
+        "evidence": null
+      },
+      "allowed_actions": ["record_observation_result", "request_human_conclusion", "authorized_human_complete_or_terminate"],
+      "human_gate_actions": ["final_root_cause", "knowledge_publication"],
+      "empty_state": "当前没有进行中的改进项目；没有业务量分母时只记录复发案件数，不展示复发率。"
+    }
+  ],
+  "logical_roles": [
+    {
+      "role_id": "feedback_understanding",
+      "definition_ref": "logical://logical_business_roles/feedback_understanding",
+      "visible_tables": ["raw_feedback", "cases", "ai_audit"],
+      "owned_views": ["feedback_inbox"],
+      "human_gate_boundaries": ["risk_downgrade", "formal_entity_relation"],
+      "platform_role_id": null,
+      "permission_mapping_status": "未测试",
+      "mapping_note": "logical_only_not_mapped_to_real_feishu_role",
+      "platform_role_claim": false
+    },
+    {
+      "role_id": "case_coordination",
+      "definition_ref": "logical://logical_business_roles/case_coordination",
+      "visible_tables": ["cases", "work_orders", "vehicles", "delivery_tasks", "routing_matrix", "knowledge_index", "ai_audit"],
+      "owned_views": ["case_cockpit", "sla_board"],
+      "human_gate_boundaries": ["formal_entity_relation", "responsibility_confirmation", "external_reply_publication", "case_closure"],
+      "platform_role_id": null,
+      "permission_mapping_status": "未测试",
+      "mapping_note": "logical_only_not_mapped_to_real_feishu_role",
+      "platform_role_claim": false
+    },
+    {
+      "role_id": "improvement_insight",
+      "definition_ref": "logical://logical_business_roles/improvement_insight",
+      "visible_tables": ["cases", "clusters", "improvements", "knowledge_index", "ai_audit"],
+      "owned_views": ["issue_map", "improvement_tracking"],
+      "human_gate_boundaries": ["final_root_cause", "knowledge_publication"],
+      "platform_role_id": null,
+      "permission_mapping_status": "未测试",
+      "mapping_note": "logical_only_not_mapped_to_real_feishu_role",
+      "platform_role_claim": false
+    }
+  ],
+  "ai_runtime_policy": {
+    "envelope_ref": "logical://ai_envelope",
+    "audit_table": "ai_audit",
+    "schema_repair": { "same_version_retry_limit": 1, "after_limit": "stop_chain_and_route_to_human" },
+    "human_fallback": "If a real AI attempt exists, preserve its actual envelope and route the failure to human after at most one repair retry. If P04 is unavailable and no AI attempt occurred, record only a manual-fallback evidence entry and never fabricate an ai_audit run.",
+    "forbidden_actions_ref": "logical://forbidden_automatic_actions"
+  },
+  "ai_nodes": [
+    { "node_id": "N1", "definition_ref": "logical://ai_nodes/N1", "modes": ["default"], "inputs_ref": "logical://ai_nodes/N1/inputs", "payload_outputs_ref": "logical://ai_nodes/N1/outputs", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" },
+    { "node_id": "N2", "definition_ref": "logical://ai_nodes/N2", "modes": ["default"], "inputs_ref": "logical://ai_nodes/N2/inputs", "payload_outputs_ref": "logical://ai_nodes/N2/outputs", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" },
+    { "node_id": "N3", "definition_ref": "logical://ai_nodes/N3", "modes": ["default"], "inputs_ref": "logical://ai_nodes/N3/inputs", "payload_outputs_ref": "logical://ai_nodes/N3/outputs", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" },
+    { "node_id": "N4", "definition_ref": "logical://ai_nodes/N4", "modes": ["default"], "inputs_ref": "logical://ai_nodes/N4/inputs", "payload_outputs_ref": "logical://ai_nodes/N4/outputs", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" },
+    { "node_id": "N5", "definition_ref": "logical://ai_nodes/N5", "modes": ["same_event_duplicate", "cross_event_clustering"], "inputs_ref": "logical://ai_nodes/N5/inputs", "payload_outputs_ref": "logical://ai_nodes/N5/outputs", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" },
+    { "node_id": "N6", "definition_ref": "logical://ai_nodes/N6", "modes": ["responsibility_routing", "root_cause_hypothesis"], "inputs_ref": "logical://ai_nodes/N6/inputs", "payload_outputs_ref": "logical://ai_nodes/N6/outputs", "mode_contracts_ref": "logical://ai_nodes/N6/mode_contracts", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" },
+    { "node_id": "N7", "definition_ref": "logical://ai_nodes/N7", "modes": ["customer_reply", "knowledge_draft", "insight_summary"], "inputs_ref": "logical://ai_nodes/N7/inputs", "payload_outputs_ref": "logical://ai_nodes/N7/outputs", "output_envelope_ref": "logical://ai_envelope", "schema_repair_policy_ref": "#/ai_runtime_policy/schema_repair", "manual_fallback_ref": "#/ai_runtime_policy/human_fallback", "audit_write": "ai_audit", "forbidden_actions_ref": "logical://forbidden_automatic_actions", "runtime_status": "not_configured_untested" }
+  ],
+  "integration_order_ref": "logical://integration_order",
+  "integration_order": [
+    { "order": 1, "workflow": "W1", "phase": "default" },
+    { "order": 2, "workflow": "W2", "phase": "default" },
+    { "order": 3, "workflow": "W6", "phase": "same_event_duplicate" },
+    { "order": 4, "workflow": "W3", "phase": "default" },
+    { "order": 5, "workflow": "W4", "phase": "default" },
+    { "order": 6, "workflow": "W5", "phase": "default" },
+    { "order": 7, "workflow": "W6", "phase": "cross_event_improvement_observation" }
+  ],
+  "workflows": [
+    {
+      "workflow_id": "W1",
+      "definition_ref": "logical://workflows/W1",
+      "trigger_ref": "logical://workflows/W1/triggers",
+      "preconditions": ["P02_branch_allows_Base_build", "authorization_scope_is_present", "idempotency_key_is_valid_or_generated_deterministically"],
+      "source_steps_ref": "logical://workflows/W1/steps",
+      "step_bindings": [
+        { "source_step": "validate_or_generate_idempotency_key", "actor": "deterministic" },
+        { "source_step": "preserve_original_text", "actor": "deterministic" },
+        { "source_step": "preserve_authorization_scope", "actor": "deterministic" },
+        { "source_step": "create_or_return_existing_feedback", "actor": "deterministic" }
+      ],
+      "human_confirmations": [],
+      "error_stop": "Do not overwrite the existing business record; stop on same key with different content and route to human.",
+      "audit_sinks": [
+        { "sink": "platform_run_log", "capture": ["ingest_outcome", "idempotency_key", "object_ref", "previous_state", "next_state", "error_class"], "adds_canonical_fields": false },
+        { "sink": "evidence_template", "capture": ["actual_action", "actual_result", "run_record_indexes", "limitations"], "adds_canonical_fields": false }
+      ],
+      "rollback": "Preserve original text, authorization scope, idempotency key and any existing record; mark the partial attempt for review instead of deleting evidence.",
+      "runtime_status": "not_configured_untested"
+    },
+    {
+      "workflow_id": "W2",
+      "definition_ref": "logical://workflows/W2",
+      "trigger_ref": "logical://workflows/W2/triggers",
+      "preconditions": ["W1_completed_or_idempotent", "raw_feedback.processing_status_is_待分诊", "original_text_is_preserved"],
+      "source_steps_ref": "logical://workflows/W2/steps",
+      "step_bindings": [
+        { "source_step": "run_hard_rules", "actor": "deterministic" },
+        { "source_step": "run_N1", "actor": "ai" },
+        { "source_step": "run_N2", "actor": "ai" },
+        { "source_step": "run_N3", "actor": "ai" },
+        { "source_step": "validate_outputs", "actor": "deterministic" },
+        { "source_step": "create_case", "actor": "deterministic" }
+      ],
+      "human_confirmations": ["risk_downgrade"],
+      "error_stop": "After one same-version schema repair retry, stop the chain, keep the feedback, set the documented manual-processing path and write an error audit.",
+      "audit_sinks": [
+        { "sink": "ai_audit", "capture": ["actual_N1_N2_N3_envelopes_only"], "field_contract_ref": "logical://tables/ai_audit/fields", "adds_canonical_fields": false },
+        { "sink": "platform_run_log", "capture": ["hard_rule_result", "feedback_state_transition", "case_object_ref", "error_class"], "adds_canonical_fields": false },
+        { "sink": "evidence_template", "capture": ["actual_action", "actual_result", "run_record_indexes", "limitations"], "adds_canonical_fields": false }
+      ],
+      "rollback": "Never lower a hard-rule risk or delete the source feedback; restore no state silently and hand off with the original status and audit trail visible.",
+      "runtime_status": "not_configured_untested"
+    },
+    {
+      "workflow_id": "W3",
+      "definition_ref": "logical://workflows/W3",
+      "trigger_ref": "logical://workflows/W3/triggers",
+      "preconditions": ["W6_same_event_phase_completed", "case.status_is_待关联", "candidate_evidence_is_available_or_missing_fields_are_recorded"],
+      "source_steps_ref": "logical://workflows/W3/steps",
+      "step_bindings": [
+        { "source_step": "run_N4", "actor": "ai" },
+        { "source_step": "run_N6_responsibility_routing", "actor": "ai" },
+        { "source_step": "show_candidate_evidence", "actor": "deterministic" },
+        { "source_step": "human_confirm_entity", "actor": "human" },
+        { "source_step": "human_confirm_responsibility_and_sla_version", "actor": "human" },
+        { "source_step": "create_work_order", "actor": "deterministic" }
+      ],
+      "human_confirmations": ["formal_entity_relation", "responsibility_confirmation"],
+      "error_stop": "Do not invent an identifier or create an accepted work order when evidence is weak or either confirmation is absent.",
+      "audit_sinks": [
+        { "sink": "ai_audit", "capture": ["actual_N4_and_N6_envelopes_only"], "field_contract_ref": "logical://tables/ai_audit/fields", "adds_canonical_fields": false },
+        { "sink": "platform_run_log", "capture": ["candidate_evidence", "human_confirmation_refs", "state_transition", "error_class"], "adds_canonical_fields": false },
+        { "sink": "evidence_template", "capture": ["actual_action", "actual_result", "run_record_indexes", "limitations"], "adds_canonical_fields": false }
+      ],
+      "rollback": "Keep candidate suggestions as candidates, preserve the SLA start, return the case to the documented missing-information state and retain any draft work-order audit.",
+      "runtime_status": "not_configured_untested"
+    },
+    {
+      "workflow_id": "W4",
+      "definition_ref": "logical://workflows/W4",
+      "trigger_ref": "logical://workflows/W4/triggers",
+      "preconditions": ["work_order_exists", "sla_started_at_and_due_at_are_present", "responsibility_was_human_confirmed"],
+      "source_steps_ref": "logical://workflows/W4/steps",
+      "step_bindings": [
+        { "source_step": "send_reminder", "actor": "deterministic" },
+        { "source_step": "escalate_when_due", "actor": "deterministic" },
+        { "source_step": "record_takeover", "actor": "human" },
+        { "source_step": "record_resolution_evidence", "actor": "human" }
+      ],
+      "human_confirmations": ["record_takeover", "validate_resolution_evidence"],
+      "error_stop": "On notification or automation failure, keep the original business status and SLA start, notify the administrator through the verified fallback and stop status advancement.",
+      "audit_sinks": [
+        { "sink": "platform_run_log", "capture": ["reminder_or_escalation_event", "previous_state", "next_state", "preserved_sla_started_at", "takeover_ref", "error_class"], "adds_canonical_fields": false },
+        { "sink": "evidence_template", "capture": ["actual_action", "actual_result", "run_record_indexes", "limitations"], "adds_canonical_fields": false }
+      ],
+      "rollback": "Disable only the failing temporary automation; never reset SLA start, erase escalation history or mark the work order completed.",
+      "runtime_status": "not_configured_untested"
+    },
+    {
+      "workflow_id": "W5",
+      "definition_ref": "logical://workflows/W5",
+      "trigger_ref": "logical://workflows/W5/triggers",
+      "preconditions": ["work_order_submits_closure_request", "resolution_evidence_is_present", "case_is_not_already_closed"],
+      "source_steps_ref": "logical://workflows/W5/steps",
+      "step_bindings": [
+        { "source_step": "validate_resolution_evidence", "actor": "deterministic" },
+        { "source_step": "run_N7_customer_reply", "actor": "ai" },
+        { "source_step": "human_review_reply", "actor": "human" },
+        { "source_step": "follow_up", "actor": "human" },
+        { "source_step": "authorized_human_decides_close_or_return", "actor": "human" }
+      ],
+      "human_confirmations": ["external_reply_publication", "case_closure"],
+      "error_stop": "Insufficient evidence, abnormal follow-up or absent review returns the case to processing; no external reply or closure is automatic.",
+      "audit_sinks": [
+        { "sink": "ai_audit", "capture": ["actual_N7_customer_reply_envelope_only"], "field_contract_ref": "logical://tables/ai_audit/fields", "adds_canonical_fields": false },
+        { "sink": "platform_run_log", "capture": ["evidence_validation", "reply_review_ref", "follow_up_result", "closure_decision_ref", "error_class"], "adds_canonical_fields": false },
+        { "sink": "evidence_template", "capture": ["actual_action", "actual_result", "run_record_indexes", "limitations"], "adds_canonical_fields": false }
+      ],
+      "rollback": "Keep the draft reply and evidence as reviewable audit data, restore no closed claim and return to the prior processing state with the SLA history intact.",
+      "runtime_status": "not_configured_untested"
+    },
+    {
+      "workflow_id": "W6",
+      "definition_ref": "logical://workflows/W6",
+      "trigger_ref": "logical://workflows/W6/triggers",
+      "preconditions": [
+        "phase_is_same_event_after_W2_or_cross_event_after_W5",
+        "N5_mode_matches_phase",
+        "clock_source_is_visible_for_observation",
+        "active_observation_intake_requires_repository_issued_N5_receipt",
+        "active_observation_intake_requires_separate_human_authorization",
+        "active_observation_intake_runs_shared_Day7_cutoff_guard_before_receipt_issue_and_again_inside_full_lock_before_business_commit",
+        "enter_observation_requires_observation_phase_human_authorization_with_zero_locks_while_awaiting",
+        "record_day_7_and_record_day_30_are_independent_deterministic_transactions_without_caller_actor_AI_or_authorizer",
+        "record_day_30_requires_same_cycle_day_7_and_cumulative_committed_recurrence_history"
+      ],
+      "source_steps_ref": "logical://workflows/W6/steps",
+      "step_bindings": [
+        { "source_step": "run_N5_same_event_before_dispatch", "actor": "ai" },
+        { "source_step": "human_merge_or_keep_separate", "actor": "human" },
+        { "source_step": "run_N5_cross_event_after_close", "actor": "ai" },
+        { "source_step": "human_review_cluster", "actor": "human" },
+        { "source_step": "run_N6_root_cause_hypothesis", "actor": "ai" },
+        { "source_step": "run_N7_knowledge_or_insight_draft", "actor": "ai" },
+        { "source_step": "manage_improvement", "actor": "human" },
+        {
+          "source_step": "enter_observation",
+          "actor": "human",
+          "execution_mode": "authorized_internal_observation_action",
+          "internal_action_ref": "logical://workflows/W6/observation_phase_contract/actions/enter_observation",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/enter_observation"
+        },
+        { "source_step": "intake_active_observation_recurrence", "actor": "human", "execution_mode": "composite_authorized_internal_action", "internal_action_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence", "sequence_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence/sequence", "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/intake_active_observation_recurrence" },
+        {
+          "source_step": "record_day_7",
+          "actor": "deterministic",
+          "actor_semantics": "internal_executor_metadata_not_a_caller_actor",
+          "execution_mode": "independent_deterministic_checkpoint_transaction",
+          "caller_actor_allowed": false,
+          "ai_invocation_allowed": false,
+          "authorizer_call_allowed": false,
+          "internal_action_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_7",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/record_day_7"
+        },
+        {
+          "source_step": "record_day_30",
+          "actor": "deterministic",
+          "actor_semantics": "internal_executor_metadata_not_a_caller_actor",
+          "execution_mode": "independent_deterministic_checkpoint_transaction",
+          "caller_actor_allowed": false,
+          "ai_invocation_allowed": false,
+          "authorizer_call_allowed": false,
+          "internal_action_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_30",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/record_day_30"
+        }
+      ],
+      "internal_action_bindings": [
+        {
+          "action": "intake_active_observation_recurrence",
+          "classification": "W6_internal_authorized_action_not_a_seventh_workflow",
+          "definition_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence",
+          "sequence_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence/sequence",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/intake_active_observation_recurrence",
+          "trigger": "closed_case_during_active_observation",
+          "phase": "cross_event_improvement_observation",
+          "authorization_transaction": "separate_from_day_7_and_day_30_checkpoint_transactions",
+          "atomic_commit_scope": ["all_trigger_and_member_cases", "cluster", "improvement"],
+          "active_observation_window_guard_ref": "logical://workflows/W6/internal_authorized_actions/intake_active_observation_recurrence/active_observation_window_guard",
+          "guard_points": [
+            {
+              "point": "before_action_scoped_N5_receipt_issue",
+              "sequence_order": 2,
+              "authoritative_inputs": ["cycle.opened_at", "transition.occurred_at", "trigger_case.closed_at", "same_cycle_day_7_checkpoint_exists"]
+            },
+            {
+              "point": "inside_full_case_cluster_improvement_lock_before_state_fingerprint_CAS_and_business_commit",
+              "sequence_order": 4,
+              "authoritative_inputs": ["latest_cycle.opened_at", "transition.occurred_at", "latest_trigger_case.closed_at", "latest_same_cycle_day_7_checkpoint_exists"],
+              "capability_state_at_guard": "N5_validation_and_human_authorization_capabilities_consumed"
+            }
+          ],
+          "day_7_boundary": {
+            "sealed_when": ["same_cycle_day_7_checkpoint_exists", "occurred_at > day7ExpectedAt"],
+            "reject_when_sealed": "closed_at <= day7ExpectedAt",
+            "equal_millisecond_rejected": true,
+            "day_30_eligible_when": "closed_at > day7ExpectedAt_and_closed_at <= min(occurred_at, day30ExpectedAt)",
+            "checkpoint_first_intake_second": "final_full_lock_guard_rejects_day_7_or_earlier_closure"
+          },
+          "outcome_recording": {
+            "capability_consumption": "separate_private_security_outcome",
+            "business_commit": "separate_committed_or_rejected_outcome",
+            "business_writes": "separate_exact_write_set",
+            "w6_state_writes": "separate_exact_durable_state_write_set",
+            "final_guard_rejection": {
+              "consumed_capabilities": ["N5_action_scoped_validation_capability", "human_recurrence_authorization_capability"],
+              "capability_consumption": "consumed",
+              "business_commit": "rejected",
+              "business_writes": [],
+              "w6_state_writes": []
+            }
+          },
+          "audit_compensation": "business_commit_may_complete_with_audit_pending_then_same_audit_id_repair_only_without_N5_authorization_or_business_replay",
+          "runtime_status": "not_configured_untested"
+        },
+        {
+          "action": "enter_observation",
+          "classification": "W6_internal_authorized_observation_action_not_a_seventh_workflow",
+          "definition_ref": "logical://workflows/W6/observation_phase_contract/actions/enter_observation",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/enter_observation",
+          "phase": "observation",
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "actor", "reason"],
+          "system_generated_fields_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract/system_origin_fields",
+          "human_authorization": {
+            "required": true,
+            "phase": "observation",
+            "await_boundary": "outside_resource_lock",
+            "resource_locks_held_while_awaiting": []
+          },
+          "atomic_commit_scope": ["all_authoritative_case_resources", "cluster_resource", "improvement_resource"],
+          "full_lock_commit": "trusted_clock_revalidation_then_state_fingerprint_CAS_then_single_atomic_commit",
+          "runtime_status": "not_configured_untested"
+        },
+        {
+          "action": "record_day_7",
+          "classification": "W6_internal_deterministic_checkpoint_action_not_a_seventh_workflow",
+          "definition_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_7",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/record_day_7",
+          "phase": "observation",
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+          "caller_actor_allowed": false,
+          "ai_invocation_allowed": false,
+          "authorizer_call_allowed": false,
+          "transaction": "separate_deterministic_day_7_checkpoint_transaction",
+          "runtime_status": "not_configured_untested"
+        },
+        {
+          "action": "record_day_30",
+          "classification": "W6_internal_deterministic_checkpoint_action_not_a_seventh_workflow",
+          "definition_ref": "logical://workflows/W6/observation_phase_contract/actions/record_day_30",
+          "write_contract_ref": "build://field_protection_resolution/action_scoped_write_contracts/record_day_30",
+          "phase": "observation",
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+          "caller_actor_allowed": false,
+          "ai_invocation_allowed": false,
+          "authorizer_call_allowed": false,
+          "transaction": "separate_deterministic_day_30_checkpoint_transaction",
+          "requires_same_cycle_day_7_checkpoint": true,
+          "day_30_cumulative_includes_day_7": true,
+          "runtime_status": "not_configured_untested"
+        }
+      ],
+      "observation_phase_contract_ref": "logical://workflows/W6/observation_phase_contract",
+      "observation_phase_scope": {
+        "included_actions": ["enter_observation", "record_day_7", "record_day_30"],
+        "excluded_actions": ["archive_observation", "reopen_recurrence"],
+        "committed_reopen_history_use": "read_only_checkpoint_source_not_a_reopen_action",
+        "workflow_count_effect": "unchanged_6",
+        "deployment_effect": "offline_contract_only_not_configured_untested"
+      },
+      "trusted_generation_contract_ref": "logical://workflows/W6/observation_phase_contract/trusted_generation_contract",
+      "recurrence_source_contract_ref": "logical://workflows/W6/observation_phase_contract/recurrence_source_contract",
+      "checkpoint_contract_ref": "logical://workflows/W6/observation_phase_contract/checkpoint_contract",
+      "audit_repair_contract_ref": "logical://workflows/W6/observation_phase_contract/audit_repair_contract",
+      "reopen_projection_contract_ref": "logical://workflows/W6/reopen_projection_contract",
+      "reopen_projection_build_contract": {
+        "projector_key": "neoloop.feishu.w6-reopen.v1",
+        "classification": "W6_projection_side_effect_not_a_seventh_workflow",
+        "workflow_id": "W6",
+        "workflow_count_effect": "unchanged_6",
+        "base_table_count_effect": "unchanged_10",
+        "real_executor_in_scope": false,
+        "runtime_status": "not_configured_untested",
+        "logical_contract_ref": "logical://workflows/W6/reopen_projection_contract",
+        "contract_layers": {
+          "trusted_source": "verified_w6_reopen_projection_source.v1",
+          "base_before": "w6_reopen_projection_before.v1",
+          "trusted_capability": "w6_reopen_projection_capability.v1",
+          "private_sealed_plan": "w6_reopen_projection_plan.v1",
+          "trusted_execution_evidence": "w6_reopen_projection_execution_evidence.v1",
+          "base_observed": "w6_reopen_projection_observed.v1",
+          "redelivery_order": ["trusted_source", "private_sealed_plan", "found_binding_recheck_via_existing_sealPlanIfAbsent", "trusted_execution_evidence", "base_observed"]
+        },
+        "recurrence_record_union": {
+          "variants": ["preserved_non_R10_plain_JSON_record", "reopen_snapshot.v1"],
+          "preserved_non_R10_record": "preserve_exact_descriptor_safe_own_keys_values_and_order_without_interpretation_or_rewrite",
+          "reopen_snapshot_v1_exact_fields": ["projection_contract", "data_scope", "evidence_class", "source_receipt_sha256", "projection_idempotency_key", "committed_at", "previous_projection", "previous_projection_sha256"],
+          "previous_projection_exact_fields": ["day_7_result", "day_30_result", "human_conclusion"],
+          "append_only": true
+        },
+        "snapshot_and_clear_contract": {
+          "snapshot_source": "trusted_Base_before_not_runtime_inference",
+          "snapshot_previous_projection_fields": ["improvements.day_7_result", "improvements.day_30_result", "improvements.human_conclusion"],
+          "snapshot_destination": "clusters.recurrence_records.reopen_snapshot.v1.previous_projection",
+          "clear_current_projection_fields_to_null": ["improvements.day_7_result", "improvements.day_30_result", "improvements.human_conclusion"],
+          "same_sealed_plan_required": true,
+          "legal_miss_snapshot_append_count": 1,
+          "semantic_replay_snapshot_append_count": 0,
+          "onsite_atomicity_status": "not_tested"
+        },
+        "exact_write_allowlist": [
+          "clusters.member_case_ids",
+          "clusters.status",
+          "clusters.recurrence_records",
+          "clusters.updated_at",
+          "improvements.status",
+          "improvements.day_7_result",
+          "improvements.day_30_result",
+          "improvements.human_conclusion",
+          "improvements.updated_at"
+        ],
+        "write_target_counts": {
+          "clusters": 4,
+          "improvements": 5,
+          "total": 9
+        },
+        "business_key_selectors": [
+          { "target": "clusters", "field": "cluster_id" },
+          { "target": "improvements", "field": "improvement_id" }
+        ],
+        "selector_and_locator_contract": {
+          "exact_single_record_required": true,
+          "zero_or_multiple_matches": "manual_stop_projection_conflict_zero_write",
+          "business_id_is_not_feishu_record_id": true,
+          "opaque_locator_is_private_executor_material": true,
+          "real_resource_identifiers_in_build_package": false
+        },
+        "base_receipt_storage_contract": {
+          "source_receipt_id_allowed_in_Base": false,
+          "source_receipt_sha256_allowed_only_in_reopen_snapshot": true,
+          "canonical_receipt_material_is_private_outbox_only": true
+        },
+        "found_binding_recheck_contract": {
+          "source_ref": "logical://workflows/W6/reopen_projection_contract/found_binding_recheck_contract",
+          "applies_to_lookup_outcome": "found",
+          "authoritative_plan_source": "ProjectionOutboxLookup.found.plan",
+          "existing_port_method": "sealPlanIfAbsent",
+          "port_signature_change": false,
+          "binding_dimensions": ["source_receipt_id", "source_receipt_sha256_digest_owner", "canonical_receipt_material", "sealed_plan"],
+          "order": [
+            "verify_lookup_authoritative_plan_against_trusted_source",
+            "call_existing_sealPlanIfAbsent_with_authoritative_plan_and_current_canonical_receipt_material",
+            "require_existing_same",
+            "require_returned_plan_exactly_matches_lookup_authoritative_plan",
+            "load_trusted_execution_evidence",
+            "load_Base_observed",
+            "reconcile"
+          ],
+          "continue_only_when": "existing_same_and_returned_plan_exactly_matches_lookup_authoritative_plan",
+          "outcome_mapping": {
+            "receipt_conflict": "commit_proof_mismatch",
+            "digest_conflict": "projection_conflict",
+            "plan_conflict": "projection_conflict",
+            "returned_plan_mismatch": "projection_conflict",
+            "sealed_after_found": "projection_dependency_failure"
+          },
+          "reads_forbidden_before_recheck": ["trusted_execution_evidence", "Base_observed", "trusted_capability", "trusted_clock"],
+          "canonical_receipt_material_scope": "private_trusted_source_and_outbox_only",
+          "manual_stop_on_any_noncontinuation": true,
+          "stopped_base_writes": [],
+          "new_initial_execution_owner_granted": false,
+          "new_execution_directive_granted": false,
+          "new_execution_right_granted": false
+        },
+        "existing_same_contract": {
+          "returned_plan_is_authoritative": true,
+          "discard_local_plan_and_directive": true,
+          "returned_plan_mismatch": "projection_conflict_zero_write",
+          "continue_order": ["trusted_execution_evidence", "Base_observed", "reconcile"],
+          "new_initial_execution_owner_granted": false,
+          "new_execution_directive_granted": false,
+          "B_B_ack0_without_valid_private_worker_lease": "reject_projection_conflict_zero_write",
+          "future_private_durable_worker_lease_only": "may_resume_original_sealed_plan_after_onsite_verification"
+        },
+        "sealed_plan_contract": {
+          "plan_contract": "w6_reopen_projection_plan.v1",
+          "complete_two_target_plan_required": true,
+          "seal_before_any_Base_write": true,
+          "repair_reuses_original_sealed_plan": true,
+          "plan_directive_artifact_boundary_ref": "logical://workflows/W6/reopen_projection_contract/plan_directive_artifact_boundary",
+          "found_binding_recheck_ref": "build://workflows/W6/reopen_projection_build_contract/found_binding_recheck_contract",
+          "existing_same_contract_ref": "build://workflows/W6/reopen_projection_build_contract/existing_same_contract",
+          "sealed_meaning": "offline_unique_initial_owner_only_not_a_durable_outbox_CAS_or_lease_capability_claim",
+          "ordinary_sequential_double_write_is_sealed_outbox_cas": false,
+          "current_durable_outbox_status": "not_tested",
+          "current_worker_lease_status": "not_tested"
+        },
+        "capability_attestation_contract": {
+          "source_ref": "logical://workflows/W6/reopen_projection_contract/capability_attestation_contract",
+          "attestation_contract": "w6_reopen_projection_capability.v1",
+          "verification_status_allowed": ["synthetic_fixture", "not_tested", "onsite_verified"],
+          "execution_mode_allowed": ["atomic_all_targets", "sealed_outbox_cas", "insufficient"],
+          "states_are_mutually_exclusive": true,
+          "not_tested_requires": {
+            "execution_mode": "insufficient",
+            "recurrence_visibility_no_broader_than_source_fields": false,
+            "permission_snapshot_sha256": null,
+            "permission_revision": null,
+            "issued_at": null,
+            "expires_at": null,
+            "evidence_unit_ref": null,
+            "verified_by_role": null
+          },
+          "synthetic_fixture_requires": {
+            "data_scope": "synthetic_experiment",
+            "evidence_class": "synthetic_experiment",
+            "verified_by_role": "test_harness",
+            "real_executor_allowed": false
+          },
+          "onsite_verified_requires": {
+            "normalized_existing_evidence_unit_ref": "P02+P03",
+            "component_evidence_unit_refs": ["P02", "P03"],
+            "creates_new_probe": false,
+            "creates_new_evidence_unit": false,
+            "permission_snapshot_sha256_required": true,
+            "permission_revision_required": true,
+            "issued_at_and_expires_at_required": true,
+            "verified_by_role": "authorized_competition_operator"
+          },
+          "current_onsite_state": {
+            "verification_status": "not_tested",
+            "execution_mode": "insufficient",
+            "permission_snapshot_sha256": null,
+            "permission_revision": null,
+            "evidence_unit_ref": null,
+            "result": null,
+            "evidence": null,
+            "real_feishu_operations": 0,
+            "lark_cli_login_operations": 0,
+            "openapi_calls": 0
+          }
+        },
+        "capability_mode_branches": {
+          "atomic_all_targets": {
+            "verification_status": "not_tested",
+            "requires_onsite_failure_injection_proof": true,
+            "automatic_execution_enabled": false
+          },
+          "sealed_outbox_cas": {
+            "verification_status": "not_tested",
+            "requires_durable_outbox_per_target_CAS_ack_and_crash_resume_proof": true,
+            "automatic_execution_enabled": false
+          },
+          "insufficient": {
+            "verification_status": "not_tested",
+            "decision": "manual_stop",
+            "base_writes": []
+          }
+        },
+        "execution_preflight_recheck": {
+          "before_initial_write_and_each_repair": ["onsite_verified_attestation", "attestation_id_and_sha", "attestation_expiry_at_capability_rechecked_at", "permission_snapshot_sha256", "permission_revision", "selector_exact_single_match", "resolved_locator_binding", "expected_before_CAS"],
+          "trusted_execution_evidence_and_ack_record_capability_rechecked_at": true,
+          "not_tested_or_insufficient": "manual_stop_zero_write",
+          "permission_or_attestation_revision_drift": "manual_stop_platform_capability_insufficient_zero_write",
+          "selector_zero_or_multiple_match": "manual_stop_projection_conflict_zero_write",
+          "before_CAS_mismatch": "manual_stop_projection_conflict_zero_write"
+        },
+        "observed_state_truth_table": {
+          "symbols": {
+            "B": "exact_expected_before",
+            "A": "exact_expected_after",
+            "X": "neither_expected_before_nor_expected_after"
+          },
+          "rows": [
+            { "cluster": "B", "improvement": "B", "trusted_evidence": "sealed_plan_ack0_and_future_valid_unexpired_single_owner_private_worker_lease", "decision": "apply_once", "execution_targets": ["clusters", "improvements"] },
+            { "cluster": "B", "improvement": "B", "trusted_evidence": "no_valid_single_owner_private_worker_lease", "decision": "reject", "error": "projection_conflict", "base_writes": [] },
+            { "cluster": "A", "improvement": "A", "trusted_evidence": "two_target_acks_and_cluster_marker_all_match_original_sealed_plan", "decision": "already_applied", "base_writes": [] },
+            { "cluster": "A", "improvement": "B", "trusted_evidence": "cluster_ack_and_cluster_marker_match_original_sealed_plan", "decision": "repair", "repair_target": "improvements" },
+            { "cluster": "B", "improvement": "A", "trusted_evidence": "improvement_ack_matches_original_sealed_plan", "decision": "repair", "repair_target": "clusters" },
+            { "cluster": "X", "improvement": "any", "trusted_evidence": "any", "decision": "reject", "error": "projection_conflict", "base_writes": [] },
+            { "cluster": "any", "improvement": "X", "trusted_evidence": "any", "decision": "reject", "error": "projection_conflict", "base_writes": [] },
+            { "cluster": "A_or_B", "improvement": "A_or_B", "trusted_evidence": "required_ack_or_marker_missing_or_mismatched", "decision": "reject", "error": "projection_conflict", "base_writes": [] }
+          ],
+          "repair_reuses_original_sealed_plan": true,
+          "repair_reauthorization_allowed": false,
+          "repair_semantic_lookup_allowed": false
+        },
+        "raw_recurrence_visibility_contract": {
+          "source_ref": "logical://tables/clusters/fields/recurrence_records/visibility_contract",
+          "raw_read_logical_roles": ["improvement_insight"],
+          "hidden_in_business_views": ["issue_map", "improvement_tracking"],
+          "P03_unprivileged_access_surfaces": ["all_five_business_views", "direct_clusters_table_access"],
+          "verification_status": "not_tested",
+          "result": null,
+          "evidence": null
+        },
+        "manual_stop_and_rollback_contract": {
+          "automatic_projection_enabled": false,
+          "stop_when": ["capability_not_tested", "execution_mode_insufficient", "permission_or_attestation_revision_drift", "selector_zero_or_multiple_match", "before_CAS_mismatch", "ack_or_marker_missing_or_mismatched", "no_valid_single_owner_private_worker_lease"],
+          "stopped_base_writes": [],
+          "preserve": ["original_cluster_record", "original_improvement_record", "original_recurrence_records_order", "sealed_plan_and_private_audit_if_any"],
+          "temporary_automation_action": "keep_disabled_or_disable_without_deleting_formal_evidence",
+          "broad_permission_fallback_allowed": false,
+          "ordinary_sequential_double_write_fallback_allowed": false
+        },
+        "error_closed_set_ref": "logical://workflows/W6/reopen_projection_contract/error_closed_set"
+      },
+      "human_confirmations": ["same_event_merge_or_keep_separate", "human_review_cluster", "enter_observation", "active_observation_recurrence_intake", "final_root_cause", "knowledge_publication", "improvement_archive_or_reopen"],
+      "error_stop": "Keep same-event candidates separate until reviewed; reject active-observation intake without the exact N5 receipt and separate human authorization. Run the same Day-7 cutoff guard before receipt issue and against the latest authoritative state inside the full lock before state-fingerprint CAS and business commit: once Day-7 is sealed, closed_at <= day7ExpectedAt including the equal millisecond is rejected, while only closed_at > day7ExpectedAt inside the base window is Day-30 eligible. For enter_observation, await observation-phase human authorization with zero resource locks, then revalidate trusted time and commit atomically under the full case/cluster/improvement lock. Run record_day_7 and record_day_30 as separate deterministic transactions with no caller actor, AI or authorizer; only committed same-cycle intake/reopen history is eligible, Day-30 is cumulative, and a null denominator keeps recurrence_rate null. Preserve cases, feedback, work orders and the prior observation state on authorization, clock, lock, CAS, source or denominator failure.",
+      "day_7_cutoff_error_stop": {
+        "guard_id": "violatesW6ActiveIntakeObservationWindow",
+        "checkpoint_first_intake_second": "reject_when_latest_same_cycle_day_7_checkpoint_exists_and_closed_at <= day7ExpectedAt",
+        "capability_consumption": "consumed_when_rejection_occurs_at_final_guard_after_N5_and_human_capability_consumption",
+        "business_commit": "rejected",
+        "business_writes": [],
+        "w6_state_writes": [],
+        "preserve": ["committed_day_7_checkpoint", "cases", "raw_feedback", "work_orders", "cluster", "improvement", "observation_cycle", "intake_history_and_receipts"]
+      },
+      "observation_phase_error_stop": {
+        "actions": ["enter_observation", "record_day_7", "record_day_30"],
+        "enter_observation": {
+          "authorization_wait": "zero_resource_locks_and_zero_business_writes",
+          "denial_wrong_channel_or_clock_drift": "zero_target_business_writes",
+          "lock_or_CAS_conflict": "zero_partial_writes"
+        },
+        "record_day_7": {
+          "wrong_cycle_clock_or_horizon": "zero_business_writes",
+          "lock_wait_clock_drift": "zero_business_writes",
+          "uncommitted_or_wrong_cycle_source": "zero_business_writes"
+        },
+        "record_day_30": {
+          "missing_same_cycle_day_7": "zero_business_writes",
+          "wrong_cycle_clock_or_horizon": "zero_business_writes",
+          "non_cumulative_or_uncommitted_source": "zero_business_writes",
+          "lock_wait_clock_drift": "zero_business_writes"
+        },
+        "denominator": "null_preserves_recurrence_count_and_sets_recurrence_rate_null",
+        "audit_pending": "business_result_remains_authoritative_and_only_same_audit_id_may_be_repaired",
+        "event_replay": "same_payload_returns_cached_business_result_without_ID_authorization_AI_or_business_replay",
+        "event_conflict": "same_event_different_payload_stops_without_writes",
+        "preserve": ["cases", "raw_feedback", "work_orders", "prior_cluster_state", "prior_improvement_state", "prior_observation_runtime_state"]
+      },
+      "audit_sinks": [
+        { "sink": "ai_audit", "capture": ["actual_N5_N6_N7_envelopes_only", "N5_active_intake_request_envelope_input_hash", "N5_action_scoped_receipt_ref"], "field_contract_ref": "logical://tables/ai_audit/fields", "adds_canonical_fields": false },
+        { "sink": "platform_run_log", "capture": ["W6_phase", "internal_action", "human_decision_refs", "N5_receipt_ref", "intake_receipt_ref", "cycle_id", "clock_source", "day7ExpectedAt", "day30ExpectedAt", "trigger_closed_at", "occurred_at", "same_cycle_day_7_checkpoint_exists", "day_7_checkpoint_receipt_ref", "pre_receipt_window_guard_result", "final_full_lock_window_guard_result", "capability_consumption_outcome", "business_commit_outcome", "business_writes", "w6_state_writes", "checkpoint_source_refs", "before_after_business_snapshots", "error_class", "workflow_audit_id", "audit_state", "audit_pending", "event_result_cached", "batch_d1_action", "system_generated_cycle_id", "system_generated_clock_source", "system_generated_occurred_at", "system_generated_history_id", "system_generated_receipt_id", "system_generated_checkpoint_id", "authorization_wait_resource_lock_count", "enter_atomic_commit_outcome", "checkpoint_transaction_id", "checkpoint_expected_at", "recurrence_source_classes", "related_task_volume", "recurrence_count", "recurrence_rate", "audit_repair_outcome", "event_replay_outcome", "business_replay_count"], "adds_canonical_fields": false },
+        { "sink": "evidence_template", "capture": ["actual_action", "actual_result", "N5_receipt_ref", "human_recurrence_decision_ref", "intake_receipt_ref", "day_7_checkpoint_receipt_ref", "day7ExpectedAt", "day30ExpectedAt", "trigger_closed_at", "occurred_at", "pre_receipt_window_guard_result", "final_full_lock_window_guard_result", "capability_consumption_outcome", "business_commit_outcome", "business_writes", "w6_state_writes", "before_after_case_feedback_improvement_cycle_snapshots", "checkpoint_source_refs", "failure_rollback_result", "run_record_indexes", "limitations", "batch_d1_action", "observation_authorization_ref", "authorization_wait_resource_lock_count", "system_generated_cycle_clock_timestamp_history_receipt_refs", "checkpoint_transaction_id", "checkpoint_expected_at", "committed_recurrence_source_refs", "related_task_volume", "recurrence_count", "recurrence_rate", "audit_repair_outcome", "event_replay_outcome", "business_replay_count"], "adds_canonical_fields": false }
+      ],
+      "rollback": "For intake_active_observation_recurrence, a Day-7 cutoff rejection at the final full-lock guard occurs after the private N5 validation and human authorization capabilities may already be consumed: record capability_consumption=consumed separately, business_commit=rejected, business_writes=[] and w6_state_writes=[]; preserve the checkpoint-first state and do not restore or relabel consumed capabilities as business writes. For enter_observation, denial, invalid grant, trusted-clock drift, lock conflict or CAS conflict leaves the prior cluster/improvement and runtime observation state unchanged. For record_day_7 and record_day_30, wrong clock/cycle/horizon, missing Day-7, non-cumulative or uncommitted sources, invalid denominator, lock drift or commit failure appends no checkpoint/history/receipt and changes no business state. If any D1 business commit succeeds while workflow audit append fails, keep the committed business result with audit_pending; replay the same workflow_audit_id to repair only the audit and never repeat N5, human authorization or business writes; never regenerate IDs, invoke AI or replay any D1 business write. On business failure preserve cases.cluster_id/status, raw_feedback ownership/status, cluster/improvement status, the improvement record and observation cycle. Preserve work orders in every observation action. Do not auto-archive, reopen, publish knowledge, declare a final root cause or delete recurrence evidence.",
+      "observation_phase_rollback": {
+        "enter_observation_failure": {
+          "business_writes": [],
+          "runtime_state_writes": [],
+          "preserve_prior_state": true
+        },
+        "checkpoint_failure": {
+          "business_writes": [],
+          "runtime_append_only_writes": [],
+          "preserve_prior_state": true
+        },
+        "audit_failure_after_business_success": {
+          "business_rollback": false,
+          "audit_state": "audit_pending",
+          "repair_scope": ["runtime://W6/workflow_audit"],
+          "business_replay": false
+        },
+        "archive_or_reopen_action": "excluded_from_batch_d1",
+        "automatic_knowledge_publication": false
+      },
+      "runtime_status": "not_configured_untested"
+    }
+  ],
+  "required_human_gates_ref": "logical://human_gates",
+  "forbidden_automatic_actions_ref": "logical://forbidden_automatic_actions",
+  "resource_mapping_template": "../config/resource-mapping.example.json",
+  "evidence_template": {
+    "path": "../evidence/on-site-evidence-template.json",
+    "reference_kind": "non_hash_locator",
+    "excluded_from_freeze_graph": true
+  },
+  "rollback_runbook": "../runbooks/rollback-and-cleanup.md"
+}

@@ -1,0 +1,1337 @@
+{
+  "template_version": "0.1.2",
+  "project": "石听 NeoLoop",
+  "fact_class": "synthetic_experiment",
+  "deployment_status": "temporary_base_probe_suite_in_progress",
+  "execution_status": "blocked",
+  "result": null,
+  "evidence": {
+    "indexes": [
+      {
+        "evidence_id": "T2-EV-P02-20260807-1832-01",
+        "observed_at": "2026-08-07T18:32:22+08:00",
+        "actor_role": "participant_operator",
+        "redacted_storage_slot": "controlled-slot-P02-cardinality-01",
+        "capture_phases": [
+          "before_action",
+          "after_boundary",
+          "failure"
+        ],
+        "redaction_checked": true
+      }
+    ],
+    "r10_subchecks": {
+      "P02-R10-selector-cardinality": [
+        "T2-EV-P02-20260807-1832-01"
+      ],
+      "P02-R10-execution-mode": [
+        "T2-EV-P02-20260807-1832-01"
+      ],
+      "P02-R10-attestation-base-component": [
+        "T2-EV-P02-20260807-1832-01"
+      ]
+    }
+  },
+  "status_contract": {
+    "execution_status_allowed": [
+      "not_tested",
+      "blocked",
+      "completed"
+    ],
+    "permission_result_allowed": [
+      "可用",
+      "受限",
+      "不可用"
+    ],
+    "state_invariants": {
+      "not_tested": "result_and_evidence_must_both_be_null",
+      "blocked": "result_must_be_null_and_evidence_must_be_a_non_empty_redacted_structured_index",
+      "completed": "result_must_be_可用_受限_or_不可用_and_evidence_must_be_a_non_empty_redacted_structured_index"
+    },
+    "display_status_mapping": {
+      "not_tested": "未测试",
+      "blocked": "已阻塞",
+      "completed_available": "可用",
+      "completed_restricted": "受限",
+      "completed_unavailable": "不可用"
+    },
+    "rule": "An unstarted probe or one missing prerequisites requires not_tested with result/evidence null. Once any prescribed action is attempted but the action, boundary recheck, cleanup or evidence is incomplete, blocked requires result null and non-empty redacted structured evidence. completed requires one of 可用, 受限 or 不可用 plus complete runtime fields and non-empty redacted structured evidence."
+  },
+  "result_record_contract": {
+    "required_runtime_fields": [
+      "execution_status",
+      "result",
+      "evidence",
+      "actual_action",
+      "actual_time",
+      "executor",
+      "account_role",
+      "limitations",
+      "cleanup_result",
+      "verifier"
+    ],
+    "permission_probe_required_runtime_fields": [
+      "execution_status",
+      "result",
+      "evidence",
+      "preconditions_observed",
+      "expected_result_ref",
+      "actual_action",
+      "actual_result",
+      "actual_time",
+      "executor",
+      "account_role",
+      "limitations",
+      "evidence_index",
+      "fallback_path",
+      "fallback_verified",
+      "cleanup_result",
+      "verifier"
+    ],
+    "permission_probe_exact_keys": [
+      "unit_id",
+      "name",
+      "probe_ref",
+      "evidence_unit_ref",
+      "execution_status",
+      "result",
+      "evidence",
+      "preconditions_observed",
+      "expected_result_ref",
+      "actual_action",
+      "actual_result",
+      "actual_time",
+      "executor",
+      "account_role",
+      "limitations",
+      "evidence_index",
+      "fallback_path",
+      "fallback_verified",
+      "cleanup_result",
+      "verifier"
+    ],
+    "permission_probe_field_types": {
+      "unit_id": "string_matching_P01_through_P13",
+      "name": "non_empty_string_matching_permission_matrix",
+      "probe_ref": "non_empty_repository_JSON_pointer_to_the_same_probe",
+      "evidence_unit_ref": "non_empty_repository_JSON_pointer_to_the_same_existing_permission_evidence_unit",
+      "execution_status": "enum_not_tested_blocked_completed",
+      "result": "null_or_enum_可用_受限_不可用",
+      "evidence": "null_or_non_empty_redacted_object",
+      "preconditions_observed": "null_or_non_empty_array_of_non_empty_strings",
+      "expected_result_ref": "non_empty_repository_JSON_pointer_to_the_same_probe_expected_result",
+      "actual_action": "null_or_non_empty_string",
+      "actual_result": "null_or_non_empty_string_preserving_the_redacted_observed_outcome",
+      "actual_time": "null_or_ISO_8601_timestamp_with_timezone",
+      "executor": "null_or_non_empty_redacted_actor_label",
+      "account_role": "null_or_non_empty_logical_account_role",
+      "limitations": "null_or_non_empty_string",
+      "evidence_index": "null_or_non_empty_object_matching_evidence_index_contract",
+      "fallback_path": "non_empty_repository_JSON_pointer_to_the_same_probe_fallback_path",
+      "fallback_verified": "null_or_boolean",
+      "cleanup_result": "null_or_non_empty_string",
+      "verifier": "null_or_non_empty_redacted_actor_label"
+    },
+    "permission_probe_conditional_requirements": {
+      "not_tested": {
+        "result": null,
+        "evidence": null,
+        "preconditions_observed": null,
+        "actual_action": null,
+        "actual_result": null,
+        "actual_time": null,
+        "executor": null,
+        "account_role": null,
+        "limitations": null,
+        "evidence_index": null,
+        "fallback_verified": null,
+        "cleanup_result": null,
+        "verifier": null
+      },
+      "blocked": "result_is_null; evidence_index_is_a_non_empty_redacted_object_and_evidence_is_canonical_deep_equal_to_evidence_index; preconditions_observed_actual_action_actual_result_actual_time_executor_account_role_limitations_cleanup_result_verifier_are_non_empty; fallback_verified_is_boolean",
+      "completed": "result_is_可用_受限_or_不可用; evidence_index_is_a_non_empty_redacted_object_and_evidence_is_canonical_deep_equal_to_evidence_index; preconditions_observed_actual_action_actual_result_actual_time_executor_account_role_cleanup_result_verifier_are_non_empty; fallback_verified_is_boolean; 受限_or_不可用_requires_non_empty_limitations_and_fallback_verified_true"
+    },
+    "canonical_evidence_binding_contract": {
+      "canonical_source_field": "permission_probe.evidence_index",
+      "same_record_alias_field": "permission_probe.evidence",
+      "same_record_alias_rule": "canonical_deep_equal_to_permission_probe.evidence_index",
+      "same_probe_on_site_field": "permission_check.structured_evidence_index",
+      "same_probe_on_site_rule": "canonical_deep_equal_to_permission_probe.evidence_index",
+      "not_tested_requires": {
+        "evidence_index": null,
+        "evidence": null,
+        "structured_evidence_index": null
+      },
+      "blocked_or_completed_requires": "all_three_fields_are_non_empty_and_canonical_deep_equal",
+      "p03_phase_binding": {
+        "canonical_parent_field": "permission_probe_P03.evidence_index.indexes",
+        "phase_fields": ["prebuild_gate.evidence_index.indexes", "postbuild_five_view_direct_table_recheck.evidence_index.indexes"],
+        "identity_key": "evidence_id",
+        "cardinality_rule": "each_phase_index_has_unique_evidence_id_and_no_parent_filtered_entry_is_omitted_or_duplicated",
+        "capture_phase_rule": "filter_parent_indexes_by_capture_phases_containing_the_exact_phase_key",
+        "exact_binding_rule": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id",
+        "independent_fourth_truth_forbidden": true
+      }
+    },
+    "evidence_index_contract": {
+      "object_keys": ["indexes", "r10_subchecks"],
+      "index_entry_required_fields": ["evidence_id", "observed_at", "actor_role", "redacted_storage_slot", "capture_phases", "redaction_checked"],
+      "evidence_id_format": "T2-EV-Pnn-YYYYMMDD-HHmm-seq",
+      "observed_at_format": "ISO_8601_with_timezone",
+      "redacted_storage_slot_rule": "opaque_approved_slot_label_only_no_URL_or_resource_ID",
+      "capture_phases_rule": "non_empty_subset_of_before_action_after_boundary_failure",
+      "redaction_checked_required": true,
+      "r10_subchecks_rule": "null_except_P02_or_P03; completed_P02_or_P03_reuses_the_same_permission_evidence_unit_and_indexes_all_existing_R10_subchecks_without_creating_a_new_unit",
+      "P02_completed_r10_subchecks_contract": {
+        "exact_keys": ["P02-R10-selector-cardinality", "P02-R10-execution-mode", "P02-R10-attestation-base-component"],
+        "value_type": "non_empty_sorted_unique_array_of_evidence_ids",
+        "binding_rule": "every_referenced_evidence_id_occurs_exactly_once_in_parent_P02_indexes",
+        "missing_empty_opaque_extra_or_unbound_rejected": true
+      }
+    },
+    "fallback_contract": {
+      "fields": ["fallback_path", "fallback_verified"],
+      "fallback_path_rule": "non_empty_repository_JSON_pointer_resolving_to_the_same_probe_fallback_path",
+      "fallback_verified_type": "null_or_boolean",
+      "not_tested_requires": "fallback_verified_null",
+      "completed_restricted_or_unavailable_requires": "fallback_verified_true",
+      "completed_available_requires": "fallback_verified_boolean",
+      "blocked_requires": "fallback_verified_boolean"
+    },
+    "p03_phase_contract": {
+      "object_keys": ["prebuild_gate", "postbuild_five_view_direct_table_recheck"],
+      "persistence_ref": "./on-site-evidence-template.json#/permission_checks/2/p03_phase_observations",
+      "prebuild_phase_runtime_fields": ["execution_status", "result", "evidence_index", "actual_action", "actual_result", "actual_time", "actual_prebuild_proof"],
+      "postbuild_phase_runtime_fields": ["execution_status", "result", "evidence_index", "actual_action", "actual_result", "actual_time"],
+      "phase_runtime_field_types": {
+        "execution_status": "enum_not_tested_blocked_completed",
+        "result": "null_or_enum_可用_受限_不可用",
+        "evidence_index": "null_or_non_empty_redacted_object_matching_evidence_index_contract",
+        "actual_action": "null_or_non_empty_string",
+        "actual_result": "null_or_non_empty_string_preserving_the_redacted_observed_outcome",
+        "actual_time": "null_or_ISO_8601_timestamp_with_timezone",
+        "actual_prebuild_proof": "null_or_exact_22_key_prebuild_proof_object"
+      },
+      "phase_conditional_requirements": {
+        "not_tested": "result_evidence_index_actual_action_actual_result_actual_time_and_actual_prebuild_proof_are_null_for_prebuild; postbuild_uses_its_declared_six_fields",
+        "blocked": "result_is_null; evidence_index_is_a_non_empty_redacted_object; actual_action_actual_result_and_actual_time_are_non_empty; prebuild_proof_is_null",
+        "completed": "result_is_可用_受限_or_不可用; evidence_index_is_a_non_empty_redacted_object; actual_action_actual_result_and_actual_time_are_non_empty; prebuild_requires_exact_22_key_full_observation"
+      },
+      "prebuild_proof_contract": {
+        "field": "actual_prebuild_proof",
+        "exact_keys": ["data_scope", "fixture_marker", "test_scope", "enterprise_data_used", "actor_class", "actor_distinct_from_owner_verified", "owner_privileges_absent", "administrator_privileges_absent", "independent_session_verified", "allowed_isolated_view_open_attempted", "allowed_isolated_view_opened", "non_isolated_views_hidden", "non_target_records_hidden", "direct_table_access_denied", "raw_json_hidden", "management_configuration_hidden", "protected_mutation_attempted", "protected_mutation_rejected", "unauthorized_business_write_count", "business_state_unchanged", "temporary_access_revoked", "cleanup_reverified"],
+        "static_identity": {
+          "data_scope": "synthetic_experiment",
+          "fixture_marker": "SYN-PERMISSION-TEST",
+          "test_scope": "isolated_temporary_base",
+          "enterprise_data_used": false,
+          "actor_class": "ordinary_non_owner"
+        },
+        "not_tested_rule": "actual_prebuild_proof_must_be_null",
+        "blocked_rule": "actual_prebuild_proof_must_be_null; partial_attempt_facts_remain_only_in_actual_action_actual_result_and_canonical_evidence",
+        "completed_common_rule": "exact_22_key_full_observation; actor_distinct_from_owner_verified_owner_and_administrator_privileges_absent_independent_session_verified_allowed_view_open_attempted_temporary_access_revoked_cleanup_reverified_true; unauthorized_business_write_count_nonnegative_integer; protected_mutation_attempted_and_protected_mutation_rejected_are_false_when_allowed_view_is_not_opened_or_any_of_the_five_visibility_boundaries_is_false; protected_mutation_attempted_is_true_only_when_allowed_view_is_opened_and_all_five_visibility_boundaries_are_true",
+        "deterministic_result_classification": {
+          "可用": "allowed_view_opened_all_five_visibility_boundaries_safe_protected_mutation_attempted_and_rejected_zero_unauthorized_business_writes_and_business_state_unchanged",
+          "受限": "same_full_safe_boundary_as_available_with_a_separately_recorded_non_hard_limitation; parent_limitations_non_empty_and_fallback_verified_true",
+          "不可用": "lawful_complete_synthetic_isolated_test_but_allowed_view_not_opened_or_any_visibility_boundary_unsafe_or_attempted_protected_mutation_not_rejected_or_unauthorized_business_write_count_positive_or_business_state_changed; mutation_is_skipped_with_attempted_and_rejected_false_when_view_open_or_visibility_precondition_is_unsafe; parent_limitations_non_empty_and_fallback_verified_true"
+        },
+        "parent_state_rule": "prebuild_not_tested_keeps_parent_not_tested_null; any_prebuild_attempt_or_completion_keeps_parent_blocked_null_until_postbuild_completed",
+        "phase_evidence_binding_rule": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id"
+      },
+      "parent_state_transitions": {
+        "prebuild_not_started": {
+          "required_execution_status": "not_tested",
+          "required_result": null,
+          "required_evidence": null
+        },
+        "prebuild_attempted_but_parent_incomplete": {
+          "required_execution_status": "blocked",
+          "required_result": null,
+          "required_evidence": "non_empty_redacted_structured_index_canonical_deep_equal_to_parent_evidence_index"
+        },
+        "postbuild_incomplete": {
+          "required_execution_status": "blocked",
+          "required_result": null,
+          "required_evidence": "non_empty_redacted_structured_index_canonical_deep_equal_to_parent_evidence_index"
+        },
+        "parent_completed_requires": {
+          "prebuild_gate_execution_status": "completed",
+          "postbuild_five_view_direct_table_recheck_execution_status": "completed",
+          "required_result": "可用_or_受限_or_不可用"
+        }
+      },
+      "phase_evidence_binding_ref": "result_record_contract.canonical_evidence_binding_contract.p03_phase_binding",
+    "completed_result_consistency": "parent_result_must_equal_postbuild_result; prebuild_is_only_the_controlled_build_gate_and_does_not_determine_the_final_parent_result; postbuild_unavailable_or_restricted_cannot_be_reported_as_parent_available",
+    "prebuild_continuation_contract": {
+      "unavailable": "postbuild_must_remain_not_tested",
+      "restricted": "postbuild_may_start_only_when_parent_limitations_is_non_empty_and_parent_fallback_verified_is_true",
+      "available": "postbuild_may_start_after_main_controller_approval"
+    },
+      "completed_r10_subchecks_contract": {
+        "exact_keys": ["P03-R10-raw-recurrence-visibility", "P03-R10-attestation-lifecycle-and-recheck"],
+        "value_type": "non_empty_sorted_unique_array_of_evidence_ids",
+        "binding_rule": "every_referenced_evidence_id_occurs_exactly_once_in_parent_indexes_and_is_bound_to_postbuild_five_view_direct_table_recheck",
+        "phase_r10_subchecks_must_be_null": true,
+        "missing_empty_null_or_opaque_value_rejected": true
+      },
+      "completed_on_site_machine_result_contract": {
+        "source_path": "./on-site-evidence-template.json#/permission_checks/2/r10_recurrence_visibility_and_attestation_evidence_contract",
+        "actual_all_five_business_views_result_exact_keys": ["views", "relogin_completed", "refresh_boundary_stable", "unauthorized_W6_action_rejected", "protected_field_mutation_rejected", "administrator_configuration_hidden"],
+        "view_result_exact_keys": ["view_key", "opened", "refreshed", "allowed_action_verified", "raw_recurrence_records_visible"],
+        "required_view_keys": ["feedback_inbox", "case_cockpit", "sla_board", "issue_map", "improvement_tracking"],
+        "actual_direct_clusters_table_result_exact_keys": ["attempted", "access_allowed", "refreshed", "raw_recurrence_records_visible", "administrator_fields_visible"],
+        "actual_recurrence_visibility_no_broader_than_source_fields_result_exact_keys": ["day_7_result_readable", "day_30_result_readable", "human_conclusion_readable", "raw_recurrence_records_visible", "no_broader_than_source_field_intersection"],
+        "P02_cross_binding": "P02_must_be_completed_and_P03_permission_snapshot_sha256_plus_permission_revision_must_exactly_equal_permission_checks_1.r10_selector_and_execution_mode_evidence_contract_values",
+        "attestation_id_digest_semantics": "format_checked_pending_onsite_digest_only; no_authoritative_recompute_input_exists_in_this_contract; never_sufficient_alone_to_complete_P03",
+      "proof_root_exact_keys": [
+        "probe_ref",
+        "normalized_existing_evidence_unit_ref",
+        "creates_new_evidence_unit",
+        "actual_all_five_business_views_result",
+        "actual_direct_clusters_table_result",
+        "actual_recurrence_visibility_no_broader_than_source_fields_result",
+        "attestation_id_digest",
+        "capability_attestation_sha256",
+        "permission_snapshot_sha256",
+        "permission_revision",
+        "issued_at",
+        "expires_at",
+        "capability_checked_at",
+        "capability_rechecked_at",
+        "actual_prewrite_recheck_result",
+        "actual_drift_or_expiry_injection_result"
+      ],
+      "proof_root_static_identity": {
+        "probe_ref": "P03",
+        "normalized_existing_evidence_unit_ref": "P02+P03",
+        "creates_new_evidence_unit": false
+      },
+      "proof_completeness": "root_and_nested_objects_have_exact_keys; all_observation_slots_are_explicit_booleans_or_the_documented_direct_table_null; digests_revision_times_P02_binding_and_evidence_metadata_are_complete; completeness_does_not_require_every_observation_to_be_a_safe_success",
+      "deterministic_result_classification": {
+        "可用": "all_5_views_usable_and_every_security_boundary_relogin_refresh_prewrite_and_drift_zero_write_check_has_the_safe_value",
+        "受限": "hardSafety_and_drift_zero_write_pass_and_either_1_to_4_views_are_usable_or_all_5_views_are_usable_but_normal_prewrite_attestation_revision_unexpired_or_rechecked_is_fail_closed; limitations_non_empty_and_fallback_verified_true",
+        "不可用": "0_views_usable_or_any_security_boundary_failure_leak_or_drift_zero_write_failure; all_observation_slots_still_complete; limitations_non_empty_and_fallback_verified_true"
+      },
+      "view_usable_definition": "opened_true_and_refreshed_true_and_allowed_action_verified_true",
+      "direct_table_safe_paths": "access_allowed_true_requires_refreshed_true; access_allowed_false_requires_refreshed_null; raw_or_administrator_visibility_true_is_a_complete_observation_but_a_hard_safety_failure_that_can_only_be_classified_as_不可用",
+      "completed_requires": "proof_completeness_then_deterministic_result_classification; P02_completed_and_snapshot_revision_exact_cross_binding; attestation_digests_are_sha256, revision_non_empty, issued_at_lte_checked_at_lte_rechecked_at_lt_expires_at",
+      "current_not_tested_template_keeps_all_actual_slots_null": true
+    },
+    "evidence_metadata_state_contract": {
+      "not_tested": {
+        "evidence_presence": "待填",
+        "redaction_status": "待填"
+      },
+      "blocked_or_completed": {
+        "evidence_presence": "已记录",
+        "redaction_status": "已复核"
+      }
+    },
+      "prebuild_cannot_complete_parent_P03": true,
+      "completed_parent_P03_requires_both_phases_complete": true,
+      "postbuild_requires_five_view_refresh_and_direct_table_recheck": true
+    },
+    "evidence_contract": "Evidence is null only for not_tested. blocked and completed require a non-empty evidence_index matching evidence_index_contract, and the same record evidence plus the same-probe on-site structured_evidence_index must be canonical deep-equal to that canonical source. An empty object, scenario fixture or expected value is never evidence.",
+    "redaction_contract": "Do not store credentials, authorization URLs, device codes, user identifiers, real resource IDs or full Feishu resource links in this repository template."
+  },
+  "resource_slots": {
+    "base_app_token": null,
+    "table_ids": {
+      "raw_feedback": null,
+      "cases": null,
+      "work_orders": null,
+      "clusters": null,
+      "improvements": null,
+      "vehicles": null,
+      "delivery_tasks": null,
+      "routing_matrix": null,
+      "knowledge_index": null,
+      "ai_audit": null
+    },
+    "view_ids": {
+      "feedback_inbox": null,
+      "case_cockpit": null,
+      "sla_board": null,
+      "issue_map": null,
+      "improvement_tracking": null
+    },
+    "platform_role_ids": {
+      "feedback_understanding": null,
+      "case_coordination": null,
+      "improvement_insight": null
+    },
+    "node_ids": {
+      "N1": null,
+      "N2": null,
+      "N3": null,
+      "N4": null,
+      "N5": null,
+      "N6": null,
+      "N7": null
+    },
+    "workflow_automation_ids": {
+      "W1": null,
+      "W2": null,
+      "W3": null,
+      "W4": null,
+      "W5": null,
+      "W6": null
+    },
+    "anonymous_document_token": null,
+    "unprivileged_account_ref": null,
+    "self_built_app_id": null,
+    "openapi_credential_ref": null,
+    "lark_cli_profile": null
+  },
+  "permission_probes": [
+    {
+      "unit_id": "P01",
+      "name": "文档匿名权限",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/0",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/0",
+      "execution_status": "blocked",
+      "result": null,
+      "evidence": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P01-20260808-1903-01",
+            "observed_at": "2026-08-08T19:03:33+08:00",
+            "actor_role": "participant_attestation_plus_controller_browser_operator",
+            "redacted_storage_slot": "controlled-slot-P01-anonymous-readonly-incomplete-01",
+            "capture_phases": [
+              "before_action",
+              "failure",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "existing_anonymous_test_document_reused",
+        "historical_unlogged_readonly_observation_user_attested",
+        "current_machine_session_login_state_not_verified",
+        "no_share_setting_changed_in_this_attempt"
+      ],
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/0/expected_result",
+      "actual_action": "参赛者此前以未登录环境人工确认现有 P01 测试文档可打开且只读；本轮总控仅复用该既有文档做只读浏览器复验，在内置浏览器打开目标页并发起刷新，约 18 秒后页面地址与标题仍稳定；随后尝试读取 DOM、按钮和截图，并用已连接 Chrome 建立独立读取，均未取得可用页面结构。未修改分享设置、文档内容或权限。2026-08-08T19:03:33+08:00 仅为本轮脱敏证据落盘复核时间，不冒充历史人工观察或每次浏览器调用的精确发生时间。",
+      "actual_result": "历史人工观察=user_attested:未登录可打开且只读；本轮机器观察=页面成功打开且刷新后的页面地址与标题稳定；refresh_completion=unverified; body_readability_after_refresh=unverified; edit_entry_absence=unverified; screenshot_capture=unavailable; browser_secondary_session_navigation=not_established。因规定动作已尝试但刷新完成与编辑边界证据不完整，P01 固定 blocked/null，不外推 completed/可用。",
+      "actual_time": "2026-08-08T19:03:33+08:00",
+      "executor": "participant_attestation_plus_controller_browser_operator",
+      "account_role": "historical_unlogged_observer_and_current_browser_session_unverified",
+      "limitations": "历史人工确认没有可机器绑定的刷新后截图；本轮结构化页面读取超时，无法确认当前浏览器是否真正未登录，也无法证明刷新完成、正文刷新后仍可读或无编辑入口。页面标题稳定不能替代三项现场证明。",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P01-20260808-1903-01",
+            "observed_at": "2026-08-08T19:03:33+08:00",
+            "actor_role": "participant_attestation_plus_controller_browser_operator",
+            "redacted_storage_slot": "controlled-slot-P01-anonymous-readonly-incomplete-01",
+            "capture_phases": [
+              "before_action",
+              "failure",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/0/fallback_path",
+      "fallback_verified": false,
+      "cleanup_result": "本轮未更改分享设置、权限、正文或账号；未发送链接、未上传文件、无业务写。只产生浏览器读取尝试，无需飞书资源清理；保留现有文档供后续真正匿名人工复验。",
+      "verifier": "participant_attestation_plus_controller_browser_metadata_review"
+    },
+    {
+      "unit_id": "P02",
+      "name": "Base 基础能力",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/1",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/1",
+      "execution_status": "completed",
+      "result": "受限",
+      "evidence": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P02-20260807-1832-01",
+            "observed_at": "2026-08-07T18:32:22+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P02-cardinality-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary",
+              "failure"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": {
+          "P02-R10-selector-cardinality": [
+            "T2-EV-P02-20260807-1832-01"
+          ],
+          "P02-R10-execution-mode": [
+            "T2-EV-P02-20260807-1832-01"
+          ],
+          "P02-R10-attestation-base-component": [
+            "T2-EV-P02-20260807-1832-01"
+          ]
+        }
+      },
+      "preconditions_observed": [
+        "data_scope=synthetic_experiment",
+        "enterprise_data_used=false",
+        "scope=manual_ui_cardinality_only",
+        "temporary_base=true",
+        "automation_final_state=disabled"
+      ],
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/1/expected_result",
+      "actual_action": "在临时合成 Base 中以所有者身份分别对 cluster_id 与 improvement_id 完成 UI 精确筛选 1、0、2 条命中；随后删除仅为多命中实验增加的具名重复合成记录，并复核 Cases 保护基线和自动化关闭状态。",
+      "actual_result": "data_scope=synthetic_experiment; scope=manual_ui_cardinality_only; clusters_match_counts(one/zero/many)=1/0/2; improvements_match_counts(one/zero/many)=1/0/2; duplicate_cleanup=exact_named_duplicates_deleted_and_each_target_restored_to_one; protected_baseline=Cases_status_feedback_ownership_relations_unchanged; automation_final_state=disabled; private_resolver_status=not_tested; execution_mode=insufficient; attestation_status=not_tested; business_write_count=not_established_by_manual_ui",
+      "actual_time": "2026-08-07T18:32:22+08:00",
+      "executor": "participant_operator",
+      "account_role": "base_owner",
+      "limitations": "本轮只证明临时 Base 中的 UI 手工精确筛选与可清理性；未调用私有 resolver、OpenAPI 或真实执行器，未证明 business_write_count=0、跨目标原子性、durable outbox/CAS、attestation 或企业数据接入。",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P02-20260807-1832-01",
+            "observed_at": "2026-08-07T18:32:22+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P02-cardinality-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary",
+              "failure"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": {
+          "P02-R10-selector-cardinality": [
+            "T2-EV-P02-20260807-1832-01"
+          ],
+          "P02-R10-execution-mode": [
+            "T2-EV-P02-20260807-1832-01"
+          ],
+          "P02-R10-attestation-base-component": [
+            "T2-EV-P02-20260807-1832-01"
+          ]
+        }
+      },
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/1/fallback_path",
+      "fallback_verified": true,
+      "cleanup_result": "SYN_Clusters 与 SYN_Improvements 分别删除一条多命中实验重复记录并恢复单条具名合成记录；SYN_Cases 状态、反馈归属、关联关系未变；测试自动化保持关闭。",
+      "verifier": "participant_confirmation_plus_redacted_evidence_three_way_deep_equal_and_offline_contract_regression"
+    },
+    {
+      "unit_id": "P03",
+      "name": "Base 无特权权限",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/2",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/2",
+      "execution_status": "blocked",
+      "result": null,
+      "evidence": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P03-20260808-1126-01",
+            "observed_at": "2026-08-08T11:26:07+08:00",
+            "actor_role": "owner_operator",
+            "redacted_storage_slot": "controlled-slot-P03-first-permission-action-01",
+            "capture_phases": [
+              "prebuild_gate"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "owner_baseline_frozen_by_participant_visual_confirmation",
+        "synthetic_fixture_only",
+        "enterprise_data_used_false",
+        "automation_disabled_true"
+      ],
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/2/expected_result",
+      "actual_action": "owner 先将协作者管理权限从可阅读用户收窄为可管理用户并确认保存；随后在同一 owner 会话中继续关闭组织链接分享，将外分享、协作者管理、复制、创建副本/打印/下载和评论权限收窄到界面可用的最严格范围。参赛者确认第二身份属于组织外账号后，owner 尝试为 SYN_P03_ISOLATED_VIEW 开启独立视图分享。",
+    "actual_result": "首个权限动作已发生；父 P03 与 prebuild 阶段保持 blocked/null。Base 链接分享仍为仅协作者可访问；仅可管理权限用户可外分享；仅组织内用户可管理协作者；复制及创建副本/打印/下载限可管理用户；评论限可编辑用户；加密链接保持关闭。独立视图分享开关曾短暂显示已开启并生成分享入口，默认范围为组织内链接可读、复制关闭、返回原表开启；在收窄范围或发送链接前重新读取，开关已回退为关闭。未复制或发送链接，未邀请第二身份，未建立外部访问。回退后 owner 已重新核对隔离视图仍为 1 条/3 字段、fixture_marker 未变、automation_result 为空、原 SYN_Cases 仍为 6 条，自动化管理中已启用流程为 0；业务字段、反馈归属与关联关系仍待逐项完成脱敏等值复核。尚未执行第二身份可见性边界、受保护修改、撤权、刷新、重登或完整清理复验。observed_at 保留首个权限动作的脱敏证据落盘复核时间，不冒充后续 UI 动作的精确发生时间。",
+      "actual_time": "2026-08-08T11:26:07+08:00",
+      "executor": "participant_owner_operator",
+      "account_role": "owner",
+      "limitations": "第二身份仅由参赛者确认为组织外账号，尚未完成非 owner、非管理员和独立会话验证。独立视图分享未能稳定保持开启，且开启瞬间出现的默认组织内范围不是目标最小范围；按保守停止门不重复尝试，也不邀请账号。五项可见性边界、条件式保护修改、撤权与完整清理尚未开始，不能形成 prebuild 能力结论。",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P03-20260808-1126-01",
+            "observed_at": "2026-08-08T11:26:07+08:00",
+            "actor_role": "owner_operator",
+            "redacted_storage_slot": "controlled-slot-P03-first-permission-action-01",
+            "capture_phases": [
+              "prebuild_gate"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/2/fallback_path",
+      "fallback_verified": false,
+    "cleanup_result": "独立视图分享重新读取为关闭；瞬时生成的分享入口未复制、未发送，第二身份未邀请，未建立外部访问。Base 组织链接仍关闭。回退后的记录数、隔离字段、marker、automation_result 空值与自动化关闭关键基线已复核；业务字段、反馈归属和关联关系的全量等值复核仍待完成，因此 prebuild 继续 blocked/null。",
+      "verifier": "participant_confirmation_plus_controller_contract_review_pending_full_prebuild"
+    },
+    {
+      "unit_id": "P04",
+      "name": "飞书 AI / Base AI",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/3",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/3",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/3/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/3/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P05",
+      "name": "自动化 / 工作流",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/4",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/4",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/4/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/4/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P06",
+      "name": "审批",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/5",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/5",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/5/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/5/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P07",
+      "name": "机器人",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/6",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/6",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/6/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/6/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P08",
+      "name": "知识库",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/7",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/7",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/7/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/7/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P09",
+      "name": "妙搭",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/8",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/8",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/8/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/8/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P10",
+      "name": "Aily",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/9",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/9",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "preconditions_observed": null,
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/9/expected_result",
+      "actual_action": null,
+      "actual_result": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "evidence_index": null,
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/9/fallback_path",
+      "fallback_verified": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "P11",
+      "name": "企业自建应用",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/10",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/10",
+      "execution_status": "completed",
+      "result": "受限",
+      "evidence": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P11-20260807-1936-01",
+            "observed_at": "2026-08-07T19:36:34+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-existing-app-state-01",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2134-02",
+            "observed_at": "2026-08-07T21:34:17+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-dedicated-app-created-02",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2156-03",
+            "observed_at": "2026-08-07T21:56:17+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-user-readonly-scope-03",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2210-04",
+            "observed_at": "2026-08-07T22:10:40+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-dedicated-app-published-04",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "赛事已确认允许企业自建应用、OAuth、OpenAPI 与官方 CLI",
+        "用户已明确停止复用原候选应用，并指定创建 NeoLoop 专用应用",
+        "NeoLoop 专用企业自建应用已创建并发布启用",
+        "专用应用已仅开通用户身份 bitable:app:readonly 免审权限",
+        "应用凭证未进入聊天、仓库或证据文件"
+      ],
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/10/expected_result",
+      "actual_action": "保留前三次观察作为历史证据；将 NeoLoop 专用应用首版发布为 1.0.0，仅保留用户身份 bitable:app:readonly 免审权限，可用成员仅应用所有者，外部群和外部单聊均未开放。未开通应用身份或写权限，未复制凭证，未发起 OAuth，未调用 Base API。",
+      "actual_result": "原复用候选方案已被用户明确取代；NeoLoop 专用应用首版审核通过并显示已启用、当前修改均已发布。权限页只存在用户身份 bitable:app:readonly，数据范围明确与授权用户权限一致；没有应用身份、写权限或额外资源协作者。P11 的应用创建、最小 scope、资源边界与管理员决定均已闭环。",
+      "actual_time": "2026-08-07T22:10:40+08:00",
+      "executor": "controller_with_participant_session",
+      "account_role": "application_owner_operator",
+      "limitations": "P11 仅证明专用应用、最小用户身份只读 scope、资源边界与管理员决定；OAuth、CLI profile 与专用应用绑定、OpenAPI 及真实 Base 查询仍分别属于后续 P13/P12，尚未测试。",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P11-20260807-1936-01",
+            "observed_at": "2026-08-07T19:36:34+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-existing-app-state-01",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2134-02",
+            "observed_at": "2026-08-07T21:34:17+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-dedicated-app-created-02",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2156-03",
+            "observed_at": "2026-08-07T21:56:17+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-user-readonly-scope-03",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2210-04",
+            "observed_at": "2026-08-07T22:10:40+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-dedicated-app-published-04",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/10/fallback_path",
+      "fallback_verified": true,
+      "cleanup_result": "保留已发布的 NeoLoop 专用应用及唯一用户身份只读 scope；未开应用身份或写 scope，未发起 OAuth、配置资源协作者或调用 OpenAPI。原候选应用未被修改。",
+      "verifier": "controller_read_only_observation_plus_participant_confirmation"
+    },
+    {
+      "unit_id": "P12",
+      "name": "Base OpenAPI",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/11",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/11",
+      "execution_status": "blocked",
+      "result": null,
+      "evidence": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P12-20260808-0328-01",
+            "observed_at": "2026-08-08T03:28:50+08:00",
+            "actor_role": "controller_operator",
+            "redacted_storage_slot": "controlled-slot-P12-wiki-url-resolve-failure-01",
+            "capture_phases": [
+              "before_action",
+              "failure",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "赛事与用户已允许官方 CLI/OpenAPI 只读探测，P11 已按受限状态闭环",
+        "P13 共享 CLI 用户身份、专用应用绑定与 bitable:app:readonly 精确 scope 门已机器复验",
+        "三份目标执行计划均为 plan_ready，且进入 live 前全部计数为 0",
+        "本轮只允许 cases 的单次串行只读入口动作，不允许 record-list 之后的动作或任何业务写入",
+        "URL、应用与资源标识、账号、token、code、locator 和 provider raw 不得进入证据"
+      ],
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/11/expected_result",
+      "actual_action": "总控先生成三份只读执行计划；三份 plan 均为 plan_ready，且计划阶段所有计数均为 0。随后只对 cases 串行执行 1 次 explicit live：命令顺序为版本核验、auth status、bitable:app:readonly 精确 auth check、唯一 +url-resolve Wiki 入口动作。收到非零退出后立即停止，未进入 record-list，未重试、未运行 auth scopes、未扩大权限。2026-08-08T03:28:50+08:00 仅为本轮脱敏证据落盘时间，不是命令调用的精确发生时间。",
+      "actual_result": "本次 explicit live exit=1，classification=projection_dependency_failure，issue_codes=[command_failed]。脱敏计数为 cli_command_count=4、auth_command_count=2、base_read_command_attempt_count=1、record_discovery_count=0、zero_match_query_count=0、record_list_command_count=0、business_write_count=0。按固定命令顺序，version、status 与 bitable:app:readonly 精确 auth check 已完成；失败发生在唯一 +url-resolve Wiki 入口命令，failure_stage=wiki_url_resolve_command_failed。未进入 record-list，也未产生合成记录或业务写入。P12 因规定动作未闭环保持 blocked/null。",
+      "actual_time": "2026-08-08T03:28:50+08:00",
+      "executor": "controller_redacted_cli_operator",
+      "account_role": "application_owner_authorizing_user",
+      "limitations": "仅能确认 CLI 命令在 Wiki URL 解析步骤非零退出；不推断 provider HTTP/OpenAPI 是否实际到达，不猜测授权、网络、资源或产品内部原因，也不保存 provider raw、URL、App ID、Base/record ID 或 locator。P12 未完成 schema/list/zero-match/写入/清理验证，不能判为可用、受限或不可用；未获新证据前不得自动重试或扩权。",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P12-20260808-0328-01",
+            "observed_at": "2026-08-08T03:28:50+08:00",
+            "actor_role": "controller_operator",
+            "redacted_storage_slot": "controlled-slot-P12-wiki-url-resolve-failure-01",
+            "capture_phases": [
+              "before_action",
+              "failure",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/11/fallback_path",
+      "fallback_verified": true,
+      "cleanup_result": "本轮没有进入 record-list、没有合成记录或业务写入，未产生需清理的业务记录；未重试、未运行 auth scopes、未扩大权限。三份 plan 仅为零计数计划，失败后未继续下游动作。",
+      "verifier": "controller_redacted_machine_result_verification"
+    },
+    {
+      "unit_id": "P13",
+      "name": "lark-cli",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/12",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/permission_checks/12",
+      "execution_status": "blocked",
+      "result": null,
+      "evidence": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P13-20260808-0101-01",
+            "observed_at": "2026-08-08T01:01:44+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P13-cli-auth-boundary-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary",
+              "failure"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "赛事已确认允许官方 CLI，用户已明确同意并完成二维码授权动作",
+        "P11 专用应用与最小权限门已按受限状态闭环",
+        "线上版本的目标 user scope 由用户确认（user_attested）；运行时 token 的 bitable:app:readonly 另由精确 auth check 机器复验（machine_verified）",
+        "本轮只允许认证状态与 scope 边界诊断，不允许 OpenAPI 或业务写入",
+        "凭证、授权码、账号标识和资源定位信息不得进入聊天、仓库或证据文件"
+      ],
+      "expected_result_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/12/expected_result",
+    "actual_action": "用户本人确认当前线上版本包含用户身份 bitable:app:readonly，并完成新二维码授权动作；总控随后对同一新交易续接 CLI completion，再执行脱敏的 auth status --verify 与 bitable:app:readonly 精确 auth check。未运行 auth scopes，未执行 Base schema probe，未调用 OpenAPI，未尝试业务写入。2026-08-08T02:48:56+08:00 是本轮脱敏复验记录时间，不声称为命令调用的精确发生时间。",
+    "actual_result": "线上版本包含用户身份 bitable:app:readonly 的配置证据来源为 user_attested；同一新交易 completion exit=0。auth status 精确摘要为 user available=true、user verified=true 且 overall verified=true；auth check ok=true、missing=null、granted_count=1，因此运行时目标 scope 已 machine_verified。开发者后台历史中唯一标题含“石听 NeoLoop”的候选应用与 CLI status 的应用标识仅在内存中等值比较，application_binding_check=machine_verified、候选应用数=1、对外标识暴露数为 0。未运行 auth scopes，该命令仅是受限诊断，且未为受限诊断增加 application:application:self_manage。以上只闭环 P13 的共享 CLI 用户身份、专用应用绑定与目标只读 scope 门。后续 P12 已执行一次 cases explicit live，但在唯一 +url-resolve Wiki 入口命令以 projection_dependency_failure/[command_failed] 停止，P12 已转为 blocked/null，未进入 record-list。P13 因冻结 minimum action 中只读 Base schema probe 未形成结果，仍为 blocked/null。认证状态写入数为 1。",
+    "actual_time": "2026-08-08T02:48:56+08:00",
+      "executor": "participant_operator_with_controller_cli_verifier",
+      "account_role": "application_owner_authorizing_user",
+    "limitations": "共享 CLI 认证门已机器复验，但 P13 的冻结 minimum action 仍包含 P12 只读 Base schema probe；P12 本次只读入口动作已失败并转为 blocked/null，schema/list 结果仍未形成，因此 P13 不得提前完成。auth scopes 未运行且不是硬门；不为该受限诊断申请 application:application:self_manage。本结果不证明 Base 资源可读、OpenAPI 可用、写权限、P03 或企业真实数据接入。",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P13-20260808-0101-01",
+            "observed_at": "2026-08-08T01:01:44+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P13-cli-auth-boundary-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary",
+              "failure"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "fallback_path": "../manifests/day-1-probe-suite.v0.1.json#/probes/12/fallback_path",
+      "fallback_verified": true,
+    "cleanup_result": "同一新交易的 pending device request 已清除，二维码临时 PNG 与临时目录已删除。P12 失败证据由独立 evidence unit 记录；P13 证据中未保存 token、code、账号标识、App ID、Base URL、record locator 或 provider raw，仅发生 1 次本地认证状态写入。",
+      "verifier": "controller_redacted_cli_observation_plus_participant_confirmation"
+    }
+  ],
+  "business_views": [
+    {
+      "unit_id": "V01",
+      "logical_key": "feedback_inbox",
+      "name": "反馈收件箱",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/views/0",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "V02",
+      "logical_key": "case_cockpit",
+      "name": "案件驾驶舱",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/views/1",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "V03",
+      "logical_key": "sla_board",
+      "name": "SLA 协同板",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/views/2",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "V04",
+      "logical_key": "issue_map",
+      "name": "问题地图",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/views/3",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "V05",
+      "logical_key": "improvement_tracking",
+      "name": "改进追踪",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/views/4",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    }
+  ],
+  "ai_nodes": [
+    {
+      "unit_id": "N1",
+      "name": "结构化抽取",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/0",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "N2",
+      "name": "业务分类",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/1",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "N3",
+      "name": "风险建议",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/2",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "N4",
+      "name": "实体关联",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/3",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "N5",
+      "name": "重复识别与聚类",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/4",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "N6",
+      "name": "根因假设与责任路由",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/5",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "N7",
+      "name": "回复、知识与洞察草稿",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/ai_nodes/6",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    }
+  ],
+  "workflows": [
+    {
+      "unit_id": "W1",
+      "name": "接入幂等",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/workflows/0",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "W2",
+      "name": "风险分诊",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/workflows/1",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "W3",
+      "name": "关联派单",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/workflows/2",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "W4",
+      "name": "SLA 协同",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/workflows/3",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "W5",
+      "name": "解决验证与回访",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/workflows/4",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "W6",
+      "name": "问题簇与复发监测",
+      "evidence_unit_ref": "./on-site-evidence-template.json#/workflows/5",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    }
+  ],
+  "logical_roles": [
+    {
+      "unit_id": "R01",
+      "logical_key": "feedback_understanding",
+      "name": "反馈理解角色",
+      "platform_mapping_status": "not_tested",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "R02",
+      "logical_key": "case_coordination",
+      "name": "案件协同角色",
+      "platform_mapping_status": "not_tested",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "R03",
+      "logical_key": "improvement_insight",
+      "name": "改进洞察角色",
+      "platform_mapping_status": "not_tested",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    }
+  ],
+  "access_checks": [
+    {
+      "unit_id": "A01",
+      "logical_key": "document_anonymous_access",
+      "name": "匿名文档访问",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/0",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    },
+    {
+      "unit_id": "A02",
+      "logical_key": "base_unprivileged_access",
+      "name": "Base 无特权访问",
+      "probe_ref": "../manifests/day-1-probe-suite.v0.1.json#/probes/2",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null,
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "account_role": null,
+      "limitations": null,
+      "cleanup_result": null,
+      "verifier": null
+    }
+  ]
+}

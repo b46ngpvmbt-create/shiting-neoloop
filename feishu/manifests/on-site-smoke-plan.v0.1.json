@@ -1,0 +1,503 @@
+{
+  "plan_version": "0.1.4",
+  "project": "石听 NeoLoop",
+  "fact_class": "solution_design",
+  "deployment_status": "offline_smoke_plan_not_executed",
+  "execution_status": "not_tested",
+  "result": null,
+  "evidence": null,
+  "sources": {
+    "canonical_manifest": {
+      "path": "../../data/canonical/manifest.json",
+      "sha256": "3e3ebc6a8aaf1f0692db39b0c763b081df2ef5f9db6f6d8da9f3a0ab8edbe8b7",
+      "fixture_version_ref": "canonical://fixture_index/fixture_version"
+    },
+    "main_story": {
+      "path": "../../data/canonical/scenarios/main-story.json",
+      "sha256": "1584fceecbfbbf4d63eee9ac69ed998505985d0f51a4a1b508d28976dcce690c"
+    },
+    "failure_drills": {
+      "path": "../../data/canonical/scenarios/failure-drills.json",
+      "sha256": "c8893a7a706f1b3a8051d16b855a35372690bbc780ca060cb8768219dbc0312a"
+    },
+    "logical_manifest": {
+      "path": "./neoloop-logical-manifest.v0.1.json",
+      "sha256": "c4e9790c724723864869365bebfc98a3d72baceb5e643386df5b1685a43d8f60",
+      "integration_order_ref": "logical://integration_order",
+      "forbidden_actions_ref": "logical://forbidden_automatic_actions"
+    },
+    "resource_mapping_template": "../config/resource-mapping.example.json",
+    "result_template": "../evidence/day-1-probe-results.example.json"
+  },
+  "counts": {
+    "main_stories": 1,
+    "failure_drills": 4,
+    "smoke_units": 5
+  },
+  "seed_policy": {
+    "source_case_id": "SYN-CASE-017",
+    "source_snapshot_ref": "canonical-scenario://main-story/records/0/isolation/source_snapshot_ref",
+    "source_snapshot_mutation_allowed": false,
+    "fixture_is_run_evidence": false,
+    "runtime_copy_required": true,
+    "replay_reset_required": true,
+    "clean_seed_checks": [
+      "canonical_source_hashes_match",
+      "source_legacy_snapshot_is_unchanged",
+      "no_prior_runtime_record_for_the_selected_fixture_exists",
+      "test_clock_and_clock_source_are_visible",
+      "all_required_P_probe_results_have_actual_evidence",
+      "resource_mapping_is_loaded_only_from_an_ignored_local_copy"
+    ]
+  },
+  "run_policy": {
+    "strict_sequence": ["SMK-01", "SMK-02", "SMK-03", "SMK-04", "SMK-05"],
+    "one_unit_at_a_time": true,
+    "reset_between_units": true,
+    "stop_on_first_unexpected_result": true,
+    "never_use_expected_fixture_fields_as_observed_result": true,
+    "human_gate_rule": "Pause at every referenced gate and capture an authorized human decision before the next workflow phase.",
+    "evidence_capture": ["before_state", "actual_action", "after_state", "workflow_or_node_run_index", "human_decision_index", "error_class", "preserved_sla_started_at_when_applicable", "redaction_review", "resource_lock_state_while_enter_observation_authorization_waits", "system_generated_cycle_history_receipt_timestamp_and_clock_provenance", "caller_actor_AI_authorizer_absence_for_Day7_and_Day30", "committed_recurrence_history_source_refs", "Day7_to_Day30_cumulative_source_comparison", "related_task_volume_and_recurrence_rate_pair", "event_replay_and_audit_only_repair_business_write_count"],
+    "failure_stop": ["stop_downstream_workflow_phases", "preserve_original_state_sla_audit_and_actual_envelopes", "do_not_replace_actual_result_with_fixture_expectation", "do_not_retry_unknown_write_state_before_exact_readback"],
+    "reset": ["disable_only_the_selected_temporary_trigger", "freeze_evidence_indexes", "remove_or_archive_only_exact_unreferenced_runtime_records", "verify_source_snapshot_hash_unchanged", "verify_no_runtime_relation_or_notification_remains"]
+  },
+  "smoke_units": [
+    {
+      "smoke_id": "SMK-01",
+      "order": 1,
+      "name": "SYN-CASE-017 主故事",
+      "fixture_ref": "canonical-scenario://main-story/records/0",
+      "fixture_id_assertion": "SCN-SYN-CASE-017-MAIN-001",
+      "source_case_id_assertion": "SYN-CASE-017",
+      "probe_gates": ["P02", "P03", "P04", "P05", "P06", "P07", "P08"],
+      "clean_seed_ref": "canonical-scenario://main-story/records/0/isolation/replay_reset",
+      "workflow_sequence_ref": "logical://integration_order",
+      "human_gates_ref": "canonical-scenario://main-story/records/0/human_gates",
+      "w6_internal_action_smoke": {
+        "action": "intake_active_observation_recurrence",
+        "workflow_id": "W6",
+        "workflow_count_after_extension": 6,
+        "runtime_extension_rule": "Create only an isolated synthetic runtime copy after W6 observation has started; do not alter the canonical fixture or count this plan as runtime evidence.",
+        "strict_sequence": ["N5_existing_cluster", "repository_issued_N5_action_scoped_receipt", "human_recurrence_approve_or_deny", "atomic_intake_inside_full_resource_lock"],
+        "allowed_writes": ["clusters.member_case_ids", "append_clusters.recurrence_records", "append_ai_audit"],
+        "forbidden_writes": ["cases.cluster_id", "cases.status", "feedback_ownership", "clusters.status", "improvements.*", "observation_cycle.*"],
+        "receipt_isolation_checks": ["N5_receipt_cannot_authorize_N6", "N6_receipt_cannot_authorize_intake_active_observation_recurrence", "receipt_is_single_use_and_bound_to_the_authorized_action"],
+        "human_decision_checks": ["deny_stops_before_intake", "approve_is_recorded_before_intake", "authorization_and_checkpoint_do_not_share_a_transaction"],
+        "atomic_failure_checks": ["no_partial_member_case_id_write", "no_partial_recurrence_record", "failed_result_has_failure_audit_or_audit_pending", "successful_business_commit_survives_audit_failure_with_audit_pending", "same_workflow_audit_id_repair_only_does_not_repeat_N5_authorization_or_business_write", "preserve_observation_clock_and_pre_intake_snapshot", "Day7_guard_rejection_keeps_business_durable_writes_zero", "Day7_guard_rejection_keeps_W6_durable_state_writes_zero"],
+        "day7_edge_matrix": {
+          "shared_window": "opened_at < closed_at <= min(occurred_at, day30ExpectedAt)",
+          "day7_sealed_if": ["day7_checkpoint_exists", "occurred_at > day7ExpectedAt"],
+          "guard_points": ["before_repository_receipt_issue", "inside_full_resource_lock_immediately_before_business_commit"],
+          "pre_receipt_cases": [
+            { "case_id": "SMK-01-D7-LT", "closed_at_relation": "closed_at < day7ExpectedAt", "requires": ["day7_is_sealed", "shared_window_passes"], "expected_decision": "reject", "receipt_issued": false, "business_durable_writes": 0, "W6_durable_state_writes": 0 },
+            { "case_id": "SMK-01-D7-EQ", "closed_at_relation": "closed_at == day7ExpectedAt", "requires": ["day7_is_sealed", "shared_window_passes"], "expected_decision": "reject", "receipt_issued": false, "business_durable_writes": 0, "W6_durable_state_writes": 0 },
+            { "case_id": "SMK-01-D7-GT", "closed_at_relation": "closed_at > day7ExpectedAt", "requires": ["shared_window_passes"], "expected_decision": "Day30_eligible_not_committed_by_this_check" }
+          ],
+          "checkpoint_first_intake_second_race": {
+            "case_id": "SMK-01-D7-RACE",
+            "order": ["N5_receipt_issued", "human_recurrence_authorization_consumed", "Day7_checkpoint_committed", "final_guard_rechecked_inside_full_resource_lock"],
+            "closed_at_condition": "closed_at <= day7ExpectedAt",
+            "expected_decision": "reject",
+            "capability_consumption_outcome": { "N5": "consumed", "N5_receipt": "consumed", "human_authorization": "consumed" },
+            "business_commit_outcome": "not_committed",
+            "business_durable_writes": 0,
+            "W6_durable_state_writes": 0
+          },
+          "outcome_recording_rule": "Record capability consumption and business commit or write outcomes independently; consumed capabilities and rejected zero-write business outcome may coexist."
+        },
+        "checkpoint_checks": ["read_only_committed_intake", "no_denominator_means_rate_null", "Day7_and_Day30_are_deterministic", "archive_requires_human_conclusion", "knowledge_is_not_auto_published"]
+      },
+      "batch_d1_observation_action_smoke": {
+        "workflow_id": "W6",
+        "workflow_count_after_extension": 6,
+        "actions": ["enter_observation", "record_day_7", "record_day_30"],
+        "excluded_actions": ["archive_observation", "reopen_recurrence"],
+        "excluded_action_categories": ["archive", "reopen"],
+        "excluded_action_history_rule": "Use only committed recurrence-reopen history as a read-only checkpoint source; do not execute archive or reopen actions in D1.",
+        "enter_observation": {
+          "phase": "observation",
+          "order": ["load_authoritative_executing_improvement", "wait_for_human_authorization_with_zero_resource_locks", "recheck_trusted_clock_inside_full_resource_lock", "validate_authorization_capability_and_CAS", "atomically_commit_observation_cycle_history_and_receipt"],
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "actor", "reason"],
+          "system_generated_fields": ["cycle_id", "history_id", "receipt_id", "occurred_at", "clock_source"],
+          "caller_injection_rejections": ["cycle_id", "history_id", "receipt_id", "occurred_at", "clock_source", "grant", "principal", "policy_version"],
+          "authorization_wait_resource_locks_held": [],
+          "authorization_wait_business_writes": [],
+          "AI_calls": 0,
+          "atomic_failure_checks": ["denial_zero_business_writes", "wrong_or_forged_grant_zero_business_writes", "trusted_clock_drift_zero_business_writes", "CAS_conflict_does_not_commit_the_stale_transition"]
+        },
+        "record_day_7": {
+          "transaction": "independent_deterministic_checkpoint_transaction",
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+          "caller_actor_allowed": false,
+          "AI_calls": 0,
+          "human_authorizer_calls": 0,
+          "exact_time_rule": "opened_at_plus_7_days_at_matching_cycle_clock_source",
+          "lock_wait_recheck_required": true
+        },
+        "record_day_30": {
+          "transaction": "independent_deterministic_checkpoint_transaction",
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+          "caller_actor_allowed": false,
+          "AI_calls": 0,
+          "human_authorizer_calls": 0,
+          "exact_time_rule": "opened_at_plus_30_days_at_matching_cycle_clock_source",
+          "lock_wait_recheck_required": true,
+          "committed_Day7_required": true,
+          "cumulative_source_rule": "Day30_recurrence_case_ids_include_every_committed_Day7_source"
+        },
+        "checkpoint_history_checks": {
+          "allowed_sources": ["committed_active_observation_intake_history_for_same_cycle", "committed_recurrence_reopen_cycle_facts_for_same_cycle"],
+          "excluded_sources": ["candidate", "authorization_only", "receipt_only", "rejected", "rolled_back", "uncommitted", "other_cycle"],
+          "null_denominator_rule": "preserve_authoritative_recurrence_count_and_set_recurrence_rate_null"
+        },
+        "audit_repair_and_replay_checks": {
+          "audit_pending": "repair_only_the_same_audit_identity",
+          "same_event_same_payload": "return_cached_business_result_and_repair_pending_audit_only",
+          "same_event_different_payload": "event_conflict",
+          "business_reexecution_forbidden": ["regenerate_ids", "repeat_authorization", "repeat_business_commit", "repeat_business_write", "rerun_AI"]
+        },
+        "failure_stop": "Stop on any lock-boundary, generation-ownership, timing, history-source, cumulative, denominator, replay or excluded-action breach; preserve the full prior durable state and actual trace."
+      },
+      "r10_reopen_projection_smoke": {
+        "projector_key": "neoloop.feishu.w6-reopen.v1",
+        "workflow_id": "W6",
+        "classification": "W6_projection_side_effect_not_a_seventh_workflow",
+        "source_action": "reopen_recurrence",
+        "logical_contract_ref": "logical://workflows/W6/reopen_projection_contract",
+        "data_scope": "synthetic_experiment",
+        "evidence_class": "synthetic_experiment",
+        "fixture_is_run_evidence": false,
+        "real_executor_in_scope": false,
+        "workflow_count_effect": "unchanged_6",
+        "required_probe_gate_contract": {
+          "required_probe_gates": ["P02", "P03", "P05", "P06"],
+          "normalized_existing_evidence_unit_ref": "P02+P03",
+          "creates_new_probe": false,
+          "creates_new_evidence_unit": false,
+          "gate_purposes": {
+            "P02": "selector_cardinality_and_execution_mode_capability",
+            "P03": "raw_recurrence_visibility_permission_revision_expiry_and_prewrite_recheck",
+            "P05": "CAS_outbox_failure_injection_and_zero_write_stop",
+            "P06": "committed_R9_human_authorization_source_only_and_repair_never_reauthorizes"
+          },
+          "incomplete_or_restricted_probe_rule": "Until complete P02+P03 evidence exists keep verification_status=not_tested and execution_mode=insufficient; a restricted probe capability result never changes the verification status away from not_tested."
+        },
+        "current_onsite_state": {
+          "verification_status": "not_tested",
+          "execution_mode": "insufficient",
+          "automatic_projection_enabled": false,
+          "attestation_id": null,
+          "capability_attestation_sha256": null,
+          "permission_snapshot_sha256": null,
+          "permission_revision": null,
+          "issued_at": null,
+          "expires_at": null,
+          "evidence_unit_ref": null,
+          "capability_checked_at": null,
+          "capability_rechecked_at": null,
+          "result": null,
+          "evidence": null,
+          "real_feishu_operations": 0,
+          "lark_cli_login_operations": 0,
+          "openapi_calls": 0,
+          "base_write_attempts": 0
+        },
+        "semantic_replay_and_committed_miss_assertions": {
+          "exact": {
+            "decision": "no_op",
+            "safe_error": null,
+            "call_counts": { "source": 0, "Base": 0, "capability": 0, "clock": 0, "outbox": 0, "hasher": 0, "plan": 0, "write": 0 }
+          },
+          "near": {
+            "decision": "reject",
+            "safe_error": "event_conflict",
+            "call_counts": { "source": 0, "Base": 0, "capability": 0, "clock": 0, "outbox": 0, "hasher": 0, "plan": 0, "write": 0 }
+          },
+          "committed_miss": {
+            "decision": "apply_once",
+            "safe_error": null,
+            "first_committed_reopen_receipt_required": true,
+            "member_case_union_rule": "before_member_case_ids_plus_triggering_case_ids_equals_after_member_case_ids",
+            "maximum_projection_plan_count": 1,
+            "complete_two_target_plan_required": true,
+            "planned_target_count": 2,
+            "write_targets": ["clusters", "improvements"]
+          }
+        },
+        "sealed_plan_assertions": {
+          "planning_order": ["trusted_source", "base_before", "trusted_capability", "private_sealed_plan"],
+          "complete_two_target_plan_required": true,
+          "seal_before_any_Base_write": true,
+          "initial_owner_count": 1,
+          "same_receipt_different_trusted_clock_ticks_keep_same_stable_plan": true,
+          "concurrent_same_receipt_outcomes": "one_sealed_all_others_existing_same",
+          "existing_same_returned_plan_is_authoritative": true,
+          "existing_same_discards_local_plan_and_directive": true,
+          "existing_same_returned_plan_mismatch": "projection_conflict_zero_write",
+          "existing_same_continue_order": ["trusted_execution_evidence", "Base_observed", "reconcile"],
+          "existing_same_grants_new_initial_owner": false,
+          "existing_same_grants_new_execution_directive": false,
+          "ordinary_facade_grants_new_execution_right": false,
+          "ordinary_sequential_double_write_is_sealed_outbox_cas": false,
+          "repair_reuses_original_sealed_plan": true,
+          "sealed_meaning": "offline_unique_initial_owner_only_not_a_durable_outbox_CAS_or_lease_capability_claim",
+          "current_durable_outbox_status": "not_tested",
+          "current_worker_lease_status": "not_tested"
+        },
+        "snapshot_and_clear_assertions": {
+          "snapshot_source": "trusted_Base_before_not_runtime_inference",
+          "snapshot_previous_projection_fields": ["improvements.day_7_result", "improvements.day_30_result", "improvements.human_conclusion"],
+          "snapshot_destination": "clusters.recurrence_records.reopen_snapshot.v1.previous_projection",
+          "append_position": "array_tail",
+          "legal_miss_snapshot_append_count": 1,
+          "clear_current_projection_fields_to_null": ["improvements.day_7_result", "improvements.day_30_result", "improvements.human_conclusion"],
+          "same_sealed_plan_required": true,
+          "preserve_existing_non_R10_recurrence_records_and_order": true,
+          "preserve_existing_member_case_order": true,
+          "exact_replay_snapshot_append_count": 0
+        },
+        "exact_write_allowlist": [
+          "clusters.member_case_ids",
+          "clusters.status",
+          "clusters.recurrence_records",
+          "clusters.updated_at",
+          "improvements.status",
+          "improvements.day_7_result",
+          "improvements.day_30_result",
+          "improvements.human_conclusion",
+          "improvements.updated_at"
+        ],
+        "write_target_counts": { "clusters": 4, "improvements": 5, "total": 9 },
+        "writes_outside_allowlist": "forbidden_for_all_other_fields_and_tables",
+        "selector_and_locator_assertions": {
+          "business_key_selectors": [
+            { "target": "clusters", "field": "cluster_id" },
+            { "target": "improvements", "field": "improvement_id" }
+          ],
+          "exact_single_record_required": true,
+          "zero_or_multiple_matches": "manual_stop_projection_conflict_zero_write",
+          "business_id_is_not_feishu_record_id": true,
+          "opaque_locator_is_private_executor_material": true,
+          "raw_locator_in_plan_artifact_or_public_evidence": false
+        },
+        "found_binding_recheck_assertions": {
+          "binding_dimensions": ["source_receipt_id", "source_receipt_sha256_digest_owner", "canonical_receipt_material", "sealed_plan"],
+          "order": [
+            "verify_lookup_authoritative_plan_against_trusted_source",
+            "call_existing_sealPlanIfAbsent_with_authoritative_plan_and_current_canonical_receipt_material",
+            "require_existing_same",
+            "require_returned_plan_exactly_matches_lookup_authoritative_plan",
+            "load_trusted_execution_evidence",
+            "load_Base_observed",
+            "reconcile"
+          ],
+          "continue_only_when": "existing_same_and_returned_plan_exactly_matches_lookup_authoritative_plan",
+          "outcome_mapping": {
+            "receipt_conflict": "commit_proof_mismatch",
+            "digest_conflict": "projection_conflict",
+            "plan_conflict": "projection_conflict",
+            "returned_plan_mismatch": "projection_conflict",
+            "sealed_after_found": "projection_dependency_failure"
+          },
+          "reads_forbidden_before_recheck": ["trusted_execution_evidence", "Base_observed", "trusted_capability", "trusted_clock"],
+          "canonical_receipt_material_scope": "private_trusted_source_and_outbox_only",
+          "any_noncontinuation_is_manual_stop_zero_write": true,
+          "new_initial_execution_owner_granted": false,
+          "new_execution_directive_granted": false,
+          "new_execution_right_granted": false
+        },
+        "observed_state_truth_table_assertions": {
+          "symbols": { "B": "exact_expected_before", "A": "exact_expected_after", "X": "neither_expected_before_nor_expected_after" },
+          "rows": [
+            { "cluster": "B", "improvement": "B", "trusted_evidence": "sealed_plan_ack0_and_future_valid_unexpired_single_owner_private_worker_lease", "decision": "apply_once", "execution_targets": ["clusters", "improvements"] },
+            { "cluster": "B", "improvement": "B", "trusted_evidence": "no_valid_single_owner_private_worker_lease", "decision": "reject", "error": "projection_conflict", "base_writes": [] },
+            { "cluster": "A", "improvement": "A", "trusted_evidence": "two_target_acks_and_cluster_marker_all_match_original_sealed_plan", "decision": "already_applied", "base_writes": [] },
+            { "cluster": "A", "improvement": "B", "trusted_evidence": "cluster_ack_and_cluster_marker_match_original_sealed_plan", "decision": "repair", "repair_target": "improvements" },
+            { "cluster": "B", "improvement": "A", "trusted_evidence": "improvement_ack_matches_original_sealed_plan", "decision": "repair", "repair_target": "clusters" },
+            { "cluster": "X", "improvement": "any", "trusted_evidence": "any", "decision": "reject", "error": "projection_conflict", "base_writes": [] },
+            { "cluster": "any", "improvement": "X", "trusted_evidence": "any", "decision": "reject", "error": "projection_conflict", "base_writes": [] },
+            { "cluster": "A_or_B", "improvement": "A_or_B", "trusted_evidence": "required_ack_or_marker_missing_or_mismatched", "decision": "reject", "error": "projection_conflict", "base_writes": [] }
+          ],
+          "after_without_corresponding_ack": "reject_projection_conflict_no_ack_fabrication_no_repair",
+          "repair_reuses_original_sealed_plan": true,
+          "repair_reauthorization_allowed": false,
+          "repair_semantic_lookup_allowed": false
+        },
+        "target_ack_and_lease_assertions": {
+          "target_ack_order": ["clusters", "improvements"],
+          "acknowledged_target_count_equals_target_ack_length": true,
+          "each_ack_binds_original_plan_attestation_and_permission_revision": true,
+          "locator_evidence_is_domain_separated_sha256_only": true,
+          "raw_locator_allowed_in_ack_or_public_evidence": false,
+          "B_B_ack0_without_valid_private_worker_lease": "reject_projection_conflict_zero_write",
+          "future_private_durable_worker_lease_only": "may_resume_original_sealed_plan_after_onsite_verification",
+          "current_worker_lease_status": "not_tested"
+        },
+        "execution_preflight_recheck_assertions": {
+          "before_initial_write_and_each_repair": ["onsite_verified_attestation", "attestation_id_and_sha", "attestation_expiry_at_capability_rechecked_at", "permission_snapshot_sha256", "permission_revision", "selector_exact_single_match", "resolved_locator_binding", "expected_before_CAS"],
+          "capability_rechecked_at_recorded_only_in_trusted_execution_evidence_and_target_ack": true,
+          "capability_rechecked_at_enters_sealed_plan_identity_or_directive": false,
+          "not_tested_or_insufficient": "manual_stop_zero_write",
+          "permission_or_attestation_revision_drift_or_expiry": "manual_stop_platform_capability_insufficient_zero_write",
+          "selector_zero_or_multiple_match": "manual_stop_projection_conflict_zero_write",
+          "before_CAS_mismatch": "manual_stop_projection_conflict_zero_write"
+        },
+        "raw_recurrence_visibility_assertions": {
+          "raw_read_logical_roles": ["improvement_insight"],
+          "hidden_in_business_views": ["issue_map", "improvement_tracking"],
+          "P03_unprivileged_access_surfaces": ["all_five_business_views", "direct_clusters_table_access"],
+          "verification_status": "not_tested",
+          "result": null,
+          "evidence": null
+        },
+        "dependency_failure_and_public_artifact_assertions": {
+          "trusted_dependency_failures": ["source", "Base", "capability", "clock", "outbox", "hasher"],
+          "normalized_safe_error": "projection_dependency_failure",
+          "redaction_scan_failure_safe_error": "sensitive_output_rejected",
+          "recursive_scan_surfaces": ["public_artifact", "public_logs"],
+          "sensitive_sentinel_recursive_hit_count": 0,
+          "public_artifact_exact_own_key_allowlist": [
+            "projector_key",
+            "data_scope",
+            "evidence_class",
+            "projection_idempotency_key",
+            "decision",
+            "cluster_id",
+            "improvement_id",
+            "cluster_expected_before_sha256",
+            "cluster_expected_after_sha256",
+            "improvement_expected_before_sha256",
+            "improvement_expected_after_sha256",
+            "sealed_plan_sha256",
+            "write_targets",
+            "planned_target_count",
+            "repair_required",
+            "repair_target",
+            "redaction_status",
+            "safe_error"
+          ],
+          "public_artifact_own_key_count": 18,
+          "recursive_forbidden_material": [
+            "source_receipt_id",
+            "receipt_raw_values",
+            "history_raw_values",
+            "cycle_raw_values",
+            "day_7_result",
+            "day_30_result",
+            "human_conclusion",
+            "previous_projection",
+            "raw_recurrence_records",
+            "internal_plan",
+            "patch",
+            "execution_directive",
+            "business_key_selector",
+            "record_locator",
+            "worker_lease",
+            "opened_by",
+            "principal",
+            "grant",
+            "claims",
+            "policy",
+            "W5_provenance",
+            "private_semantic_lookup_fingerprint",
+            "rejection_raw_text",
+            "underlying_error_object_or_content",
+            "provider_message",
+            "cause",
+            "stack"
+          ],
+          "provider_message_cause_or_stack_passthrough_allowed": false
+        },
+        "manual_stop_and_rollback_assertions": {
+          "automatic_projection_enabled": false,
+          "stop_when": ["capability_not_tested", "execution_mode_insufficient", "permission_or_attestation_revision_drift_or_expiry", "selector_zero_or_multiple_match", "before_CAS_mismatch", "ack_or_marker_missing_or_mismatched", "no_valid_single_owner_private_worker_lease", "dependency_failure", "sensitive_output_detected"],
+          "stopped_base_writes": [],
+          "preserve": ["original_cluster_record", "original_improvement_record", "original_recurrence_records_order", "sealed_plan_and_private_audit_if_any"],
+          "temporary_automation_action": "disable_only_the_named_temporary_automation_without_deleting_formal_evidence",
+          "broad_permission_fallback_allowed": false,
+          "ordinary_sequential_double_write_fallback_allowed": false
+        }
+      },
+      "evidence_capture_ref": "#/run_policy/evidence_capture",
+      "reset_ref": "#/run_policy/reset",
+      "failure_stop": "Stop at the failed phase; do not skip a gate, mutate the legacy source snapshot or claim a later phase result.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "smoke_id": "SMK-02",
+      "order": 2,
+      "name": "同键重试与异键相似故障",
+      "fixture_ref": "canonical-scenario://failure-drills/records/0",
+      "fixture_id_assertion": "DRILL-IDEMPOTENCY-001",
+      "source_case_id_assertion": "SYN-CASE-017",
+      "probe_gates": ["P02", "P04", "P05", "P06"],
+      "clean_seed_ref": "canonical-scenario://failure-drills/records/0/runtime_case_id",
+      "workflow_phase_refs": ["logical://integration_order/0", "logical://integration_order/1", "logical://integration_order/2"],
+      "human_gates_ref": "canonical-scenario://failure-drills/records/0/human_gates",
+      "evidence_capture_ref": "#/run_policy/evidence_capture",
+      "reset_ref": "#/run_policy/reset",
+      "failure_stop": "On overwrite, count drift, missing duplicate evidence or automatic merge, stop and preserve both inputs and the original record.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "smoke_id": "SMK-03",
+      "order": 3,
+      "name": "车辆与任务 ID 缺失故障",
+      "fixture_ref": "canonical-scenario://failure-drills/records/1",
+      "fixture_id_assertion": "DRILL-MISSING-ENTITY-IDS-001",
+      "source_case_id_assertion": "SYN-CASE-017",
+      "probe_gates": ["P02", "P04", "P05", "P06"],
+      "clean_seed_ref": "canonical-scenario://failure-drills/records/1/runtime_case_id",
+      "workflow_phase_refs": ["logical://integration_order/0", "logical://integration_order/1", "logical://integration_order/2", "logical://integration_order/3"],
+      "human_gates_ref": "canonical-scenario://failure-drills/records/1/human_gates",
+      "evidence_capture_ref": "#/run_policy/evidence_capture",
+      "reset_ref": "#/run_policy/reset",
+      "failure_stop": "On an invented identifier, formal relation or downstream work order, stop and preserve the missing-field state for human handling.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "smoke_id": "SMK-04",
+      "order": 4,
+      "name": "AI Schema 二次失败故障",
+      "fixture_ref": "canonical-scenario://failure-drills/records/2",
+      "fixture_id_assertion": "DRILL-INVALID-AI-SCHEMA-001",
+      "source_case_id_assertion": "SYN-CASE-017",
+      "probe_gates": ["P02", "P04", "P05"],
+      "clean_seed_ref": "canonical-scenario://failure-drills/records/2/runtime_case_id",
+      "workflow_phase_refs": ["logical://integration_order/0", "logical://integration_order/1", "logical://integration_order/2", "logical://integration_order/3"],
+      "human_gates_ref": "canonical-scenario://failure-drills/records/2/human_gates",
+      "retry_policy_ref": "canonical-scenario://failure-drills/records/2/retry_policy",
+      "evidence_capture_ref": "#/run_policy/evidence_capture",
+      "reset_ref": "#/run_policy/reset",
+      "failure_stop": "On a version change, second retry, missing attempt audit or downstream continuation, stop and retain every actual envelope.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "smoke_id": "SMK-05",
+      "order": 5,
+      "name": "SLA 超时故障",
+      "fixture_ref": "canonical-scenario://failure-drills/records/3",
+      "fixture_id_assertion": "DRILL-SLA-TIMEOUT-001",
+      "source_case_id_assertion": "SYN-CASE-017",
+      "probe_gates": ["P02", "P03", "P05", "P07"],
+      "clean_seed_ref": "canonical-scenario://failure-drills/records/3/runtime_case_id",
+      "workflow_phase_refs": ["logical://integration_order/0", "logical://integration_order/1", "logical://integration_order/2", "logical://integration_order/3", "logical://integration_order/4"],
+      "human_gates_ref": "canonical-scenario://failure-drills/records/3/human_gates",
+      "clock_ref": "canonical-scenario://failure-drills/records/3/sla_clock",
+      "evidence_capture_ref": "#/run_policy/evidence_capture",
+      "reset_ref": "#/run_policy/reset",
+      "failure_stop": "On a reset SLA clock, hidden timeout, missing administrator path or state advance after notification failure, stop and preserve the original clock and status.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    }
+  ]
+}

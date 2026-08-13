@@ -1,0 +1,80 @@
+{
+  "schema_version": "neoloop.p12_p13.live_completion.v1",
+  "project": "石听 NeoLoop",
+  "team": "石听未来",
+  "fact_class": "synthetic_experiment",
+  "records": [
+    {
+      "unit_id": "P12",
+      "execution_status": "completed",
+      "result": "受限",
+      "actual_time": "2026-08-10T18:53:48+08:00",
+      "executor": "controller_redacted_cli_operator",
+      "account_role": "application_owner_authorizing_user",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P12-20260810-1853-02",
+            "observed_at": "2026-08-10T18:53:48+08:00",
+            "actor_role": "controller_operator",
+            "redacted_storage_slot": "controlled-slot-P12-formal-base-reversible-write-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "用户明确批准 CLI 与 OpenAPI 的最小可逆合成记录写入及删除清理",
+        "专用应用已发布，用户身份 OAuth 与目标 Base 细粒度 scope 均已精确复验",
+        "目标资源为 owner-only 正式合成 Base，不含新石器真实业务数据",
+        "写前必须按唯一 SYN-PERMISSION-TEST 标记精确查询为零",
+        "token、授权 URL、设备码、账号标识与飞书资源坐标不得进入证据"
+      ],
+      "actual_action": "在保留 2026-08-08 阻塞证据的前提下，本轮先完成三次增量 OAuth 交易，再按用户身份执行 Wiki 节点解析、目标表元数据读取和字段清单读取。随后在反馈案件表使用文本业务键 case_id 生成唯一 SYN-PERMISSION-TEST 标记；写前精确查询为 0，串行创建恰好 1 条仅含测试键的记录，精确读回为 1 条且内容一致，再按返回记录 ID 删除，最后按同一标记复查为 0。2026-08-10T18:53:48+08:00 仅为脱敏证据记录时间，不声称为每条命令的精确发生时间。",
+      "actual_result": "execution_status=completed，result=受限。oauth_completion_count=3，exact_scope_check_count=9，wiki_resolver_success_count=1，table_metadata_read_success_count=1，field_list_success_count=1，field_count=40，write_precheck_zero_count=1，record_create_count=1，record_readback_count=1，record_delete_count=1，cleanup_zero_count=1，business_write_count=2，business_record_remaining_count=0。历史 missing_scope 已按 authorization 分类；补齐最小 scope 后所有规定动作成功，未发生超范围数据读取或未知提交状态。",
+      "limitations": "仅验证当前租户、当前用户身份、当前专用 profile、正式合成 Base 中反馈案件表的元数据读取与单条记录创建、精确读回和删除。未验证记录更新、批量并发、限流、超时未知提交、tenant 或 bot 身份、表或字段结构写入、视图写入、工作流控制、企业真实数据或生产运行，因此结果为受限而非可用。",
+      "cleanup_result": "测试记录已按返回记录 ID 删除；删除后同一合成标记的记录 ID 数与数据行数均为 0，business_record_remaining_count=0。OAuth 授权按用户要求保留，未创建临时项目文件。",
+      "verifier": "controller_redacted_machine_result_verification"
+    },
+    {
+      "unit_id": "P13",
+      "execution_status": "completed",
+      "result": "受限",
+      "actual_time": "2026-08-10T18:53:48+08:00",
+      "executor": "participant_operator_with_controller_cli_verifier",
+      "account_role": "application_owner_authorizing_user",
+      "evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P13-20260810-1853-02",
+            "observed_at": "2026-08-10T18:53:48+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P13-cli-granular-oauth-and-base-io-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "preconditions_observed": [
+        "赛事与用户已允许官方 CLI、OAuth 和 Base OpenAPI 验证",
+        "唯一专用应用与 profile 仍为石听 NeoLoop 和 neoloop-r10-probe",
+        "用户本人完成三次增量 OAuth 确认，控制端只保留脱敏布尔与计数结果",
+        "P12 已形成真实 Wiki 解析、schema 读取和可逆记录写入结果",
+        "不运行 auth scopes，不为诊断申请 application self-manage 权限"
+      ],
+      "actual_action": "核对 lark-cli 固定版本与专用 profile，执行 auth status --verify；对 Base 旧版读写、Wiki 节点读取、表字段视图读取以及记录读取创建删除共 9 个 scope 逐项执行精确 auth check。随后全部 Base 解析、元数据读取、记录创建、精确读回、删除和清理动作均通过同一专用 CLI profile 串行完成；未运行 auth scopes，也未切换或创建第二个应用。",
+      "actual_result": "execution_status=completed，result=受限。cli_version=1.0.84，profile_name_check=passed，user_available=true，user_verified=true，overall_verified=true，oauth_completion_count=3，exact_scope_check_count=9，exact_scope_check_pass_count=9，application_binding_check=machine_verified，application_binding_candidate_count=1，external_identifier_exposure_count=0。P12 已完成真实 Base schema 与单条可逆写入闭环，因此 P13 冻结 minimum action 已形成实际结果。",
+      "limitations": "只证明本机当前版本、当前租户、当前用户身份、当前专用 profile 与当前正式合成 Base 的 CLI 能力。未验证 bot 或 tenant 身份、其他 Base、结构写入、工作流控制、CLI 新版本兼容性、企业真实数据或生产长期稳定性，因此结果为受限。",
+      "cleanup_result": "授权 URL 与设备码未写入仓库或证据，三次 pending device transaction 均已完成；OAuth 按用户要求保留。P12 创建的唯一合成测试记录已删除并复查为 0。",
+      "verifier": "controller_redacted_cli_observation_plus_participant_confirmation"
+    }
+  ]
+}

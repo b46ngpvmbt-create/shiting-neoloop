@@ -1,0 +1,948 @@
+{
+  "template_version": "0.1.5",
+  "project": "石听 NeoLoop",
+  "team": "石听未来",
+  "source_manifest": "../manifests/neoloop-logical-manifest.v0.1.json",
+  "fact_class": "synthetic_experiment",
+  "instructions": "P01—P03、P11、P12 与 P13 脱敏现场工作副本；记录 P01 历史匿名只读人工观察与本轮机器复验不完整停点、临时合成 Base 的已确认动作、P03 prebuild 首个权限动作及安全停点、NeoLoop 专用应用已发布启用且仅配置用户身份只读 scope 的脱敏现态、P13 CLI 用户身份与目标只读 scope 门，以及 P12 首次只读入口失败后的安全停点。P04—P10 仍保持未测试；本文件不含 Base URL、资源 ID、账号标识、凭证、原始 provider 错误或企业真实数据。P01、P03、P12、P13 均保持 blocked/null，不代表匿名文档、无特权权限、OpenAPI、Base schema、record-list 或真实数据接入已经通过；permission_checks.status 仍由同编号结果记录派生。",
+  "machine_status_contract": {
+    "execution_status_allowed": ["not_tested", "blocked", "completed"],
+    "capability_result_allowed": ["可用", "受限", "不可用"],
+    "display_status_mapping": {
+      "not_tested": "未测试",
+      "blocked": "已阻塞",
+      "completed_available": "可用",
+      "completed_restricted": "受限",
+      "completed_unavailable": "不可用"
+    },
+    "not_tested_rule": "result_and_evidence_must_both_be_null",
+    "blocked_rule": "result_must_be_null_and_evidence_index_must_be_non_empty_redacted_and_structurally_valid",
+    "completed_rule": "result_must_be_可用_受限_or_不可用_and_evidence_index_must_be_non_empty_redacted_and_structurally_valid"
+  },
+  "permission_evidence_index_contract": {
+    "object_keys": ["indexes", "r10_subchecks"],
+    "index_entry_required_fields": ["evidence_id", "observed_at", "actor_role", "redacted_storage_slot", "capture_phases", "redaction_checked"],
+    "evidence_id_format": "T2-EV-Pnn-YYYYMMDD-HHmm-seq",
+    "sensitive_values_forbidden": ["credential", "authorization_URL", "device_code", "user_identifier", "real_resource_ID", "full_Feishu_resource_URL", "real_enterprise_data"],
+    "r10_reuse_rule": "P02_and_P03_store_the_five_existing_R10_subcheck_indexes_inside_their_existing_permission_evidence_units_and_create_no_new_evidence_unit",
+    "canonical_evidence_binding_contract": {
+      "canonical_source": "permission_result.evidence_index",
+      "same_result_record_evidence": "canonical_deep_equal_to_permission_result.evidence_index",
+      "same_probe_structured_evidence_index": "canonical_deep_equal_to_permission_result.evidence_index",
+      "not_tested_requires_all_three_null": true,
+      "blocked_or_completed_requires_all_three_non_empty_and_canonical_deep_equal": true,
+      "p03_phase_index_rule": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id",
+      "p03_phase_indexes_are_independent_truth": false
+    }
+  },
+  "permission_checks": [
+    {
+      "key": "P01",
+      "name": "文档匿名权限",
+      "status": "已阻塞",
+      "actual_action": "参赛者此前以未登录环境人工确认现有 P01 测试文档可打开且只读；本轮总控仅复用该既有文档做只读浏览器复验，在内置浏览器打开目标页并发起刷新，约 18 秒后页面地址与标题仍稳定；随后尝试读取 DOM、按钮和截图，并用已连接 Chrome 建立独立读取，均未取得可用页面结构。未修改分享设置、文档内容或权限。2026-08-08T19:03:33+08:00 仅为本轮脱敏证据落盘复核时间，不冒充历史人工观察或每次浏览器调用的精确发生时间。",
+      "actual_time": "2026-08-08T19:03:33+08:00",
+      "executor": "participant_attestation_plus_controller_browser_operator",
+      "platform_account_role": "historical_unlogged_observer_and_current_browser_session_unverified",
+      "logical_business_role": "participant_operator",
+      "platform_role_mapping_status": "历史匿名身份由参赛者确认；本轮浏览器会话登录态未机器核对",
+      "actual_result": "历史人工观察=user_attested:未登录可打开且只读；本轮机器观察=页面成功打开且刷新后的页面地址与标题稳定；refresh_completion=unverified; body_readability_after_refresh=unverified; edit_entry_absence=unverified; screenshot_capture=unavailable; browser_secondary_session_navigation=not_established。因规定动作已尝试但刷新完成与编辑边界证据不完整，P01 固定 blocked/null，不外推 completed/可用。",
+      "limitations": "历史人工确认没有可机器绑定的刷新后截图；本轮结构化页面读取超时，无法确认当前浏览器是否真正未登录，也无法证明刷新完成、正文刷新后仍可读或无编辑入口。页面标题稳定不能替代三项现场证明。",
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": "participant_attestation_plus_controller_browser_metadata_review",
+      "evidence_presence": "已记录",
+      "structured_evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P01-20260808-1903-01",
+            "observed_at": "2026-08-08T19:03:33+08:00",
+            "actor_role": "participant_attestation_plus_controller_browser_operator",
+            "redacted_storage_slot": "controlled-slot-P01-anonymous-readonly-incomplete-01",
+            "capture_phases": [
+              "before_action",
+              "failure",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "已复核"
+    },
+    {
+      "key": "P02",
+      "name": "Base 基础能力",
+      "status": "受限",
+      "actual_action": "在临时合成 Base 中分别完成 cluster_id 与 improvement_id 的 UI 精确筛选 1、0、2 条命中，清理多命中实验重复记录，并复核 Cases 保护基线与自动化关闭状态。",
+      "actual_time": "2026-08-07T18:32:22+08:00",
+      "executor": "participant_operator",
+      "platform_account_role": "base_owner",
+      "logical_business_role": "participant_operator",
+      "platform_role_mapping_status": "已核对",
+      "actual_result": "data_scope=synthetic_experiment; scope=manual_ui_cardinality_only; clusters_match_counts(one/zero/many)=1/0/2; improvements_match_counts(one/zero/many)=1/0/2; duplicate_cleanup=restored_each_target_to_one; protected_baseline=unchanged; automation_final_state=disabled; private_resolver_status=not_tested; execution_mode=insufficient; attestation_status=not_tested; business_write_count=not_established_by_manual_ui",
+      "limitations": "UI 手工筛选不能替代私有只读 resolver、OpenAPI、执行器零写 spy、跨目标原子性、durable outbox/CAS 或 attestation 证明。",
+      "fallback_verification_status": "已复核",
+      "fallback_actual_result": "保留人工精确筛选与人工重开路径；Clusters 与 Improvements 分别删除一条多命中实验重复记录并各恢复单条记录，Cases 保护基线未变，测试自动化保持关闭。",
+      "verifier": "participant_confirmation_plus_redacted_evidence_three_way_deep_equal_and_offline_contract_regression",
+      "evidence_presence": "已记录",
+      "structured_evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P02-20260807-1832-01",
+            "observed_at": "2026-08-07T18:32:22+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P02-cardinality-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary",
+              "failure"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": {
+          "P02-R10-selector-cardinality": [
+            "T2-EV-P02-20260807-1832-01"
+          ],
+          "P02-R10-execution-mode": [
+            "T2-EV-P02-20260807-1832-01"
+          ],
+          "P02-R10-attestation-base-component": [
+            "T2-EV-P02-20260807-1832-01"
+          ]
+        }
+      },
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "已复核",
+      "r10_selector_and_execution_mode_evidence_contract": {
+        "probe_ref": "P02",
+        "normalized_existing_evidence_unit_ref": "P02+P03",
+        "creates_new_probe": false,
+        "creates_new_evidence_unit": false,
+        "selector_case_results": {
+          "clusters": {
+            "one": 1,
+            "zero": 0,
+            "many": 2
+          },
+          "improvements": {
+            "one": 1,
+            "zero": 0,
+            "many": 2
+          }
+        },
+        "actual_execution_mode": "insufficient",
+        "actual_atomic_all_targets_fault_injection_result": null,
+        "actual_sealed_outbox_cas_fault_injection_result": null,
+        "permission_snapshot_sha256": null,
+        "permission_revision": null
+      }
+    },
+    {
+      "key": "P03",
+      "name": "Base 无特权权限",
+      "status": "已阻塞",
+      "actual_action": "owner 先将协作者管理权限从可阅读用户收窄为可管理用户并确认保存；随后在同一 owner 会话中继续关闭组织链接分享，将外分享、协作者管理、复制、创建副本/打印/下载和评论权限收窄到界面可用的最严格范围。参赛者确认第二身份属于组织外账号后，owner 尝试为 SYN_P03_ISOLATED_VIEW 开启独立视图分享。",
+      "actual_time": "2026-08-08T11:26:07+08:00",
+      "executor": "participant_owner_operator",
+      "platform_account_role": "owner",
+      "logical_business_role": null,
+      "platform_role_mapping_status": "首个权限收窄及独立视图分享回退已记录",
+      "actual_result": "首个权限动作已发生；父 P03 与 prebuild 阶段保持 blocked/null。Base 链接分享仍为仅协作者可访问；仅可管理权限用户可外分享；仅组织内用户可管理协作者；复制及创建副本/打印/下载限可管理用户；评论限可编辑用户；加密链接保持关闭。独立视图分享开关曾短暂显示已开启并生成分享入口，默认范围为组织内链接可读、复制关闭、返回原表开启；在收窄范围或发送链接前重新读取，开关已回退为关闭。未复制或发送链接，未邀请第二身份，未建立外部访问。回退后 owner 已重新核对隔离视图仍为 1 条/3 字段、fixture_marker 未变、automation_result 为空、原 SYN_Cases 仍为 6 条，自动化管理中已启用流程为 0；业务字段、反馈归属与关联关系仍待逐项完成脱敏等值复核。尚未执行第二身份可见性边界、受保护修改、撤权、刷新、重登或完整清理复验。observed_at 保留首个权限动作的脱敏证据落盘复核时间，不冒充后续 UI 动作的精确发生时间。",
+      "limitations": "第二身份仅由参赛者确认为组织外账号，尚未完成非 owner、非管理员和独立会话验证。独立视图分享未能稳定保持开启，且开启瞬间出现的默认组织内范围不是目标最小范围；按保守停止门不重复尝试，也不邀请账号。五项可见性边界、条件式保护修改、撤权与完整清理尚未开始，不能形成 prebuild 能力结论。",
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": "participant_confirmation_plus_controller_contract_review_pending_full_prebuild",
+      "evidence_presence": "已记录",
+      "structured_evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P03-20260808-1126-01",
+            "observed_at": "2026-08-08T11:26:07+08:00",
+            "actor_role": "owner_operator",
+            "redacted_storage_slot": "controlled-slot-P03-first-permission-action-01",
+            "capture_phases": [
+              "prebuild_gate"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "p03_phase_observations": {
+        "prebuild_gate": {
+          "execution_status": "blocked",
+          "result": null,
+          "evidence_index": {
+            "indexes": [
+              {
+                "evidence_id": "T2-EV-P03-20260808-1126-01",
+                "observed_at": "2026-08-08T11:26:07+08:00",
+                "actor_role": "owner_operator",
+                "redacted_storage_slot": "controlled-slot-P03-first-permission-action-01",
+                "capture_phases": [
+                  "prebuild_gate"
+                ],
+                "redaction_checked": true
+              }
+            ],
+            "r10_subchecks": null
+          },
+          "actual_action": "owner 完成首个协作者管理权限收窄，并在同一 prebuild 证据槽内继续关闭广域链接、收紧外分享、转邀、复制、下载与评论范围；随后尝试开启隔离视图独立分享。",
+          "actual_result": "独立视图分享曾短暂显示开启，但在范围收窄、链接发送或账号邀请前重新读取为关闭；未建立外部访问。回退后的记录数、隔离字段、marker、automation_result 空值和自动化关闭关键基线已复核，但业务字段、反馈归属与关联关系的全量等值复核尚未完成；第二身份观察也尚未开始，prebuild 仍未完成。",
+          "actual_time": "2026-08-08T11:26:07+08:00",
+          "actual_prebuild_proof": null
+        },
+        "postbuild_five_view_direct_table_recheck": {
+          "execution_status": "not_tested",
+          "result": null,
+          "evidence_index": null,
+          "actual_action": null,
+          "actual_result": null,
+          "actual_time": null
+        }
+      },
+      "p03_phase_binding_contract": {
+        "canonical_parent_record": "permission_result_record_P03",
+        "canonical_parent_field": "evidence_index.indexes",
+        "prebuild_not_started_parent_state": {
+          "required_execution_status": "not_tested",
+          "required_result": null,
+          "required_evidence": null
+        },
+        "prebuild_attempted_parent_state": {
+          "required_execution_status": "blocked",
+          "required_result": null,
+          "required_evidence": "non_empty_redacted_structured_index_canonical_deep_equal_to_parent_evidence_index"
+        },
+        "postbuild_incomplete_parent_state": {
+          "required_execution_status": "blocked",
+          "required_result": null,
+          "required_evidence": "non_empty_redacted_structured_index_canonical_deep_equal_to_parent_evidence_index"
+        },
+        "parent_completed_requires_both_phase_execution_status_completed": true,
+        "parent_completed_result_allowed": ["可用", "受限", "不可用"],
+        "phase_evidence_identity_key": "evidence_id",
+        "phase_evidence_cardinality_rule": "each_phase_index_has_unique_evidence_id_and_no_parent_filtered_entry_is_omitted_or_duplicated",
+        "phase_capture_rule": "filter_parent_indexes_by_capture_phases_containing_the_exact_phase_key",
+        "phase_evidence_binding_rule": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id",
+        "prebuild_proof_field": "actual_prebuild_proof",
+        "prebuild_proof_exact_keys": ["data_scope", "fixture_marker", "test_scope", "enterprise_data_used", "actor_class", "actor_distinct_from_owner_verified", "owner_privileges_absent", "administrator_privileges_absent", "independent_session_verified", "allowed_isolated_view_open_attempted", "allowed_isolated_view_opened", "non_isolated_views_hidden", "non_target_records_hidden", "direct_table_access_denied", "raw_json_hidden", "management_configuration_hidden", "protected_mutation_attempted", "protected_mutation_rejected", "unauthorized_business_write_count", "business_state_unchanged", "temporary_access_revoked", "cleanup_reverified"],
+        "prebuild_visibility_safety_keys": ["non_isolated_views_hidden", "non_target_records_hidden", "direct_table_access_denied", "raw_json_hidden", "management_configuration_hidden"],
+        "prebuild_mutation_gate_rule": "attempt_mutation_only_when_allowed_view_opened_and_all_five_visibility_safety_keys_are_true; otherwise_protected_mutation_attempted_and_protected_mutation_rejected_are_both_false",
+        "prebuild_result_classification_rule": "available_or_restricted_requires_opened_view_all_five_visibility_safety_keys_true_mutation_attempted_and_rejected_zero_unauthorized_business_writes_and_unchanged_business_state; every_other_lawful_complete_and_cleaned_observation_is_unavailable",
+        "prebuild_proof_state_contract": {
+          "not_tested": "actual_prebuild_proof_must_be_null",
+          "blocked": "actual_prebuild_proof_must_be_null; partial_attempt_facts_remain_only_in_actual_action_actual_result_and_canonical_evidence",
+          "completed": "actual_prebuild_proof_must_be_a_full_exact_22_key_observation_and_parent_remains_blocked_null_until_postbuild_completed"
+        },
+        "independent_fourth_truth_forbidden": true
+      },
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "已复核",
+      "r10_recurrence_visibility_and_attestation_evidence_contract": {
+        "probe_ref": "P03",
+        "normalized_existing_evidence_unit_ref": "P02+P03",
+        "creates_new_evidence_unit": false,
+        "actual_all_five_business_views_result": null,
+        "actual_direct_clusters_table_result": null,
+        "actual_recurrence_visibility_no_broader_than_source_fields_result": null,
+        "attestation_id_digest": null,
+        "capability_attestation_sha256": null,
+        "permission_snapshot_sha256": null,
+        "permission_revision": null,
+        "issued_at": null,
+        "expires_at": null,
+        "capability_checked_at": null,
+        "capability_rechecked_at": null,
+        "actual_prewrite_recheck_result": null,
+        "actual_drift_or_expiry_injection_result": null
+      }
+    },
+    {
+      "key": "P04",
+      "name": "飞书 AI / Base AI",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填"
+    },
+    {
+      "key": "P05",
+      "name": "自动化 / 工作流",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "r10_outbox_cas_execution_evidence_contract": {
+        "probe_ref": "P05",
+        "actual_seal_before_any_Base_write_result": null,
+        "actual_single_initial_owner_result": null,
+        "actual_concurrent_same_receipt_one_sealed_rest_existing_same_result": null,
+        "actual_atomic_all_targets_fault_injection_result": null,
+        "actual_sealed_outbox_cas_fault_injection_result": null,
+        "actual_target_ack_order_and_binding_result": null,
+        "actual_worker_lease_result": null,
+        "actual_repair_reuses_original_plan_result": null,
+        "actual_after_without_ack_rejection_result": null,
+        "actual_dependency_safe_error": null,
+        "actual_manual_stop_zero_write_result": null,
+        "current_durable_outbox_status": "not_tested",
+        "current_worker_lease_status": "not_tested"
+      }
+    },
+    {
+      "key": "P06",
+      "name": "审批",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "r10_reopen_authorization_evidence_contract": {
+        "probe_ref": "P06",
+        "source_action": "reopen_recurrence",
+        "expected_initial_authorization_source": "committed_R9_human_authorization",
+        "expected_repair_authorization_call_count": 0,
+        "expected_semantic_replay_authorization_call_count": 0,
+        "actual_committed_authorization_result": null,
+        "actual_source_receipt_sha256_presence": null,
+        "actual_initial_authorization_call_count": null,
+        "actual_repair_authorization_call_count": null,
+        "actual_semantic_replay_authorization_call_count": null,
+        "actual_manual_stop_result": null,
+        "private_authorization_material_storage_allowed": false
+      }
+    },
+    {
+      "key": "P07",
+      "name": "机器人",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填"
+    },
+    {
+      "key": "P08",
+      "name": "知识库",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填"
+    },
+    {
+      "key": "P09",
+      "name": "妙搭",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填"
+    },
+    {
+      "key": "P10",
+      "name": "Aily",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "structured_evidence_index": null,
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填"
+    },
+    {
+      "key": "P11",
+      "name": "企业自建应用",
+      "status": "受限",
+      "actual_action": "保留前三次观察作为历史证据；将 NeoLoop 专用应用首版发布为 1.0.0，仅保留用户身份 bitable:app:readonly 免审权限，可用成员仅应用所有者，外部群和外部单聊均未开放。未开通应用身份或写权限，未复制凭证，未发起 OAuth，未调用 Base API。",
+      "actual_time": "2026-08-07T22:10:40+08:00",
+      "executor": "controller_with_participant_session",
+      "platform_account_role": "application_owner_operator",
+      "logical_business_role": "participant_operator",
+      "platform_role_mapping_status": "已核对",
+      "actual_result": "原复用候选方案已被用户明确取代；NeoLoop 专用应用首版审核通过并显示已启用、当前修改均已发布。权限页只存在用户身份 bitable:app:readonly，数据范围明确与授权用户权限一致；没有应用身份、写权限或额外资源协作者。P11 的应用创建、最小 scope、资源边界与管理员决定均已闭环。",
+      "limitations": "P11 仅证明专用应用、最小用户身份只读 scope、资源边界与管理员决定；OAuth、CLI profile 与专用应用绑定、OpenAPI 及真实 Base 查询仍分别属于后续 P13/P12，尚未测试。",
+      "fallback_verification_status": "已复核",
+      "fallback_actual_result": "P02 已证明临时合成 Base 的表单与人工 UI 路径可用；若后续 P12/P13 不通过，保持 OpenAPI 和 CLI 探针关闭，继续使用表单、原生导入与人工处理。",
+      "verifier": "controller_read_only_observation_plus_participant_confirmation",
+      "evidence_presence": "已记录",
+      "structured_evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P11-20260807-1936-01",
+            "observed_at": "2026-08-07T19:36:34+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-existing-app-state-01",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2134-02",
+            "observed_at": "2026-08-07T21:34:17+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-dedicated-app-created-02",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2156-03",
+            "observed_at": "2026-08-07T21:56:17+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-user-readonly-scope-03",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          },
+          {
+            "evidence_id": "T2-EV-P11-20260807-2210-04",
+            "observed_at": "2026-08-07T22:10:40+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P11-dedicated-app-published-04",
+            "capture_phases": [
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "已复核"
+    },
+    {
+      "key": "P12",
+      "name": "Base OpenAPI",
+      "status": "已阻塞",
+      "actual_action": "总控先生成三份只读执行计划；三份 plan 均为 plan_ready，且计划阶段所有计数均为 0。随后只对 cases 串行执行 1 次 explicit live：命令顺序为版本核验、auth status、bitable:app:readonly 精确 auth check、唯一 +url-resolve Wiki 入口动作。收到非零退出后立即停止，未进入 record-list，未重试、未运行 auth scopes、未扩大权限。2026-08-08T03:28:50+08:00 仅为本轮脱敏证据落盘时间，不是命令调用的精确发生时间。",
+      "actual_time": "2026-08-08T03:28:50+08:00",
+      "executor": "controller_redacted_cli_operator",
+      "platform_account_role": "application_owner_authorizing_user",
+      "logical_business_role": "participant_operator",
+      "platform_role_mapping_status": "已核对",
+      "actual_result": "本次 explicit live exit=1，classification=projection_dependency_failure，issue_codes=[command_failed]。脱敏计数为 cli_command_count=4、auth_command_count=2、base_read_command_attempt_count=1、record_discovery_count=0、zero_match_query_count=0、record_list_command_count=0、business_write_count=0。按固定命令顺序，version、status 与 bitable:app:readonly 精确 auth check 已完成；失败发生在唯一 +url-resolve Wiki 入口命令，failure_stage=wiki_url_resolve_command_failed。未进入 record-list，也未产生合成记录或业务写入。P12 因规定动作未闭环保持 blocked/null。",
+      "limitations": "仅能确认 CLI 命令在 Wiki URL 解析步骤非零退出；不推断 provider HTTP/OpenAPI 是否实际到达，不猜测授权、网络、资源或产品内部原因，也不保存 provider raw、URL、App ID、Base/record ID 或 locator。P12 未完成 schema/list/zero-match/写入/清理验证，不能判为可用、受限或不可用；未获新证据前不得自动重试或扩权。",
+      "fallback_verification_status": "已复核",
+      "fallback_actual_result": "P02 已验证临时合成 Base 的人工 UI 路径；P12 blocked 期间继续使用飞书界面、表单、原生导入和离线工具，不启用 OpenAPI 写入。",
+      "verifier": "controller_redacted_machine_result_verification",
+      "evidence_presence": "已记录",
+      "structured_evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P12-20260808-0328-01",
+            "observed_at": "2026-08-08T03:28:50+08:00",
+            "actor_role": "controller_operator",
+            "redacted_storage_slot": "controlled-slot-P12-wiki-url-resolve-failure-01",
+            "capture_phases": [
+              "before_action",
+              "failure",
+              "after_boundary"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "已复核"
+    },
+    {
+      "key": "P13",
+      "name": "lark-cli",
+      "status": "已阻塞",
+    "actual_action": "用户本人确认当前线上版本包含用户身份 bitable:app:readonly，并完成新二维码授权动作；总控随后对同一新交易续接 CLI completion，再执行脱敏的 auth status --verify 与 bitable:app:readonly 精确 auth check。未运行 auth scopes，未执行 Base schema probe，未调用 OpenAPI，未尝试业务写入。2026-08-08T02:48:56+08:00 是本轮脱敏复验记录时间，不声称为命令调用的精确发生时间。",
+    "actual_time": "2026-08-08T02:48:56+08:00",
+      "executor": "participant_operator_with_controller_cli_verifier",
+      "platform_account_role": "application_owner_authorizing_user",
+      "logical_business_role": "participant_operator",
+      "platform_role_mapping_status": "已核对",
+    "actual_result": "线上版本包含用户身份 bitable:app:readonly 的配置证据来源为 user_attested；同一新交易 completion exit=0。auth status 精确摘要为 user available=true、user verified=true 且 overall verified=true；auth check ok=true、missing=null、granted_count=1，因此运行时目标 scope 已 machine_verified。开发者后台历史中唯一标题含“石听 NeoLoop”的候选应用与 CLI status 的应用标识仅在内存中等值比较，application_binding_check=machine_verified、候选应用数=1、对外标识暴露数为 0。未运行 auth scopes，该命令仅是受限诊断，且未为受限诊断增加 application:application:self_manage。以上只闭环 P13 的共享 CLI 用户身份、专用应用绑定与目标只读 scope 门。后续 P12 已执行一次 cases explicit live，但在唯一 +url-resolve Wiki 入口命令以 projection_dependency_failure/[command_failed] 停止，P12 已转为 blocked/null，未进入 record-list。P13 因冻结 minimum action 中只读 Base schema probe 未形成结果，仍为 blocked/null。认证状态写入数为 1。",
+    "limitations": "共享 CLI 认证门已机器复验，但 P13 的冻结 minimum action 仍包含 P12 只读 Base schema probe；P12 本次只读入口动作已失败并转为 blocked/null，schema/list 结果仍未形成，因此 P13 不得提前完成。auth scopes 未运行且不是硬门；不为该受限诊断申请 application:application:self_manage。本结果不证明 Base 资源可读、OpenAPI 可用、写权限、P03 或企业真实数据接入。",
+      "fallback_verification_status": "已复核",
+      "fallback_actual_result": "P02 已验证临时合成 Base 的人工 UI 路径；P13 共享 CLI 认证门已闭环，但最终状态等待 P12 只读 Base schema probe。P12 当前 blocked 时继续使用飞书界面与离线工具，不自动重试、不扩权，也不启用 OpenAPI 写入。",
+      "verifier": "controller_redacted_cli_observation_plus_participant_confirmation",
+      "evidence_presence": "已记录",
+      "structured_evidence_index": {
+        "indexes": [
+          {
+            "evidence_id": "T2-EV-P13-20260808-0101-01",
+            "observed_at": "2026-08-08T01:01:44+08:00",
+            "actor_role": "participant_operator",
+            "redacted_storage_slot": "controlled-slot-P13-cli-auth-boundary-01",
+            "capture_phases": [
+              "before_action",
+              "after_boundary",
+              "failure"
+            ],
+            "redaction_checked": true
+          }
+        ],
+        "r10_subchecks": null
+      },
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "已复核"
+    }
+  ],
+  "tables": [
+    { "key": "T01", "logical_key": "raw_feedback", "name": "原始反馈", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "T02", "logical_key": "cases", "name": "反馈案件", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "T03", "logical_key": "work_orders", "name": "处置工单", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    {
+      "key": "T04",
+      "logical_key": "clusters",
+      "name": "问题簇",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "r10_cluster_projection_evidence_contract": {
+        "target": "clusters",
+        "selector_field": "cluster_id",
+        "actual_selector_match_count": null,
+        "actual_before_sha256_presence": null,
+        "actual_after_sha256_presence": null,
+        "actual_observed_state": null,
+        "actual_write_field_keys": null,
+        "actual_member_case_union_result": null,
+        "actual_snapshot_append_count": null,
+        "actual_non_R10_record_preservation_result": null,
+        "actual_recurrence_record_order_preservation_result": null,
+        "actual_member_case_order_preservation_result": null,
+        "actual_target_ack_binding_result": null,
+        "actual_resolved_record_locator_sha256_presence": null,
+        "actual_rollback_preservation_result": null,
+        "actual_direct_table_raw_recurrence_visibility": null
+      }
+    },
+    {
+      "key": "T05",
+      "logical_key": "improvements",
+      "name": "改进项目",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "r10_improvement_projection_evidence_contract": {
+        "target": "improvements",
+        "selector_field": "improvement_id",
+        "actual_selector_match_count": null,
+        "actual_before_sha256_presence": null,
+        "actual_after_sha256_presence": null,
+        "actual_observed_state": null,
+        "actual_write_field_keys": null,
+        "actual_snapshot_source_result": null,
+        "actual_day_7_result_cleared_to_null": null,
+        "actual_day_30_result_cleared_to_null": null,
+        "actual_human_conclusion_cleared_to_null": null,
+        "actual_target_ack_binding_result": null,
+        "actual_resolved_record_locator_sha256_presence": null,
+        "actual_rollback_preservation_result": null
+      }
+    },
+    { "key": "T06", "logical_key": "vehicles", "name": "车辆档案", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "T07", "logical_key": "delivery_tasks", "name": "配送任务", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "T08", "logical_key": "routing_matrix", "name": "站点责任矩阵", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "T09", "logical_key": "knowledge_index", "name": "知识索引", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "T10", "logical_key": "ai_audit", "name": "AI 审计", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" }
+  ],
+  "views": [
+    { "key": "V01", "logical_key": "feedback_inbox", "name": "反馈收件箱", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "V02", "logical_key": "case_cockpit", "name": "案件驾驶舱", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "V03", "logical_key": "sla_board", "name": "SLA 协同板", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    {
+      "key": "V04",
+      "logical_key": "issue_map",
+      "name": "问题地图",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "r10_raw_recurrence_visibility_evidence_contract": {
+        "view_key": "issue_map",
+        "probe_ref": "P03",
+        "actual_unprivileged_open_result": null,
+        "actual_refresh_result": null,
+        "actual_relogin_result": null,
+        "actual_raw_recurrence_records_visible": null,
+        "actual_source_permission_intersection_result": null
+      }
+    },
+    {
+      "key": "V05",
+      "logical_key": "improvement_tracking",
+      "name": "改进追踪",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "r10_raw_recurrence_visibility_evidence_contract": {
+        "view_key": "improvement_tracking",
+        "probe_ref": "P03",
+        "actual_unprivileged_open_result": null,
+        "actual_refresh_result": null,
+        "actual_relogin_result": null,
+        "actual_raw_recurrence_records_visible": null,
+        "actual_source_permission_intersection_result": null
+      }
+    }
+  ],
+  "ai_nodes": [
+    { "key": "N1", "name": "结构化抽取", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "N2", "name": "业务分类", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "N3", "name": "风险建议", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "N4", "name": "实体关联", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "N5", "name": "重复识别与聚类", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "N6", "name": "根因假设与责任路由", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "N7", "name": "回复、知识与洞察草稿", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" }
+  ],
+  "workflows": [
+    { "key": "W1", "name": "接入幂等", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "W2", "name": "风险分诊", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "W3", "name": "关联派单", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "W4", "name": "SLA 协同", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    { "key": "W5", "name": "解决验证与回访", "status": "未测试", "actual_action": null, "actual_time": null, "executor": null, "platform_account_role": null, "logical_business_role": null, "platform_role_mapping_status": "未测试", "actual_result": null, "limitations": null, "fallback_verification_status": "未测试", "fallback_actual_result": null, "verifier": null, "evidence_presence": "待填", "screenshot_indexes": [], "run_indexes": [], "redaction_status": "待填" },
+    {
+      "key": "W6",
+      "name": "问题簇与复发监测",
+      "status": "未测试",
+      "actual_action": null,
+      "actual_time": null,
+      "executor": null,
+      "platform_account_role": null,
+      "logical_business_role": null,
+      "platform_role_mapping_status": "未测试",
+      "actual_result": null,
+      "limitations": null,
+      "fallback_verification_status": "未测试",
+      "fallback_actual_result": null,
+      "verifier": null,
+      "evidence_presence": "待填",
+      "screenshot_indexes": [],
+      "run_indexes": [],
+      "redaction_status": "待填",
+      "required_evidence_items": ["N5_existing_cluster_repository_receipt_with_action_and_validation_fingerprint", "human_recurrence_approve_or_deny_decision_with_actor_and_time", "atomic_intake_receipt_bound_to_intake_active_observation_recurrence", "pre_intake_cluster_case_feedback_improvement_and_observation_snapshots", "post_intake_cluster_case_feedback_improvement_and_observation_snapshots", "Day7_or_Day30_checkpoint_source_points_to_committed_intake_and_original_observation_clock", "failed_intake_rollback_proves_no_partial_membership_or_recurrence_record", "failure_result_audit_or_audit_pending_with_workflow_audit_id", "successful_business_commit_with_audit_pending_and_same_audit_id_repair_without_N5_authorization_or_business_replay", "receipt_cross_reuse_rejection_for_N5_to_N6_and_N6_to_intake_active_observation_recurrence", "no_denominator_rate_null_result_when_applicable", "human_archive_conclusion_and_no_automatic_knowledge_publication", "Day7_shared_window_values_opened_at_closed_at_occurred_at_day7ExpectedAt_day30ExpectedAt", "pre_receipt_Day7_guard_decision_and_receipt_not_issued_proof", "final_full_lock_Day7_guard_decision_after_checkpoint_first_intake_second_race", "closed_at_less_than_equal_to_and_greater_than_day7ExpectedAt_matrix_results", "before_after_business_and_W6_durable_state_snapshots_proving_zero_writes_on_rejection", "capability_consumption_outcome_captured_separately_from_business_commit_and_write_outcomes", "enter_observation_human_authorization_in_observation_phase_and_zero_resource_locks_while_waiting", "enter_observation_system_generated_cycle_history_receipt_occurred_at_and_clock_source_provenance", "enter_observation_atomic_commit_before_after_snapshot_and_trusted_clock_recheck", "record_day_7_has_no_caller_actor_AI_or_authorizer_and_uses_an_independent_transaction", "record_day_30_has_no_caller_actor_AI_or_authorizer_and_uses_an_independent_transaction", "checkpoint_committed_active_intake_and_committed_recurrence_reopen_history_source_refs", "Day30_cumulative_source_superset_of_committed_Day7_with_related_task_volume_and_recurrence_rate_pair", "audit_pending_same_identity_repair_and_same_event_replay_with_zero_business_reexecution", "D1_archive_and_reopen_actions_not_invoked_while_committed_reopen_history_remains_read_only"],
+      "day7_edge_evidence_contract": {
+        "shared_window": "opened_at < closed_at <= min(occurred_at, day30ExpectedAt)",
+        "day7_sealed_evidence": ["day7_checkpoint_exists", "occurred_at > day7ExpectedAt"],
+        "guard_evidence": [
+          { "guard_point": "before_repository_receipt_issue", "required_values": ["opened_at", "closed_at", "occurred_at", "day7ExpectedAt", "day30ExpectedAt", "day7_checkpoint_ref", "guard_decision", "receipt_issued"] },
+          { "guard_point": "inside_full_resource_lock_immediately_before_business_commit", "required_values": ["opened_at", "closed_at", "occurred_at", "day7ExpectedAt", "day30ExpectedAt", "day7_checkpoint_ref", "guard_decision", "business_commit_outcome", "business_write_count", "W6_durable_state_write_count"] }
+        ],
+        "boundary_matrix_evidence": ["closed_at < day7ExpectedAt_rejected", "closed_at == day7ExpectedAt_rejected", "closed_at > day7ExpectedAt_and_shared_window_passes_Day30_eligible"],
+        "race_order_evidence": ["N5_receipt_issued", "human_recurrence_authorization_consumed", "Day7_checkpoint_committed", "final_guard_rejected"],
+        "zero_write_evidence": { "business_durable_writes": 0, "W6_durable_state_writes": 0 },
+        "independent_outcome_evidence": ["N5_capability_consumption", "N5_receipt_consumption", "human_authorization_capability_consumption", "business_commit_outcome", "business_write_count", "W6_durable_state_write_count"]
+      },
+      "batch_d1_observation_evidence_contract": {
+        "workflow_id": "W6",
+        "actions": ["enter_observation", "record_day_7", "record_day_30"],
+        "scope_exclusions": ["archive", "reopen"],
+        "scope_excluded_actions": ["archive_observation", "reopen_recurrence"],
+        "scope_exclusion_evidence": "Prove that D1 invokes neither archive nor reopen; a committed recurrence-reopen history reference is read-only source evidence and is not an action invocation.",
+        "enter_observation_required_values": ["event_id", "case_ids", "cluster_id", "improvement_id", "authorized_human_actor", "reason", "authorization_phase_observation", "resource_locks_held_while_waiting", "business_writes_while_waiting", "trusted_clock_before_authorization", "trusted_clock_inside_full_resource_lock", "cycle_id_generation_provenance", "history_id_generation_provenance", "receipt_id_generation_provenance", "occurred_at_generation_provenance", "clock_source_generation_provenance", "before_durable_state", "after_durable_state", "commit_outcome", "AI_call_count"],
+        "checkpoint_required_values": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume", "expected_at", "actual_trusted_time", "cycle_clock_source", "actual_clock_source", "resource_lock_wait_recheck", "caller_actor_present", "AI_call_count", "human_authorizer_call_count", "history_id_generation_provenance", "receipt_id_generation_provenance", "checkpoint_id_generation_provenance", "recurrence_case_ids", "recurrence_count", "recurrence_source_refs", "recurrence_rate", "before_durable_state", "after_durable_state", "commit_outcome"],
+        "record_day_30_required_comparison": ["committed_Day7_checkpoint_ref", "Day7_recurrence_case_ids", "Day30_recurrence_case_ids", "Day30_contains_all_Day7_sources", "same_cycle_proof", "related_task_volume_and_rate_pair"],
+        "history_source_contract": {
+          "allowed": ["committed_active_observation_intake_history_for_same_cycle", "committed_recurrence_reopen_cycle_facts_for_same_cycle"],
+          "excluded": ["candidate", "authorization_only", "receipt_only", "rejected", "rolled_back", "uncommitted", "other_cycle"]
+        },
+        "null_denominator_required_values": ["authoritative_recurrence_case_ids", "recurrence_count_preserved", "related_task_volume_null", "recurrence_rate_null"],
+        "replay_required_values": ["workflow_audit_id", "first_business_result", "first_audit_state", "replay_event_id", "replay_payload_fingerprint", "replay_event_replayed_true", "repaired_audit_state", "ID_generation_count_before_after", "authorization_call_count_before_after", "business_commit_count_before_after", "business_write_count_before_after", "AI_call_count_before_after"],
+        "expected_absence": ["resource_lock_during_enter_observation_authorization_wait", "caller_generated_cycle_history_receipt_occurred_at_or_clock_source", "caller_actor_for_record_day_7_or_record_day_30", "AI_call_for_any_D1_observation_action", "human_authorizer_call_for_record_day_7_or_record_day_30", "candidate_rejected_uncommitted_or_other_cycle_recurrence_source", "archive_action_invocation", "reopen_action_invocation", "business_reexecution_during_audit_only_repair_or_same_event_replay"]
+      },
+      "r10_reopen_projection_evidence_contract": {
+        "identity": {
+          "workflow_id": "W6",
+          "projector_key": "neoloop.feishu.w6-reopen.v1",
+          "classification": "W6_projection_side_effect_not_a_seventh_workflow",
+          "source_action": "reopen_recurrence",
+          "required_probe_gates": ["P02", "P03", "P05", "P06"],
+          "normalized_existing_evidence_unit_ref": "P02+P03",
+          "creates_new_evidence_unit": false,
+          "creates_new_result_unit": false,
+          "workflow_count_effect": "unchanged_6",
+          "real_executor_in_scope": false
+        },
+        "component_evidence_unit_refs": {
+          "P02": "#/permission_checks/1/r10_selector_and_execution_mode_evidence_contract",
+          "P03": "#/permission_checks/2/r10_recurrence_visibility_and_attestation_evidence_contract",
+          "P05": "#/permission_checks/4/r10_outbox_cas_execution_evidence_contract",
+          "P06": "#/permission_checks/5/r10_reopen_authorization_evidence_contract",
+          "T04": "#/tables/3/r10_cluster_projection_evidence_contract",
+          "T05": "#/tables/4/r10_improvement_projection_evidence_contract",
+          "V04": "#/views/3/r10_raw_recurrence_visibility_evidence_contract",
+          "V05": "#/views/4/r10_raw_recurrence_visibility_evidence_contract"
+        },
+        "semantic_replay_and_committed_miss_requirements": [
+          "exact_is_no_op_with_zero_total_port_calls_and_zero_writes",
+          "near_is_event_conflict_with_zero_total_port_calls_and_zero_writes",
+          "committed_miss_is_apply_once_with_one_complete_two_target_plan"
+        ],
+        "sealed_owner_and_existing_same_requirements": [
+          "complete_two_target_plan_is_sealed_before_any_Base_write",
+          "same_receipt_different_trusted_clock_ticks_keep_one_stable_plan",
+          "concurrent_same_receipt_has_one_sealed_and_all_others_existing_same",
+          "existing_same_returned_plan_is_authoritative",
+          "existing_same_discards_local_plan_and_directive",
+          "existing_same_grants_no_new_owner_directive_or_execution_right",
+          "existing_same_continues_in_trusted_execution_evidence_then_Base_observed_then_reconcile_order"
+        ],
+        "found_binding_recheck_requirements": [
+          "recheck_source_receipt_id",
+          "recheck_source_receipt_sha256_digest_owner",
+          "recheck_canonical_receipt_material",
+          "recheck_sealed_plan",
+          "receipt_conflict_maps_to_commit_proof_mismatch",
+          "digest_plan_or_returned_plan_mismatch_maps_to_projection_conflict",
+          "sealed_after_found_maps_to_projection_dependency_failure",
+          "non_existing_same_or_returned_plan_mismatch_stops_before_evidence_observed_capability_or_clock_reads"
+        ],
+        "snapshot_and_write_boundary_requirements": [
+          "snapshot_trusted_Base_before_day_7_day_30_and_human_conclusion_into_one_tail_reopen_snapshot_v1",
+          "clear_current_day_7_day_30_and_human_conclusion_in_the_same_sealed_plan",
+          "preserve_non_R10_recurrence_records_and_member_case_order",
+          "write_only_clusters_4_plus_improvements_5_exact_nine_field_allowlist",
+          "write_no_other_field_or_table"
+        ],
+        "observed_state_ack_lease_and_repair_requirements": [
+          "B_B_with_valid_private_single_owner_lease_apply_once",
+          "B_B_without_valid_private_single_owner_lease_reject_zero_write",
+          "A_A_with_two_matching_acks_and_cluster_marker_is_already_applied",
+          "A_B_with_matching_cluster_ack_and_marker_repairs_improvements_only",
+          "B_A_with_matching_improvement_ack_repairs_clusters_only",
+          "X_or_ack_marker_mismatch_rejects_zero_write",
+          "after_without_corresponding_ack_never_fabricates_ack_or_repairs",
+          "repair_reuses_original_sealed_plan_without_reauthorization_or_semantic_lookup"
+        ],
+        "execution_preflight_requirements": [
+          "recheck_onsite_attestation_and_expiry_before_initial_write_and_each_repair",
+          "recheck_permission_snapshot_and_revision_before_initial_write_and_each_repair",
+          "recheck_selector_exact_single_match_and_private_locator_binding",
+          "recheck_expected_before_CAS",
+          "not_tested_insufficient_expired_drifted_zero_or_many_selector_or_CAS_mismatch_manual_stops_zero_write",
+          "capability_rechecked_at_is_recorded_only_in_trusted_execution_evidence_and_ack_not_plan_identity"
+        ],
+        "dependency_and_redaction_requirements": [
+          "source_Base_capability_clock_outbox_or_hasher_failure_maps_to_projection_dependency_failure",
+          "redaction_scan_failure_maps_to_sensitive_output_rejected",
+          "public_artifact_and_public_logs_are_recursively_scanned",
+          "recursive_sensitive_sentinel_hit_count_must_be_zero"
+        ],
+        "manual_stop_and_rollback_requirements": [
+          "manual_stop_preserves_original_cluster_and_improvement",
+          "manual_stop_preserves_original_recurrence_and_member_order",
+          "manual_stop_preserves_existing_sealed_plan_and_private_audit_if_any",
+          "manual_stop_disables_only_named_temporary_automation",
+          "manual_stop_never_uses_broad_permission_or_sequential_double_write_fallback"
+        ],
+        "current_onsite_state": {
+          "verification_status": "not_tested",
+          "execution_mode": "insufficient",
+          "automatic_projection_enabled": false,
+          "attestation_id_digest": null,
+          "capability_attestation_sha256": null,
+          "permission_snapshot_sha256": null,
+          "permission_revision": null,
+          "issued_at": null,
+          "expires_at": null,
+          "capability_checked_at": null,
+          "capability_rechecked_at": null,
+          "evidence_unit_ref": null,
+          "trusted_execution_evidence_ref": null,
+          "target_ack_evidence_ref": null,
+          "worker_lease_evidence_ref": null,
+          "real_feishu_operations": 0,
+          "lark_cli_login_operations": 0,
+          "openapi_calls": 0,
+          "base_write_attempts": 0
+        },
+        "onsite_actual_slots": {
+          "actual_exact_total_port_calls": null,
+          "actual_exact_write_count": null,
+          "actual_near_total_port_calls": null,
+          "actual_near_write_count": null,
+          "actual_near_safe_error": null,
+          "actual_miss_decision": null,
+          "actual_miss_plan_count": null,
+          "actual_public_artifact_key_count": null,
+          "actual_public_artifact_sensitive_hit_count": null,
+          "actual_public_log_sensitive_hit_count": null,
+          "actual_redaction_safe_error": null,
+          "actual_human_stop_triggered": null
+        },
+        "r10_evidence_indexes": [],
+        "forbidden_storage": [
+          "source_receipt_id",
+          "canonical_receipt_material",
+          "receipt_history_or_cycle_raw_values",
+          "day_7_result_day_30_result_or_human_conclusion_raw_text",
+          "raw_recurrence_records",
+          "internal_plan_patch_or_execution_directive",
+          "business_key_selector",
+          "raw_record_locator",
+          "worker_lease_token",
+          "complete_target_ack",
+          "principal_grant_claims_or_policy",
+          "attestation_credential",
+          "provider_error_object_message_cause_or_stack",
+          "rejection_raw_text",
+          "real_resource_ids",
+          "enterprise_data"
+        ],
+        "allowed_storage": [
+          "boolean_results",
+          "numeric_counts",
+          "domain_separated_digest_presence",
+          "existing_redacted_screenshot_and_run_indexes"
+        ]
+      }
+    }
+  ]
+}

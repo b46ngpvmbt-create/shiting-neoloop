@@ -1,0 +1,602 @@
+{
+  "suite_version": "0.1.7",
+  "project": "石听 NeoLoop",
+  "team": "石听未来",
+  "fact_class": "solution_design",
+  "deployment_status": "offline_probe_plan_not_executed",
+  "permission_status": "P01-P13_all_not_tested",
+  "sources": {
+    "logical_manifest": {
+      "path": "./neoloop-logical-manifest.v0.1.json",
+      "sha256": "c4e9790c724723864869365bebfc98a3d72baceb5e643386df5b1685a43d8f60",
+      "manifest_version": "0.1.6"
+    },
+    "build_package": {
+      "path": "./on-site-build-package.v0.1.json",
+      "sha256": "8fe61f8f6fff7c3608bcb2a7cfc57011fc0fa21b9b9b2db9e28c2bcd38690e58",
+      "package_version": "0.1.5"
+    },
+    "permission_matrix": "../runbooks/day-1-permission-matrix.md",
+    "permission_runbook": "../runbooks/day-1-permission-acceptance.md"
+  },
+  "counts": {
+    "probes": 13
+  },
+  "status_contract": {
+    "execution_status_allowed": ["not_tested", "blocked", "completed"],
+    "capability_result_allowed": ["可用", "受限", "不可用"],
+    "initial_execution_status": "not_tested",
+    "initial_result": null,
+    "state_invariants": {
+      "not_tested": "result_and_evidence_must_both_be_null",
+      "blocked": "result_must_be_null_and_evidence_must_be_a_non_empty_redacted_structured_index",
+      "completed": "result_must_be_one_of_capability_result_allowed_and_evidence_must_be_a_non_empty_redacted_structured_index"
+    },
+    "attempt_transition_contract": {
+      "unstarted_or_prerequisite_missing": {
+        "required_execution_status": "not_tested",
+        "required_result": null,
+        "required_evidence": null
+      },
+      "attempted_but_action_recheck_or_evidence_incomplete": {
+        "required_execution_status": "blocked",
+        "required_result": null,
+        "required_evidence": "non_empty_redacted_structured_index"
+      }
+    },
+    "canonical_evidence_binding_contract": {
+      "canonical_source": "permission_result.evidence_index",
+      "same_record_evidence": "canonical_deep_equal_to_permission_result.evidence_index",
+      "same_probe_on_site_structured_evidence_index": "canonical_deep_equal_to_permission_result.evidence_index",
+      "capture_phases_allowed": ["before_action", "after_boundary", "failure", "prebuild_gate", "postbuild_five_view_direct_table_recheck"],
+      "non_P03_capture_phases_allowed": ["before_action", "after_boundary", "failure"],
+      "p03_phase_indexes": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id",
+      "p03_phase_indexes_are_independent_truth": false
+    },
+    "legal_state_rows": [
+      { "execution_status": "not_tested", "result": null, "evidence": null, "derived_zh": "未测试", "derived_en": "not_tested" },
+      { "execution_status": "blocked", "result": null, "evidence": "non_empty_redacted_structured_index", "derived_zh": "已阻塞", "derived_en": "blocked" },
+      { "execution_status": "completed", "result": "可用", "evidence": "non_empty_redacted_structured_index", "derived_zh": "可用", "derived_en": "available" },
+      { "execution_status": "completed", "result": "受限", "evidence": "non_empty_redacted_structured_index", "derived_zh": "受限", "derived_en": "restricted" },
+      { "execution_status": "completed", "result": "不可用", "evidence": "non_empty_redacted_structured_index", "derived_zh": "不可用", "derived_en": "unavailable" }
+    ],
+    "rule": "Missing prerequisites or an unstarted prescribed action keeps execution_status=not_tested with result/evidence null. An attempted but unfinished probe uses execution_status=blocked with result null and non-empty redacted structured evidence. Only execution_status=completed may carry one capability result: 可用, 受限 or 不可用."
+  },
+  "global_gates": [
+    "competition_rules_confirmed_before_any_external_tool_or_app_action",
+    "participant_performs_login_oauth_sharing_and_credential_actions",
+    "administrator_approves_tenant_product_app_scope_and_resource_access_when_required",
+    "synthetic_test_data_only",
+    "document_anonymous_access_and_base_unprivileged_access_are_independent",
+    "P01_day_1_temporary_document_result_requires_final_deliverable_anonymous_recheck_later",
+    "P04_and_P05_capability_probes_are_not_N1_N7_or_W1_W6_runtime_evidence",
+    "P09_P10_P12_P13_never_replace_D0_Base_nodes_or_workflows",
+    "P06_and_P07_require_the_P05_automation_workflow_gate_in_addition_to_P02",
+    "no_real_resource_identifier_or_credential_is_written_to_this_suite"
+  ],
+  "r10_existing_evidence_unit_contract": {
+    "normalized_existing_evidence_unit_ref": "P02+P03",
+    "component_probe_ids": ["P02", "P03"],
+    "component_evidence_unit_refs": ["evidence://on-site/P02", "evidence://on-site/P03"],
+    "creates_new_probe": false,
+    "creates_new_evidence_unit": false,
+    "execution_status": "not_tested",
+    "result": null,
+    "evidence": null,
+    "real_feishu_operations": 0
+  },
+  "probe_order": ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P11", "P12", "P13"],
+  "probes": [
+    {
+      "probe_id": "P01",
+      "capability": "文档匿名权限",
+      "depends_on": [],
+      "preconditions": ["participant_logged_in", "temporary_synthetic_document_allowed", "signed_out_private_window_ready"],
+      "required_logical_roles": [],
+      "required_actors": ["participant", "anonymous_verifier", "administrator_if_external_sharing_is_tenant_blocked"],
+      "operation_category": "anonymous_document_access",
+      "writes": true,
+      "write_scope": "temporary_document_and_sharing_setting",
+      "reversible": true,
+      "scope_boundary": "This Day-1 result covers only the marked temporary document. The final deliverable document requires a separate anonymous first-load and refresh recheck and cannot inherit this result.",
+      "minimum_test_action": ["create_marked_temporary_document", "set_link_read_only_if_option_exists", "open_signed_out_then_refresh"],
+      "expected_result": ["signed_out_first_load_is_readable", "signed_out_refresh_is_readable", "no_edit_permission_is_exposed"],
+      "failure_criteria": ["sharing_option_missing_after_prerequisites", "signed_out_window_requires_login", "refresh_loses_access", "evidence_or_redaction_incomplete"],
+      "failure_class_refs": ["F09"],
+      "evidence_unit_ref": "evidence://on-site/P01",
+      "attempt_state_contract_ref": "status_contract.attempt_transition_contract",
+      "cleanup_rollback": ["revoke_temporary_link_sharing", "keep_redacted_failure_evidence", "do_not_treat_public_site_or_video_as_P01_result"],
+      "fallback_path": "Keep a login-only document opening note plus separately accepted public site/video; P01 and the D0 anonymous-document gate remain incomplete.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P02",
+      "capability": "Base 基础能力",
+      "depends_on": [],
+      "preconditions": ["participant_logged_in", "temporary_synthetic_Base_allowed"],
+      "required_logical_roles": ["feedback_understanding", "case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "administrator_if_Base_product_or_schema_management_is_blocked"],
+      "operation_category": "base_core",
+      "writes": true,
+      "write_scope": "temporary_Base_schema_record_view_form_and_automation",
+      "reversible": true,
+      "contract_boundary": "Any formula, helper field, form or automation created by this capability probe stays in the isolated temporary Base and is not part of the frozen 10-table contract or import plan.",
+      "minimum_test_action": ["create_two_temporary_tables", "probe_required_field_and_relation_types", "probe_one_way_clusters_member_case_ids_relation_without_cases_backlink", "create_view_and_form", "run_one_success_and_one_failure_automation"],
+      "expected_result": ["schema_actions_match_observed_platform_types", "relation_and_view_are_readable", "clusters_member_case_ids_is_writable_without_cases_cluster_id_or_status_mutation", "feedback_ownership_remains_unchanged", "failed_run_does_not_advance_business_state"],
+      "failure_criteria": ["Base_or_required_entry_missing", "logical_type_has_no_approved_physical_mapping", "relation_probe_writes_cases_cluster_id_or_status", "relation_probe_changes_feedback_ownership", "failure_advances_state", "quota_or_role_blocks_required_core"],
+      "failure_class_refs": ["F01", "F03", "F04"],
+      "evidence_unit_ref": "evidence://on-site/P02",
+      "cleanup_rollback": ["disable_only_temporary_automation", "restore_only_exact_temporary_clusters_member_case_ids_relation", "retain_initial_and_failure_state", "clean_only_exact_SYN_PERMISSION_TEST_records"],
+      "fallback_path": "Use ordinary fields, protected views and an explicit human checklist only within the observed limit; do not change the canonical contract or call the Base core complete.",
+      "r10_subchecks": {
+        "existing_evidence_unit_ref": "evidence://on-site/P02",
+        "creates_new_probe": false,
+        "creates_new_evidence_unit": false,
+        "checks": [
+          {
+            "subcheck_id": "P02-R10-selector-cardinality",
+            "minimum_test_action": ["resolve_cluster_id_and_improvement_id_to_exactly_one_temporary_record_each", "repeat_with_zero_match", "repeat_with_multiple_matches", "verify_opaque_record_locator_and_digest_remain_private"],
+            "expected_result": ["exact_single_match_resolves_private_locator", "zero_or_multiple_matches_stop_with_projection_conflict_and_zero_writes", "business_id_is_not_treated_as_record_id"],
+            "failure_criteria": ["zero_or_multiple_matches_continue_to_write", "business_id_is_assumed_to_equal_record_id", "raw_locator_or_provider_error_is_exposed"],
+            "cleanup_rollback": ["remove_only_the_named_temporary_duplicate_selector_records", "preserve_redacted_cardinality_and_failure_evidence"],
+            "fallback_path": "Keep selector resolution manual and stop R10 automatic projection; do not broaden the selector or prefill a record ID.",
+            "execution_status": "not_tested",
+            "result": null,
+            "evidence": null
+          },
+          {
+            "subcheck_id": "P02-R10-execution-mode",
+            "minimum_test_action": ["probe_atomic_all_targets_with_two_target_before_checks_and_failure_injection", "if_atomic_all_targets_is_unavailable_probe_durable_sealed_outbox_per_target_CAS_ack_single_owner_lease_and_crash_resume", "if_neither_mode_is_proven_record_execution_mode_insufficient_and_keep_automatic_projection_disabled"],
+            "expected_result": ["only_atomic_all_targets_or_sealed_outbox_cas_may_become_an_onsite_candidate", "ordinary_sequential_double_write_is_not_accepted_as_sealed_outbox_cas", "unproven_or_failed_capability_resolves_to_insufficient_with_zero_writes"],
+            "failure_criteria": ["mode_is_selected_without_failure_injection_evidence", "ordinary_sequential_double_write_is_claimed_as_atomic_or_sealed", "automatic_projection_is_enabled_while_mode_is_not_tested_or_insufficient"],
+            "cleanup_rollback": ["disable_only_the_named_temporary_capability_automation", "preserve_failure_injection_indexes", "leave_formal_Base_records_unchanged"],
+            "fallback_path": "Set execution_mode=insufficient and use the documented manual reopen path; the offline projector remains solution design only.",
+            "execution_status": "not_tested",
+            "result": null,
+            "evidence": null
+          },
+          {
+            "subcheck_id": "P02-R10-attestation-base-component",
+            "minimum_test_action": ["capture_redacted_permission_snapshot_sha256_and_permission_revision_for_the_temporary_Base", "record_issued_at_expires_at_and_authorized_competition_operator_without_persisting_credentials", "bind_the_candidate_execution_mode_to_the_same_attestation_id_and_revision"],
+            "expected_result": ["P02_component_is_incomplete_until_the_P03_visibility_component_is_bound", "missing_revision_expiry_operator_or_P03_component_cannot_form_onsite_verified", "all_unproven_fields_remain_null_under_not_tested"],
+            "failure_criteria": ["P02_alone_is_treated_as_onsite_verified", "credential_or_private_permission_material_is_saved", "not_tested_contains_non_null_proof_fields"],
+            "cleanup_rollback": ["revoke_only_temporary_permission_changes", "retain_only_minimum_redacted_attestation_indexes"],
+            "fallback_path": "Keep verification_status=not_tested and execution_mode=insufficient until P02+P03 are both complete.",
+            "execution_status": "not_tested",
+            "result": null,
+            "evidence": null
+          }
+        ]
+      },
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P03",
+      "capability": "Base 无特权权限",
+      "depends_on": ["P02"],
+      "preconditions": ["P02_result_allows_safe_Base_test", "second_non_owner_identity_ready", "five_view_draft_exists_or_minimal_equivalent_isolated_views_exist"],
+      "required_logical_roles": ["feedback_understanding", "case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "unprivileged_verifier", "administrator_if_test_identity_or_advanced_permission_is_required"],
+      "operation_category": "base_unprivileged_access",
+      "writes": true,
+      "write_scope": "temporary_collaborator_and_permission_mapping",
+      "reversible": true,
+      "phase_contract": {
+        "pre_build_capability_check": {
+          "purpose": "Use isolated minimal views to verify that a non-owner identity and a deny boundary can be exercised before formal construction starts.",
+          "minimum_actions": ["invite_non_owner_identity_to_isolated_test_scope", "attempt_open_one_allowed_isolated_view", "verify_five_pre_mutation_visibility_boundaries", "attempt_one_protected_mutation_only_when_allowed_view_opened_and_all_five_visibility_boundaries_are_safe", "otherwise_skip_mutation_and_close_as_unavailable_after_complete_cleanup", "revoke_temporary_collaborator", "remove_temporary_permission_mapping", "reverify_temporary_access_cleanup"],
+          "allowed_decision": "May open the controlled build branch only when the observed boundary is safe. Before this phase starts, parent P03 remains not_tested/null/null. Once any prescribed prebuild action is attempted, parent P03 becomes blocked with result null and non-empty redacted evidence canonically bound to evidence_index; even a completed prebuild phase cannot complete P03.",
+          "actual_prebuild_proof_contract": {
+            "field": "actual_prebuild_proof",
+            "exact_keys": ["data_scope", "fixture_marker", "test_scope", "enterprise_data_used", "actor_class", "actor_distinct_from_owner_verified", "owner_privileges_absent", "administrator_privileges_absent", "independent_session_verified", "allowed_isolated_view_open_attempted", "allowed_isolated_view_opened", "non_isolated_views_hidden", "non_target_records_hidden", "direct_table_access_denied", "raw_json_hidden", "management_configuration_hidden", "protected_mutation_attempted", "protected_mutation_rejected", "unauthorized_business_write_count", "business_state_unchanged", "temporary_access_revoked", "cleanup_reverified"],
+            "static_identity": {
+              "data_scope": "synthetic_experiment",
+              "fixture_marker": "SYN-PERMISSION-TEST",
+              "test_scope": "isolated_temporary_base",
+              "enterprise_data_used": false,
+              "actor_class": "ordinary_non_owner"
+            },
+            "not_tested_rule": "actual_prebuild_proof_must_be_null",
+            "blocked_rule": "actual_prebuild_proof_must_be_null; partial_attempt_facts_remain_only_in_actual_action_actual_result_and_canonical_evidence",
+            "completed_common_rule": "exact_22_key_full_observation; actor_distinct_from_owner_verified_owner_and_administrator_privileges_absent_independent_session_verified_allowed_view_open_attempted_temporary_access_revoked_cleanup_reverified_true; unauthorized_business_write_count_nonnegative_integer; protected_mutation_attempted_and_protected_mutation_rejected_are_false_when_allowed_view_is_not_opened_or_any_of_the_five_visibility_boundaries_is_false; protected_mutation_attempted_is_true_only_when_allowed_view_is_opened_and_all_five_visibility_boundaries_are_true",
+            "deterministic_result_classification": {
+              "可用": "allowed_view_opened_all_five_visibility_boundaries_safe_protected_mutation_attempted_and_rejected_zero_unauthorized_business_writes_and_business_state_unchanged",
+              "受限": "same_full_safe_boundary_as_available_with_a_separately_recorded_non_hard_limitation; parent_limitations_non_empty_and_fallback_verified_true",
+              "不可用": "lawful_complete_synthetic_isolated_test_but_allowed_view_not_opened_or_any_visibility_boundary_unsafe_or_attempted_protected_mutation_not_rejected_or_unauthorized_business_write_count_positive_or_business_state_changed; mutation_is_skipped_with_attempted_and_rejected_false_when_view_open_or_visibility_precondition_is_unsafe; parent_limitations_non_empty_and_fallback_verified_true"
+            },
+            "parent_state_rule": "prebuild_not_tested_keeps_parent_not_tested_null; any_prebuild_attempt_or_completion_keeps_parent_blocked_null_until_postbuild_completed",
+            "phase_evidence_binding_rule": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id"
+          }
+        },
+        "post_build_five_view_recheck": {
+          "purpose": "After all five business views and protections exist, repeat the full anonymous-independent non-owner boundary test.",
+          "minimum_actions": ["open_and_refresh_all_five_business_views", "attempt_each_allowed_action", "attempt_protected_field_and_admin_configuration_access"],
+          "allowed_decision": "Only this phase plus complete redacted evidence may determine the final P03 capability state."
+        },
+        "persistence_contract": {
+          "result_field": "p03_phase_observations",
+          "pre_build_field": "prebuild_gate",
+          "post_build_field": "postbuild_five_view_direct_table_recheck",
+          "pre_build_unstarted_parent_state": {
+            "required_execution_status": "not_tested",
+            "required_result": null,
+            "required_evidence": null
+          },
+          "pre_build_attempted_parent_state": {
+            "required_execution_status": "blocked",
+            "required_result": null,
+            "required_evidence": "non_empty_redacted_structured_index"
+          },
+          "post_build_incomplete_parent_state": {
+            "required_execution_status": "blocked",
+            "required_result": null,
+            "required_evidence": "non_empty_redacted_structured_index"
+          },
+          "pre_build_cannot_complete_parent_P03": true,
+          "parent_P03_completion_requires_both_phases_recorded": true,
+          "parent_P03_completion_requires_both_phase_execution_status_completed": true,
+          "parent_P03_completion_result_allowed": ["可用", "受限", "不可用"],
+          "phase_evidence_binding": {
+            "canonical_parent_source": "permission_result_P03.evidence_index.indexes",
+            "prebuild_reference_rule": "prebuild_gate_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phases_including_prebuild_gate_in_same_order_with_unique_evidence_id",
+            "postbuild_reference_rule": "postbuild_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phases_including_postbuild_five_view_direct_table_recheck_in_same_order_with_unique_evidence_id",
+            "exact_binding_rule": "phase_indexes_canonical_deep_equal_parent_indexes_filtered_by_capture_phase_in_same_order_with_unique_evidence_id",
+            "phase_evidence_index_is_independent_truth": false
+          },
+          "post_build_requires_five_view_refresh_and_direct_table_recheck": true
+        }
+      },
+      "minimum_test_action": ["invite_non_owner_identity", "open_and_refresh_all_five_business_views", "attempt_allowed_action", "attempt_unprivileged_intake_active_observation_recurrence", "attempt_protected_field_and_admin_configuration_access"],
+      "expected_result": ["five_views_are_visible_in_allowed_scope", "unprivileged_internal_W6_action_is_rejected", "protected_mutation_is_rejected", "administrator_tables_and_configuration_are_hidden"],
+      "failure_criteria": ["second_identity_missing", "owner_only_check", "unprivileged_actor_can_authorize_or_execute_recurrence_intake", "protected_field_is_editable", "administrator_data_leaks", "relogin_or_refresh_changes_boundary"],
+      "failure_class_refs": ["F02", "F08"],
+      "evidence_unit_ref": "evidence://on-site/P03",
+      "cleanup_rollback": ["revoke_temporary_collaborator", "remove_temporary_permission_mapping", "reverify_temporary_access_cleanup", "stop_sharing_on_any_leak", "keep_separate_from_P01_cleanup_and_result"],
+      "fallback_path": "Use the smallest tested collaborator scope or a redacted copy with an opening note; if safe isolation cannot be demonstrated, do not share the main Base and keep D0 incomplete.",
+      "r10_subchecks": {
+        "existing_evidence_unit_ref": "evidence://on-site/P03",
+        "creates_new_probe": false,
+        "creates_new_evidence_unit": false,
+        "checks": [
+          {
+            "subcheck_id": "P03-R10-raw-recurrence-visibility",
+            "minimum_test_action": ["with_the_unprivileged_identity_open_and_refresh_all_five_business_views", "attempt_direct_clusters_table_access", "attempt_to_read_raw_recurrence_records_from_each_access_surface", "compare_raw_recurrence_records_visibility_with_day_7_result_day_30_result_and_human_conclusion_permissions"],
+            "expected_result": ["raw_recurrence_records_is_hidden_in_all_five_business_views", "raw_recurrence_records_is_not_visible_through_direct_clusters_table_access", "recurrence_visibility_is_no_broader_than_the_intersection_of_the_three_source_field_permissions"],
+            "failure_criteria": ["any_business_view_exposes_raw_recurrence_records", "direct_table_access_exposes_raw_recurrence_records", "recurrence_visibility_is_broader_than_any_source_field", "refresh_or_relogin_changes_the_deny_boundary"],
+            "cleanup_rollback": ["stop_sharing_immediately_on_any_raw_visibility_leak", "revoke_the_temporary_unprivileged_identity", "preserve_redacted_view_and_direct_table_failure_indexes"],
+            "fallback_path": "Hide the raw field completely and keep R10 execution_mode=insufficient; do not add a helper field, sixth view or eleventh table.",
+            "execution_status": "not_tested",
+            "result": null,
+            "evidence": null
+          },
+          {
+            "subcheck_id": "P03-R10-attestation-lifecycle-and-recheck",
+            "minimum_test_action": ["bind_the_P03_visibility_result_to_the_same_P02_permission_snapshot_and_revision", "verify_issued_at_less_than_or_equal_to_checked_at_and_checked_at_less_than_expires_at", "change_or_expire_the_temporary_permission_revision_before_the_minimum_reversible_write_attempt", "recheck_attestation_revision_expiry_selector_and_locator_immediately_before_CAS", "record_capability_rechecked_at_only_in_trusted_execution_evidence_and_target_ack"],
+            "expected_result": ["only_complete_P02_plus_P03_may_form_the_normalized_P02+P03_candidate", "permission_revision_drift_expiry_or_visibility_false_stops_with_platform_capability_insufficient_and_zero_writes", "capability_rechecked_at_does_not_change_sealed_plan_identity_or_directive"],
+            "failure_criteria": ["P03_or_P02_alone_forms_onsite_verified", "stale_or_expired_attestation_reaches_write", "permission_drift_is_ignored", "capability_rechecked_at_enters_plan_identity_or_public_artifact"],
+            "cleanup_rollback": ["restore_only_the_named_temporary_permission_revision", "revoke_temporary_collaborator_and_attestation_scope", "preserve_minimum_redacted_recheck_evidence"],
+            "fallback_path": "Before complete P02+P03 evidence exists, keep verification_status=not_tested and execution_mode=insufficient; if the probe has run but capability is limited, record only the probe capability result as \"受限\" and never write verification_status=restricted.",
+            "execution_status": "not_tested",
+            "result": null,
+            "evidence": null
+          }
+        ]
+      },
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P04",
+      "capability": "飞书 AI / Base AI",
+      "depends_on": ["P02"],
+      "preconditions": ["P02_result_allows_synthetic_record_test", "AI_entry_or_quota_explicitly_available_for_test"],
+      "required_logical_roles": ["feedback_understanding", "case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "administrator_if_AI_product_or_quota_requires_enablement"],
+      "operation_category": "ai_runtime",
+      "writes": true,
+      "write_scope": "temporary_AI_run_and_audit_output",
+      "reversible": true,
+      "minimum_test_action": ["run_valid_N1_structured_sample", "run_N5_existing_cluster_candidate_and_capture_repository_issued_receipt", "before_receipt_issue_evaluate_shared_window_opened_at_less_than_closed_at_less_than_or_equal_to_min_occurred_at_day30ExpectedAt", "when_day7_is_sealed_by_existing_checkpoint_or_occurred_at_greater_than_day7ExpectedAt_reject_closed_at_less_than_or_equal_to_day7ExpectedAt_before_receipt_issue", "attempt_N5_receipt_reuse_for_N6_action", "run_prompt_injection_sample", "force_invalid_schema_twice_with_same_version"],
+      "expected_result": ["fourteen_field_envelope_is_observable", "N5_existing_cluster_receipt_binds_action_candidate_and_validation_fingerprint", "pre_receipt_guard_rejects_both_closed_at_less_than_day7ExpectedAt_and_equal_millisecond_when_day7_is_sealed", "only_closed_at_greater_than_day7ExpectedAt_and_inside_the_shared_window_can_remain_Day30_eligible", "N5_capability_consumption_outcome_is_recorded_independently_from_receipt_issue_and_business_commit_write_outcomes", "N5_receipt_is_rejected_for_N6_action", "untrusted_text_instruction_is_not_executed", "only_one_schema_repair_retry_occurs", "second_failure_stops_and_routes_to_human"],
+      "failure_criteria": ["free_text_only_without_valid_envelope", "no_run_or_error_trace", "N5_existing_cluster_receipt_is_missing_or_not_action_scoped", "receipt_is_issued_after_the_pre_receipt_Day7_guard_rejects_the_candidate", "equal_millisecond_closed_at_is_treated_as_Day30_eligible", "capability_consumption_is_collapsed_into_a_business_commit_or_write_result", "N5_receipt_is_accepted_for_N6_action", "more_than_one_retry", "chain_continues_after_second_failure", "forbidden_action_is_available"],
+      "failure_class_refs": ["F03", "F06"],
+      "evidence_unit_ref": "evidence://on-site/P04",
+      "cleanup_rollback": ["stop_temporary_node_trigger", "invalidate_only_the_named_temporary_N5_receipt", "preserve_actual_failed_envelopes", "do_not_fabricate_ai_audit_when_no_AI_attempt_occurred"],
+      "fallback_path": "Use the seven-node contracts as manual worksheets and record only manual-fallback evidence; this does not count as node runtime evidence.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P05",
+      "capability": "自动化 / 工作流",
+      "depends_on": ["P02"],
+      "preconditions": ["P02_result_allows_temporary_automation", "owner_or_automation_manager_available"],
+      "required_logical_roles": ["feedback_understanding", "case_coordination", "improvement_insight"],
+      "required_actors": ["participant_or_Base_owner", "administrator_if_automation_management_is_restricted"],
+      "operation_category": "automation_workflow",
+      "writes": true,
+      "write_scope": "temporary_trigger_branch_field_update_and_notification",
+      "reversible": true,
+      "minimum_test_action": ["run_trigger_condition_and_test_field_update", "exercise_enter_observation_human_authorization_in_observation_phase_while_holding_zero_resource_locks", "after_enter_observation_approval_run_one_atomic_commit_inside_the_full_resource_lock", "attempt_to_inject_cycle_clock_timestamp_history_receipt_grant_principal_and_policy_fields", "run_record_day_7_as_an_independent_deterministic_transaction_without_caller_actor_AI_or_authorizer", "run_record_day_30_as_an_independent_deterministic_transaction_after_committed_Day7", "verify_checkpoint_sources_use_only_committed_active_intake_and_committed_recurrence_reopen_history", "verify_Day30_cumulatively_contains_Day7_sources_and_null_denominator_returns_null_rate", "force_audit_pending_then_replay_the_same_event_and_verify_audit_only_repair_without_business_reexecution", "exercise_pre_receipt_and_final_full_lock_shared_Day7_closed_window_guards", "run_checkpoint_first_then_intake_second_race_after_receipt_and_human_authorization", "exercise_closed_at_less_than_equal_to_and_greater_than_day7ExpectedAt_matrix_inside_the_shared_window", "run_authorized_intake_active_observation_recurrence_inside_full_resource_lock", "run_deliberate_intake_failure_and_verify_atomic_rollback", "compare_state_and_sla_before_after"],
+      "expected_result": ["success_and_failure_runs_are_traceable", "enter_observation_is_the_only_D1_observation_action_that_calls_the_human_authorizer", "enter_observation_waits_for_human_authorization_with_zero_case_cluster_or_improvement_resource_locks", "approved_enter_observation_rechecks_trusted_clock_and_commits_atomically_inside_the_full_resource_lock", "cycle_history_receipt_occurrence_time_and_clock_source_are_generated_by_trusted_system_ports_and_repository_state", "record_day_7_and_record_day_30_accept_no_caller_actor_AI_or_authorizer_and_commit_in_separate_deterministic_transactions", "record_day_30_requires_committed_Day7_and_cumulatively_contains_all_Day7_recurrence_sources", "only_committed_active_intake_and_committed_recurrence_reopen_history_for_the_same_cycle_are_checkpoint_sources", "reopen_history_is_read_only_source_evidence_and_archive_or_reopen_is_not_executed_by_D1", "null_related_task_volume_preserves_recurrence_count_and_sets_recurrence_rate_null", "audit_pending_repair_and_same_event_replay_return_the_cached_business_result_without_regenerating_IDs_authorizing_or_committing_business", "both_guard_points_use_opened_at_less_than_closed_at_less_than_or_equal_to_min_occurred_at_day30ExpectedAt", "day7_is_sealed_when_checkpoint_exists_or_occurred_at_is_greater_than_day7ExpectedAt", "sealed_day7_rejects_closed_at_less_than_or_equal_to_day7ExpectedAt_including_equal_millisecond", "only_closed_at_greater_than_day7ExpectedAt_and_still_inside_the_shared_window_is_Day30_eligible", "receipt_then_checkpoint_then_commit_race_is_rejected_by_the_final_full_lock_guard", "race_rejection_keeps_business_and_W6_durable_state_writes_at_zero_even_when_N5_receipt_and_human_capabilities_were_consumed", "capability_consumption_and_business_commit_write_outcomes_are_recorded_as_independent_outcomes_that_can_coexist", "authorized_recurrence_intake_is_atomic_inside_full_resource_lock", "intake_writes_only_clusters_member_case_ids_and_appends_recurrence_records_and_audit", "intake_does_not_write_cases_cluster_id_or_status_feedback_ownership_or_improvement_cycle_or_status", "failed_intake_rolls_back_membership_and_recurrence_record_together_and_keeps_failure_audit_or_audit_pending", "successful_business_commit_with_audit_failure_keeps_commit_and_marks_audit_pending", "same_workflow_audit_id_replay_repairs_only_audit_without_repeating_N5_authorization_or_business_write", "human_authorization_and_Day7_Day30_checkpoint_are_separate_transactions", "failure_keeps_previous_state", "failure_keeps_sla_started_at", "downstream_steps_stop"],
+      "failure_criteria": ["trigger_or_branch_unavailable", "enter_observation_authorization_wait_holds_a_case_cluster_or_improvement_resource_lock", "enter_observation_commits_outside_one_full_resource_lock_or_accepts_caller_generated_trusted_fields", "record_day_7_or_record_day_30_accepts_caller_actor_invokes_AI_or_calls_a_human_authorizer", "Day7_or_Day30_shares_the_enter_observation_transaction", "checkpoint_reads_candidate_rejected_uncommitted_or_other_cycle_recurrence", "Day30_omits_a_committed_Day7_source_or_runs_without_committed_Day7", "null_denominator_coerces_the_rate_to_zero_or_discards_the_authoritative_recurrence_count", "audit_only_repair_or_same_event_replay_reauthorizes_regenerates_IDs_or_repeats_business_writes", "archive_or_reopen_action_is_executed_as_part_of_D1", "pre_receipt_and_final_full_lock_guards_do_not_share_the_exact_Day7_closed_window_predicate", "checkpoint_first_intake_second_race_commits_a_closed_at_less_than_or_equal_to_day7ExpectedAt_candidate", "equal_millisecond_candidate_is_not_rejected_after_Day7_is_sealed", "closed_at_greater_than_day7ExpectedAt_is_marked_Day30_eligible_outside_the_shared_window", "rejected_race_mutates_business_or_W6_durable_state", "consumed_N5_receipt_or_human_authorization_is_reported_as_a_successful_business_commit", "failure_has_no_trace_or_audit_pending_marker", "intake_executes_outside_full_resource_lock", "partial_intake_write_survives_failure", "intake_writes_forbidden_case_feedback_or_improvement_fields", "audit_failure_rolls_back_a_successful_business_commit", "audit_repair_repeats_N5_authorization_or_business_write", "checkpoint_shares_the_human_authorization_transaction", "checkpoint_reads_uncommitted_intake", "status_advances_on_failure", "sla_start_changes", "quota_blocks_required_D0_path"],
+      "failure_class_refs": ["F03", "F07"],
+      "evidence_unit_ref": "evidence://on-site/P05",
+      "cleanup_rollback": ["disable_only_named_temporary_automation", "restore_the_exact_pre_intake_cluster_snapshot_when_the_business_branch_fails", "preserve_rejected_failed_and_audit_pending_run_history", "repair_only_the_same_workflow_audit_id_without_replaying_business_effects", "preserve_original_observation_clock", "never_disable_formal_or_unlisted_automation"],
+      "fallback_path": "Use protected status fields, filtered views, an ordered human checklist and append-only audit; do not claim six workflow runtime evidence.",
+      "day7_edge_contract": {
+        "shared_window": "opened_at < closed_at <= min(occurred_at, day30ExpectedAt)",
+        "day7_sealed_if": ["day7_checkpoint_exists", "occurred_at > day7ExpectedAt"],
+        "guard_points": ["before_repository_receipt_issue", "inside_full_resource_lock_immediately_before_business_commit"],
+        "sealed_boundary_matrix": [
+          { "closed_at_relation": "closed_at < day7ExpectedAt", "expected_decision": "reject", "business_durable_writes": 0, "W6_durable_state_writes": 0 },
+          { "closed_at_relation": "closed_at == day7ExpectedAt", "expected_decision": "reject", "business_durable_writes": 0, "W6_durable_state_writes": 0 },
+          { "closed_at_relation": "closed_at > day7ExpectedAt", "additional_requirement": "shared_window_passes", "expected_decision": "Day30_eligible_not_committed_by_this_check" }
+        ],
+        "checkpoint_first_intake_second_race": {
+          "order": ["N5_receipt_issued", "human_recurrence_authorization_recorded", "Day7_checkpoint_committed", "final_guard_rechecked_inside_full_resource_lock"],
+          "closed_at_condition": "closed_at <= day7ExpectedAt",
+          "expected_decision": "reject",
+          "business_durable_writes": 0,
+          "W6_durable_state_writes": 0
+        },
+        "independent_outcomes": {
+          "capability_consumption": ["N5_capability_consumed", "N5_receipt_consumed_when_applicable", "human_authorization_capability_consumed_when_applicable"],
+          "business_commit": "not_committed_on_guard_rejection",
+          "business_write_count": 0,
+          "rule": "Capability consumption may be true while business commit is false and business or W6 durable writes remain zero; record both outcomes separately."
+        }
+      },
+      "batch_d1_observation_action_contract": {
+        "workflow_id": "W6",
+        "workflow_count_after_extension": 6,
+        "actions": ["enter_observation", "record_day_7", "record_day_30"],
+        "excluded_actions": ["archive_observation", "reopen_recurrence"],
+        "excluded_action_categories": ["archive", "reopen"],
+        "excluded_action_history_rule": "Committed recurrence-reopen history may be read as an authoritative checkpoint source, but D1 does not expose or execute archive or reopen actions.",
+        "enter_observation": {
+          "phase": "observation",
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "actor", "reason"],
+          "human_authorization_required": true,
+          "authorization_wait_resource_locks_held": [],
+          "authorization_wait_business_writes": [],
+          "commit_boundary": "single_atomic_commit_inside_full_case_cluster_improvement_resource_lock_after_trusted_clock_recheck",
+          "AI_used": false,
+          "system_generated_fields": ["cycle_id", "history_id", "receipt_id", "occurred_at", "clock_source"],
+          "caller_forbidden_fields": ["cycle_id", "history_id", "receipt_id", "occurred_at", "clock_source", "grant", "principal", "policy_version"]
+        },
+        "record_day_7": {
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+          "caller_actor_allowed": false,
+          "AI_used": false,
+          "human_authorizer_called": false,
+          "transaction_boundary": "separate_deterministic_checkpoint_transaction_at_exact_expected_at_with_clock_source_match_and_lock_wait_recheck",
+          "system_generated_fields": ["history_id", "receipt_id", "occurred_at", "clock_source", "recurrence_case_ids", "checkpoint_id"],
+          "caller_forbidden_fields": ["actor", "AI", "authorizer", "history_id", "receipt_id", "occurred_at", "clock_source", "recurrence_case_ids", "checkpoint_id"]
+        },
+        "record_day_30": {
+          "caller_allowed_fields": ["action", "event_id", "case_ids", "cluster_id", "improvement_id", "cycle_id", "related_task_volume"],
+          "caller_actor_allowed": false,
+          "AI_used": false,
+          "human_authorizer_called": false,
+          "transaction_boundary": "separate_deterministic_checkpoint_transaction_at_exact_expected_at_with_clock_source_match_and_lock_wait_recheck",
+          "committed_day_7_required": true,
+          "cumulative_includes_day_7": true,
+          "system_generated_fields": ["history_id", "receipt_id", "occurred_at", "clock_source", "recurrence_case_ids", "checkpoint_id"],
+          "caller_forbidden_fields": ["actor", "AI", "authorizer", "history_id", "receipt_id", "occurred_at", "clock_source", "recurrence_case_ids", "checkpoint_id"]
+        },
+        "recurrence_source_contract": {
+          "allowed_authoritative_sources": ["committed_active_observation_intake_history_for_same_cycle", "committed_recurrence_reopen_cycle_facts_for_same_cycle"],
+          "excluded_sources": ["candidate", "authorization_only", "receipt_only", "rejected", "rolled_back", "uncommitted", "other_cycle"],
+          "Day30_is_cumulative": true
+        },
+        "rate_contract": {
+          "related_task_volume_allowed": "null_or_positive_safe_integer_not_below_authoritative_recurrence_count",
+          "null_denominator_result": "preserve_recurrence_count_and_set_recurrence_rate_null"
+        },
+        "audit_repair_and_event_replay_contract": {
+          "audit_pending": "business_result_remains_authoritative_and_only_the_same_audit_identity_may_be_repaired",
+          "same_event_same_payload": "return_cached_business_result_and_repair_pending_audit_only",
+          "same_event_different_payload": "event_conflict",
+          "forbidden_on_replay": ["regenerate_ids", "repeat_authorization", "repeat_business_commit", "repeat_business_write", "rerun_AI"]
+        }
+      },
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P06",
+      "capability": "审批",
+      "depends_on": ["P02", "P05"],
+      "preconditions": ["temporary_confirmation_fields_exist", "approver_identity_is_known"],
+      "required_logical_roles": ["case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "approver", "administrator_if_approval_template_requires_approval"],
+      "operation_category": "approval",
+      "writes": true,
+      "write_scope": "temporary_approval_instance_and_protected_confirmation_fields",
+      "reversible": true,
+      "minimum_test_action": ["submit_one_synthetic_approval", "exercise_enter_observation_approve_and_deny_in_observation_phase", "verify_enter_observation_authorizer_wait_holds_zero_case_cluster_or_improvement_resource_locks", "verify_approve_precedes_one_atomic_enter_observation_commit_and_deny_stops_before_commit", "verify_record_day_7_and_record_day_30_create_or_consume_no_human_authorization", "exercise_recurrence_approve_and_deny", "verify_approve_precedes_intake_and_deny_stops_intake", "after_approve_exercise_receipt_then_checkpoint_then_final_guard_race_with_closed_at_less_than_or_equal_to_day7ExpectedAt", "capture_human_authorization_capability_consumption_separately_from_business_commit_and_write_outcomes", "verify_Day7_Day30_checkpoint_is_not_part_of_the_human_authorization_transaction", "verify_formal_fields_before_and_after"],
+      "expected_result": ["unapproved_action_cannot_change_formal_field", "enter_observation_is_authorized_by_one_human_in_observation_phase", "enter_observation_authorization_wait_holds_zero_resource_locks_and_writes_no_business_state", "approved_enter_observation_commits_once_inside_the_full_resource_lock_after_trusted_clock_recheck", "denied_enter_observation_stops_before_business_commit", "record_day_7_and_record_day_30_use_no_human_authorization_instance_or_capability", "recurrence_approve_and_deny_are_traceable", "approved_decision_binds_the_N5_existing_cluster_receipt_and_authorized_action", "denied_decision_cannot_reach_intake", "approved_human_capability_may_be_consumed_before_a_final_guard_rejection_without_any_business_or_W6_durable_state_write", "approval_outcome_does_not_imply_business_commit_or_Day30_eligibility", "human_authorization_transaction_does_not_execute_Day7_or_Day30_checkpoint", "human_gate_actor_is_recorded"],
+      "failure_criteria": ["approval_entry_missing", "Base_relation_unavailable", "enter_observation_runs_without_explicit_observation_phase_human_approval", "enter_observation_authorization_wait_holds_a_resource_lock_or_mutates_business_state", "denied_enter_observation_reaches_atomic_commit", "record_day_7_or_record_day_30_calls_or_consumes_a_human_authorizer", "recurrence_intake_runs_without_explicit_human_approval", "denied_recurrence_reaches_intake", "approval_is_reported_as_business_commit_when_the_final_Day7_guard_rejects", "final_guard_rejection_rewrites_or_erases_the_consumed_human_authorization_outcome", "checkpoint_first_intake_second_rejection_mutates_business_or_W6_durable_state", "authorization_and_checkpoint_share_one_transaction", "unapproved_action_changes_formal_field", "approver_scope_is_unsafe_or_unknown"],
+      "failure_class_refs": ["F02", "F03", "F08"],
+      "evidence_unit_ref": "evidence://on-site/P06",
+      "cleanup_rollback": ["close_or_mark_temporary_instance_invalid", "revoke_temporary_approver", "preserve_decision_history"],
+      "fallback_path": "Use protected confirmation status, reviewer and review-time fields verified again under P03; never bypass a required human gate.",
+      "batch_d1_approval_contract": {
+        "workflow_id": "W6",
+        "scope_actions": ["enter_observation", "record_day_7", "record_day_30"],
+        "human_authorized_action": "enter_observation",
+        "authorization_phase": "observation",
+        "authorization_wait_resource_locks_held": [],
+        "deny_boundary": "stop_before_business_lock_and_business_commit_with_zero_business_writes",
+        "approve_boundary": "bind_the_exact_enter_observation_transition_then_recheck_trusted_clock_and_commit_once_inside_the_full_resource_lock",
+        "deterministic_actions_without_human_authorization": ["record_day_7", "record_day_30"],
+        "separate_transaction_rule": "No Day7 or Day30 checkpoint is created or committed in the enter_observation authorization transaction."
+      },
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P07",
+      "capability": "机器人",
+      "depends_on": ["P02", "P05"],
+      "preconditions": ["dedicated_test_conversation_exists", "recipient_scope_is_known"],
+      "required_logical_roles": ["case_coordination"],
+      "required_actors": ["participant", "test_recipient", "administrator_if_bot_installation_or_conversation_access_is_restricted"],
+      "operation_category": "bot_notification",
+      "writes": true,
+      "write_scope": "two_redacted_test_messages",
+      "reversible": true,
+      "minimum_test_action": ["send_one_synthetic_reminder", "send_one_synthetic_error_notice", "inspect_recipient_visibility_and_payload"],
+      "expected_result": ["intended_recipient_receives_both_messages", "no_protected_or_sensitive_field_is_exposed", "send_failure_is_traceable"],
+      "failure_criteria": ["bot_or_conversation_entry_missing", "message_cannot_reach_intended_scope", "unauthorized_recipient_can_read", "failure_has_no_fallback"],
+      "failure_class_refs": ["F03", "F07", "F11"],
+      "evidence_unit_ref": "evidence://on-site/P07",
+      "cleanup_rollback": ["remove_temporary_bot_or_test_conversation_membership", "keep_redacted_send_and_receive_index", "do_not_delete_formal_conversation_history"],
+      "fallback_path": "Use the tested Base notification, mention or human duty checklist; the bot is not a core single point.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P08",
+      "capability": "知识库",
+      "depends_on": ["P02"],
+      "preconditions": ["synthetic_approved_and_unapproved_knowledge_samples_ready", "knowledge_space_or_Base_fallback_scope_known"],
+      "required_logical_roles": ["case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "knowledge_reviewer", "knowledge_administrator_if_space_or_publication_permission_is_required"],
+      "operation_category": "knowledge",
+      "writes": true,
+      "write_scope": "temporary_synthetic_knowledge_records_and_review_state",
+      "reversible": true,
+      "minimum_test_action": ["read_approved_synthetic_entry", "reject_unapproved_entry_as_N7_citation", "exercise_publication_review_boundary"],
+      "expected_result": ["approved_effective_entry_is_readable", "unapproved_entry_is_not_a_formal_citation", "publication_requires_authorized_human"],
+      "failure_criteria": ["knowledge_entry_or_read_scope_missing", "unapproved_content_can_be_formally_cited", "publication_bypasses_review"],
+      "failure_class_refs": ["F02", "F03"],
+      "evidence_unit_ref": "evidence://on-site/P08",
+      "cleanup_rollback": ["revoke_temporary_space_or_entry_permission", "keep_review_history", "remove_only_unreferenced_SYN_PERMISSION_TEST_entry"],
+      "fallback_path": "Use the Base knowledge_index table and stop N7 when no approved effective source exists.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P09",
+      "capability": "妙搭",
+      "depends_on": ["P02", "P03"],
+      "preconditions": ["competition_rules_allow_miaoda", "P02_and_P03_results_allow_redacted_five_view_access"],
+      "required_logical_roles": ["feedback_understanding", "case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "administrator_if_product_data_source_or_publication_permission_is_required"],
+      "operation_category": "miaoda",
+      "writes": true,
+      "write_scope": "temporary_minimal_app_and_pending_approval_suggestion",
+      "reversible": true,
+      "minimum_test_action": ["open_or_create_minimal_test_app", "read_redacted_five_view_data", "write_only_pending_approval_suggestion"],
+      "expected_result": ["read_scope_matches_allowed_views", "write_does_not_change_formal_state", "forbidden_vehicle_action_is_absent"],
+      "failure_criteria": ["entry_or_data_source_missing", "permission_boundary_cannot_be_enforced", "formal_state_changes_without_approval", "unstable_path_blocks_repeatability"],
+      "failure_class_refs": ["F01", "F03"],
+      "evidence_unit_ref": "evidence://on-site/P09",
+      "cleanup_rollback": ["unpublish_or_disable_temporary_app", "revoke_temporary_data_source_permission", "preserve_access_boundary_evidence"],
+      "fallback_path": "Return to the five Base views. Miaoda is D1 and cannot replace D0.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P10",
+      "capability": "Aily",
+      "depends_on": ["P02"],
+      "preconditions": ["competition_rules_allow_Aily", "read_only_or_draft_only_tool_scope_can_be_requested"],
+      "required_logical_roles": ["feedback_understanding", "case_coordination", "improvement_insight"],
+      "required_actors": ["participant", "administrator_if_Aily_knowledge_or_tool_scope_is_required"],
+      "operation_category": "aily",
+      "writes": true,
+      "write_scope": "temporary_query_explanation_and_pending_draft_entry",
+      "reversible": true,
+      "minimum_test_action": ["run_query_explanation_and_draft", "request_each_forbidden_action", "attempt_formal_state_change"],
+      "expected_result": ["only_query_explanation_and_draft_are_allowed", "formal_write_becomes_pending_approval_only", "all_forbidden_actions_are_rejected"],
+      "failure_criteria": ["entry_or_tool_scope_missing", "second_state_machine_is_created", "formal_state_can_change_directly", "forbidden_action_is_exposed"],
+      "failure_class_refs": ["F01", "F03"],
+      "evidence_unit_ref": "evidence://on-site/P10",
+      "cleanup_rollback": ["disable_temporary_Aily_entry", "revoke_temporary_tool_and_knowledge_scope", "preserve_refusal_evidence"],
+      "fallback_path": "Omit the D2 conversation entry and retain the Base core, seven node contracts and six workflow contracts.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P11",
+      "capability": "企业自建应用",
+      "depends_on": [],
+      "preconditions": ["competition_rules_explicitly_allow_self_built_app", "participant_accepts_credential_ownership", "administrator_review_path_is_known"],
+      "required_logical_roles": [],
+      "required_actors": ["participant", "administrator"],
+      "operation_category": "self_built_app",
+      "writes": true,
+      "write_scope": "temporary_application_configuration_and_minimum_scope_request",
+      "reversible": true,
+      "minimum_test_action": ["check_creation_entry", "request_only_minimum_Base_scope", "add_only_required_collaborator_or_resource_access", "submit_administrator_review"],
+      "expected_result": ["competition_permission_is_recorded", "application_and_resource_access_boundaries_are_visible", "administrator_decision_is_traceable"],
+      "failure_criteria": ["rules_are_unknown", "participant_did_not_accept_credential_ownership", "administrator_path_missing", "scope_request_is_broader_than_minimum"],
+      "failure_class_refs": ["F02", "F10"],
+      "evidence_unit_ref": "evidence://on-site/P11",
+      "cleanup_rollback": ["revoke_temporary_application_or_scope_request", "remove_temporary_resource_collaboration", "participant_rotates_or_removes_temporary_credentials"],
+      "fallback_path": "Do not enable external access; use forms, native import and manual import. Keep P12 and P13 not tested when their prerequisites are absent.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P12",
+      "capability": "Base OpenAPI",
+      "depends_on": ["P11"],
+      "preconditions": ["P11_application_and_administrator_gate_satisfied", "application_is_authorized_for_target_temporary_Base", "participant_completed_required_OAuth_or_credential_action"],
+      "required_logical_roles": ["feedback_understanding"],
+      "required_actors": ["participant", "administrator"],
+      "operation_category": "base_openapi",
+      "writes": true,
+      "write_scope": "read_only_metadata_then_one_exact_reversible_synthetic_record",
+      "reversible": true,
+      "minimum_test_action": ["check_bitable_app_scope", "read_Base_metadata", "list_tables_or_fields", "create_read_and_exactly_clean_one_SYN_PERMISSION_TEST_record", "classify_permission_rate_limit_timeout_and_validation_errors"],
+      "expected_result": ["read_probe_precedes_write", "minimum_write_is_traceable_and_reversible", "single_Base_writes_are_serial", "error_classes_are_distinct", "idempotent_resume_rule_is_defined"],
+      "failure_criteria": ["P11_or_resource_collaboration_missing", "bitable_app_scope_missing", "write_occurs_before_read_probe", "unknown_commit_state_is_retried_without_marker_lookup", "broad_permission_is_used_to_bypass_failure"],
+      "failure_class_refs": ["F02", "F07", "F12"],
+      "evidence_unit_ref": "evidence://on-site/P12",
+      "cleanup_rollback": ["stop_new_writes", "query_exact_synthetic_marker_before_retry", "clean_only_exact_unreferenced_record", "participant_revokes_temporary_token_or_OAuth_and_administrator_removes_resource_access"],
+      "fallback_path": "Use forms, native import or reviewed manual import; OpenAPI remains non-core and disabled.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    },
+    {
+      "probe_id": "P13",
+      "capability": "lark-cli",
+      "depends_on": ["P11"],
+      "preconditions": ["competition_rules_explicitly_allow_official_lark_cli", "participant_explicitly_allows_installation", "P11_application_and_administrator_gate_satisfied"],
+      "required_logical_roles": [],
+      "required_actors": ["participant", "administrator_if_application_scope_is_pending"],
+      "operation_category": "lark_cli",
+      "writes": true,
+      "write_scope": "local_install_configuration_and_OAuth_credential_store",
+      "reversible": true,
+      "minimum_test_action": ["record_official_version_and_help", "participant_runs_config_and_OAuth", "run_auth_status_verify", "run_exact_auth_check_for_bitable_app_readonly", "machine_verify_dedicated_application_binding_without_persisting_identifiers", "perform_read_only_Base_schema_probe_before_any_write"],
+      "expected_result": ["installed_version_and_source_are_recorded", "online_version_evidence_plus_verified_user_status_and_exact_scope_check_form_the_user_readonly_scope_gate", "dedicated_application_binding_is_machine_verified_by_in_memory_identifier_equality_with_one_candidate_and_zero_identifier_exposure", "auth_scopes_is_optional_limited_diagnostic_and_never_requires_application_self_manage", "auth_check_exit_is_recorded", "no_authorization_URL_device_code_or_credential_is_persisted_in_repository"],
+      "failure_criteria": ["rules_or_install_consent_missing", "OAuth_incomplete", "required_scope_missing", "auth_scopes_diagnostic_is_treated_as_a_hard_gate_or_application_self_manage_is_requested", "dedicated_application_binding_is_ambiguous_unverified_or_persists_identifiers", "output_contains_sensitive_auth_material", "CLI_is_used_to_bypass_P02_or_P03", "P13_is_completed_before_the_P12_read_only_Base_schema_probe_has_a_real_result"],
+      "failure_class_refs": ["F02", "F10", "F11"],
+      "evidence_unit_ref": "evidence://on-site/P13",
+      "cleanup_rollback": ["participant_logs_out_or_revokes_temporary_OAuth", "remove_test_configuration_only_after_evidence_index_is_preserved", "verify_credential_store_has_no_test_identity"],
+      "fallback_path": "Use the Feishu interface and offline/fake project tools; lark-cli is D1 and cannot replace D0.",
+      "execution_status": "not_tested",
+      "result": null,
+      "evidence": null
+    }
+  ]
+}
