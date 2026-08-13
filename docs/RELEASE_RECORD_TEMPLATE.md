@@ -6,6 +6,8 @@
 - Date/time: TBD
 - Release owner/approver: TBD
 - Scope: TBD
+- Workflow run ID: TBD
+- Run kind: TBD
 - Production URL: https://shiting-neoloop-demo.netlify.app
 - Repository: https://github.com/b46ngpvmbt-create/shiting-neoloop
 
@@ -13,12 +15,15 @@
 
 - Branch: TBD
 - Git SHA: TBD
+- Workflow candidate ID: TBD
+- Source tree identity: TBD
 - Remote SHA: TBD
 - Runtime: TBD
 - Package manager: TBD
 - Provider CLI: TBD
 - Build command: `npm run build:netlify`
 - Output directory: `netlify-dist`
+- Build recipe SHA-256: TBD
 - Local artifact SHA-256: TBD
 
 ## Gates
@@ -33,15 +38,25 @@
 
 ## Preview
 
+- Operation ID: TBD
 - URL: TBD
 - Deploy ID: TBD
 - Entry HTML SHA-256: TBD
 - Anonymous HTTP/assets: TBD
 - Browser result: TBD
-- Approval: TBD
+- Preview approver/scope/time: TBD
+- Approval bound candidate: TBD
+
+## Production approval
+
+- Approver/scope/time: TBD
+- Stable target: https://shiting-neoloop-demo.netlify.app
+- Bound candidate: TBD
+- Rollback readiness: TBD
 
 ## Production
 
+- Operation ID: TBD
 - URL: https://shiting-neoloop-demo.netlify.app
 - Deploy ID: TBD
 - Entry HTML SHA-256: TBD

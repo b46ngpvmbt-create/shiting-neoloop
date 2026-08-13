@@ -6,9 +6,12 @@
 
 公开交互演示：[https://shiting-neoloop-demo.netlify.app](https://shiting-neoloop-demo.netlify.app)。该站点提供完整的点击演示；全部业务内容均为合成样例，不依赖企业生产系统。
 
+飞书工作台：[https://shiting-neoloop-w2-edge.netlify.app](https://shiting-neoloop-w2-edge.netlify.app)。它已作为多维表格应用模式的自定义组件发布；在获授权的飞书宿主内读取、筛选和操作合成实验数据，无有效会话时保持只读且 fail-closed。它不代表已接入新石器真实业务数据，也不会执行车辆控制、自动判责、赔偿或最终根因认定。
+
 ## 这个仓库展示什么
 
 - 一个可点击的反馈闭环演示：产品概览、合成案件、问题簇和带人工关口的处置路径；
+- 一个已部署的飞书运营工作台：在同一页访问反馈接入、个案闭环、SLA 协同、问题地图、改进观察与 AI 审计；
 - 一个独立的参赛团队页面，只展示本次公开范围内的姓名、学校、专业和团队角色；参赛成员不映射为企业流程执行者；
 - 一份公开可读的方案边界：哪些是公开事实，哪些仍待企业验证；
 - 一组仅供演示的合成案例，不含真实客户、车辆、事故、运营数据或经营结论；
@@ -32,11 +35,11 @@ npm ci
 npm run dev
 ```
 
-打开终端给出的本地地址即可查看 React 交互版。`docs/` 下的零构建静态页面只用于功能缩减的 GitHub Pages 降级展示；直接打开 `docs/index.html` 或运行任意静态文件服务器可以检查该降级页。
+打开终端给出的本地地址查看 React 交互版；根路径是方案展示页，`/software` 是只读运营工作台。`docs/` 下的零构建静态页面只用于功能缩减的 GitHub Pages 降级展示；直接打开 `docs/index.html` 或运行任意静态文件服务器可以检查该降级页。
 
 ## 网站生产工作流
 
-完整、可复用的 Product Design → 开发 → 自动检查 → 浏览器 QA → Netlify Preview → GitHub 同步 → Production → 回滚流程见 [docs/WEBSITE_WORKFLOW.md](docs/WEBSITE_WORKFLOW.md)。
+完整、可续跑的 Product Design → 候选冻结 → 自动检查 → 浏览器 QA → Netlify Preview → 两次人工批准 → GitHub 同步 → Production → 回滚流程见 [docs/WEBSITE_WORKFLOW.md](docs/WEBSITE_WORKFLOW.md)。实时进度保存在被 Git 忽略的本地状态中，公开发布证据写入不可变发布记录。
 
 ```bash
 npm run check:release
@@ -60,7 +63,7 @@ npm run verify:deploy -- "https://shiting-neoloop-demo.netlify.app/"
 ```text
 app/                  React 交互版源文件
 docs/                 工作流、发布记录、边界说明与旧版降级页
-data/demo-cases.json  合成案例数据
+data/canonical/public 公开合成快照与五视图数据
 scripts/              Netlify 导出与公网验收脚本
 qa/                   设计参考与浏览器验收证据
 ```

@@ -5,7 +5,8 @@ import "./globals.css";
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const isLoopback = /^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(host);
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? (isLoopback ? "http" : "https");
   const baseUrl = new URL(`${protocol}://${host}`);
   const imageUrl = new URL("/og.png", baseUrl).toString();
 
@@ -25,6 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "石听 NeoLoop｜无人配送客户之声闭环中枢",
       description: "让每条反馈都找到一辆车、一个任务、一个责任人和一次改进。",
       images: [imageUrl],
+    },
+    icons: {
+      icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     },
   };
 }

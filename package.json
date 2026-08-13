@@ -14,7 +14,7 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "verify:deploy": "node scripts/verify-deploy.mjs",
-    "lint": "eslint . --ignore-pattern '**/dist/**' --ignore-pattern .next --ignore-pattern netlify-dist",
+    "lint": "eslint . --ignore-pattern '**/dist/**' --ignore-pattern '**/dist-v*/**' --ignore-pattern .next --ignore-pattern netlify-dist --ignore-pattern output --ignore-pattern video/neoloop-demo --ignore-pattern services/w2-edge-proxy/assets",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

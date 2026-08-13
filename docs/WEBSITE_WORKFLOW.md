@@ -68,41 +68,77 @@
 
 当前 `app/page.tsx`、`data/demo-cases.json` 和 `docs/app.js` 存在三套案件表达，且内容已漂移。新增主站内容以 `app/page.tsx` 为准；长期应迁移到一个结构化数据源，完成前不得把三者描述为同步数据。
 
-## 4. 端到端流程
+## 4. 可续跑的端到端流程
+
+实时状态保存在本地 `.codex/website-workflow-state.json`，必须被 Git 忽略，也不得进入网站构建输入。并发修改使用项目根目录锁，不产生额外锁文件。状态只记录当前阶段、简短证据、阻断原因和外部动作，不保存令牌、私密数据、完整日志或聊天。可公开、不可变的结果继续写入 `docs/releases/`。
+
+每次开始先运行：
+
+```bash
+python3 <skill-directory>/scripts/workflow_state.py status --project-root "$PWD"
+```
+
+没有状态时才执行 `init`。存在活动或阻断中的运行时必须续跑，不能凭聊天记忆另开一轮。每次只完成当前语义阶段；阶段 ID 不使用容易错位的 A、B、C 字母。新运行必须先用 `classify` 归类为 `site_release`、`docs_tooling_only` 或 `rollback`。`status` 返回当前 revision，`init` 之外的所有状态修改都必须带同一个 `--expect-revision`；revision 已变化时先重读，不能覆盖别人的进度。
+
+```bash
+# 初始化（仅在没有活动状态时）
+python3 <skill-directory>/scripts/workflow_state.py init \
+  --project-root "$PWD" \
+  --project-name "石听 NeoLoop" \
+  --site-url "https://shiting-neoloop-demo.netlify.app/"
+
+# 用 init 返回的 revision 归类本轮工作；这会完成 change_type 检查
+python3 <skill-directory>/scripts/workflow_state.py classify \
+  --project-root "$PWD" \
+  --kind site_release \
+  --evidence "网站源码、预览和正式发布均在本轮范围内" \
+  --expect-revision 0
+
+# 为当前阶段的一项检查记录简短证据
+python3 <skill-directory>/scripts/workflow_state.py record \
+  --project-root "$PWD" \
+  --phase <current-phase> \
+  --check <check-id> \
+  --evidence "<证据路径、哈希、URL、ID或简短结论>" \
+  --expect-revision <revision>
+
+# 当前阶段所有检查均有证据后，只前进一步
+python3 <skill-directory>/scripts/workflow_state.py advance \
+  --project-root "$PWD" \
+  --phase <current-phase> \
+  --expect-revision <revision>
+```
+
+等待用户或外部条件时用 `block --reason`，条件满足后用 `resume --resolution`；候选、内容、构建配方、批准范围或部署身份发生变化时，用 `reopen --phase <earliest-affected-phase> --reason` 使该阶段及下游证据失效。确实不适用的单项检查使用 `record --not-applicable "具体原因"`，但只能使用该变更类型的严格白名单，不能静默跳关或整轮绕过。完整参数以 `$build-release-websites` 的 `references/state-machine.md` 为准。
+
+四个阶段还必须存在已成功核验的动作记录：`candidate_freeze/git_commit`、`preview_deploy/preview_deploy`、`source_sync/git_push`、`production_promote/production_promote`；若该阶段的全部检查按当前变更类型合法地不适用，则无需制造空动作。冻结候选会建立唯一候选 ID，后续预览、推送和正式晋升都必须绑定同一个 ID。`prepare-operation` 只写入意图，不等于获得提交、推送、登录、部署或发布授权；连接中断后先核验远端，再 `resolve-operation`，不能盲目重试。
 
 ```mermaid
-flowchart LR
-  A[变更契约与公开边界] --> B[Product Design]
-  B --> C[源码实现]
-  C --> D[自动检查与浏览器 QA]
-  D --> E[Netlify Preview]
-  E --> F{人工批准}
-  F -->|退回| B
-  F -->|通过| G[GitHub 同步同一提交]
-  G --> H[同一产物发布 Production]
-  H --> I[匿名复验]
-  I --> J[发布记录与项目交接]
+flowchart TD
+  contract["change_contract｜变更契约"] --> design["product_design｜Product Design"]
+  design --> implementation["implementation｜源码实现"]
+  implementation --> freeze["candidate_freeze｜冻结本地候选"]
+  freeze --> local["local_gates｜确定性本地门槛"]
+  local --> browser["browser_qa｜浏览器 QA"]
+  browser --> previewDeploy["preview_deploy｜部署预览"]
+  previewDeploy --> previewVerify["preview_verify｜匿名复验"]
+  previewVerify --> previewApproval{"preview_approval｜预览批准"}
+  previewApproval -->|退回| design
+  previewApproval -->|通过| sourceSync["source_sync｜同步 GitHub"]
+  sourceSync --> productionApproval{"production_approval｜生产批准"}
+  productionApproval -->|暂缓/阻断| productionApproval
+  productionApproval -->|通过| productionPromote["production_promote｜晋升同一候选"]
+  productionPromote --> productionVerify["production_verify｜正式站复验"]
+  productionVerify --> handoff["handoff｜发布记录与交接"]
 ```
 
-### 阶段 A｜写变更契约
+### change_contract｜变更契约
 
-每次修改先记录：
+每次修改先用 `classify` 记录变更类型（网站发布、仅文档/工具或回滚），再记录目标和受众、受影响页面/状态、新增主张、数据来源、四类边界、个人信息影响、外部动作、自动/人工检查和回滚目标。`change_type` 不能用普通 `record` 伪造。
 
-```text
-目标和受众：
-受影响页面/状态：
-新增或改变的公开主张：
-数据来源和四类边界：
-个人信息影响：
-交互与部署影响：
-自动检查：
-人工检查：
-回滚目标：
-```
+旧简报、旧截图和旧静态页只能作为历史输入，不能覆盖更新日期更晚的项目决定或本人授权。`site_release` 与 `rollback` 只能在本轮没有公开个人信息变化时将 `personal_information` 标为不适用；`docs_tooling_only` 也只能跳过状态机明确列出的站点专属检查。候选冻结、内容边界、源码同步和交接始终需要正面证据。
 
-旧简报、旧截图和旧静态页只能作为历史输入，不能覆盖更新日期更晚的项目决定或本人授权。
-
-### 阶段 B｜Product Design
+### product_design｜Product Design
 
 在写代码前确认：
 
@@ -114,9 +150,9 @@ flowchart LR
 6. 响应式：桌面基准 `1440 × 1024`，移动基准 `390 × 844`。
 7. 文案边界：所有业务数据标注合成；企业角色、SLA、根因和成效继续标注待确认或示例。
 
-设计变化后更新 `design-qa.md`，截图名至少包含日期、提交 SHA、视口和页面/状态。
+设计变化后更新 `design-qa.md`，截图名至少包含日期、候选 SHA、视口和页面/状态。
 
-### 阶段 C｜源码实现
+### implementation｜源码实现
 
 - 只修改源文件，不编辑 `dist/` 或 `netlify-dist/`。
 - 新增真实路由、服务端请求或外部 API 前，先决定是否仍适合根路由静态导出。
@@ -124,9 +160,22 @@ flowchart LR
 - 保留语义化结构、替代文本、可见焦点、键盘可操作性和无横向溢出。
 - 本地点击只改变合成状态，不得新增真实工单、消息发送、数据上传或车辆指令。
 
-### 阶段 D｜本地发布门槛
+### candidate_freeze｜冻结候选
 
-标准运行时由 `.nvmrc` 和 `netlify.toml` 固定为 Node `22.13.0`。
+最终检查必须绑定一个已经形成的本地候选提交；用 `prepare-operation --kind git_commit` 与 `resolve-operation --outcome succeeded` 保存候选 ID 和提交证据。本地提交不等于获得推送或发布授权。
+
+```bash
+git diff --check
+git status --short --branch
+git add <明确文件>
+git commit -m "<说明>"
+git rev-parse HEAD
+git status --short --branch
+```
+
+记录 Git SHA、源码树、Node 22.13.0、锁文件、`npm run build:netlify` 和 `netlify-dist/`。冻结后只要网站源码、进入构建的公开内容、锁文件、运行时、构建或托管配置发生变化，就必须回退到最早受影响阶段并冻结新候选。被排除在构建输入外的本地状态和生产后发布记录不会重定义网站候选，但仍须可追溯。
+
+### local_gates｜确定性本地门槛
 
 ```bash
 node --version
@@ -135,27 +184,13 @@ npm ci
 npm run check:release
 npm audit --omit=dev
 npm audit
-```
-
-`npm run check:release` 依次执行 lint、SSR/边界测试和最终 Netlify 导出。现有脚本会重复构建，但 `build:netlify` 必须最后执行，保证 `netlify-dist/` 对应最新源码。
-
-审计结果需要记录和分级，不得把“静态站没有 Node 服务端运行时”写成“依赖无风险”。不要自动执行破坏性依赖升级。
-
-形成候选版本：
-
-```bash
-git diff --check
 git status --short --branch
-git add <明确文件>
-git commit -m "<说明>"
-git status --short --branch
-git rev-parse HEAD
 shasum -a 256 netlify-dist/index.html
 ```
 
-最终构建后如果任何受 Git 跟踪的源文件发生变化，当前 `netlify-dist/` 立即作废，必须重新执行完整门槛。
+`npm run check:release` 依次执行 lint、SSR/边界测试和最终 Netlify 导出。`build:netlify` 必须最后执行，保证 `netlify-dist/` 对应冻结候选。审计结果需要记录和分级；不得把静态托管写成“依赖无风险”，也不自动执行破坏性依赖升级。
 
-### 阶段 E｜浏览器 QA
+### browser_qa｜浏览器 QA
 
 | 检查面 | 必查内容 |
 | --- | --- |
@@ -169,30 +204,33 @@ shasum -a 256 netlify-dist/index.html
 | 技术状态 | 控制台无应用错误、同源资源无失败、刷新后本地状态重置 |
 | 分享信息 | 标题、描述、OG/Twitter 图和生产域名 |
 
-当前仓库没有自动浏览器 E2E；上述交互检查仍是正式人工门槛，不能因为 SSR 文本测试通过而省略。
+当前没有自动浏览器 E2E；上述交互检查仍是正式人工门槛，不能因为 SSR 文本测试通过而省略。
 
-### 阶段 F｜Netlify 预览
+### preview_deploy｜部署预览
 
-先确认登录和站点链接：
-
-```bash
-npx netlify status
-```
-
-只允许上传刚刚由当前干净提交生成并验收的目录：
+预览部署、登录或扩大 OAuth/账号权限范围都必须先确认已有授权；`prepare-operation` 只记录意图，不产生授权。授权范围满足后，运行 `npx netlify status` 核验登录和站点绑定，再记录候选、目标和唯一操作 ID，上传刚通过门槛的目录：
 
 ```bash
 npx netlify deploy --dir netlify-dist --no-build --json
+```
+
+收到 deploy ID 后只读核对，再用 `resolve-operation` 记录结果。若连接中断且结果未知，将结果记为 `unknown`；状态机会阻断，必须先查部署记录，不能盲目重试。
+
+### preview_verify｜预览复验
+
+```bash
 npm run verify:deploy -- "https://<preview-host>/"
 ```
 
-`--no-build` 的目的，是让 Netlify 接收已经通过本地门槛的同一产物；它不能用来绕过失败构建或发布未知旧目录。本机若出现 npm 缓存权限问题，可为单次命令使用 `npm_config_cache=/tmp/neoloop-npm-cache`，不要修改全局缓存权限来绕过问题。
+必须通过匿名 HTTP 200、固定边界文本、全部同源资源、桌面/移动关键流程、控制台和隐私白名单，并记录 preview URL、deploy ID、HTML SHA-256 与候选身份。
 
-预览必须通过：匿名 HTTP 200、固定边界文本、9 类当前同源资源、桌面/移动关键流程、控制台和隐私白名单。记录 preview URL、deploy ID、日志 URL、HTML SHA-256 和人工批准。
+### preview_approval｜预览批准
 
-### 阶段 G｜同步 GitHub
+由有权决定的人明确批准当前候选、预览地址、范围和已知问题，记录批准人、时间与对象。对旧候选、其他目标或其他范围的批准不能沿用。
 
-预览通过后、正式发布前，把同一候选提交同步到远端：
+### source_sync｜同步 GitHub
+
+预览批准后、正式发布前，把冻结候选同步到远端：
 
 ```bash
 git fetch origin
@@ -201,39 +239,35 @@ git push --progress origin main
 git rev-parse HEAD origin/main
 ```
 
-只有远端没有未合并提交，且本地/远端 SHA 一致，才进入正式发布。推送需要明确授权；公共仓库回滚优先使用 `git revert`，不未经授权重写历史或强推。
+推送前也先使用 `prepare-operation`；推送需要明确授权。只有远端没有未合并提交且 SHA 与候选一致，才可继续。公共仓库回滚优先 `git revert`，不未经授权重写历史或强推。若 HTTPS 长期无进度，只对单次命令尝试 `git -c http.version=HTTP/1.1 push --progress origin main`，不改全局配置。
 
-若 HTTPS 推送长期无进度，先核验 GitHub CLI/API，再仅对该次命令使用：
+### production_approval｜生产批准
 
-```bash
-git -c http.version=HTTP/1.1 push --progress origin main
-```
+预览批准不能替代生产批准。正式发布前再次确认候选、稳定域名、已知风险和可用回滚部署，并取得明确的生产发布授权。
 
-不要把 HTTP/1.1 写入全局 Git 配置，也不要盲目改用未经验证的 SSH。
+### production_promote｜晋升同一候选
 
-### 阶段 H｜正式发布与复验
-
-不重新构建，晋升预览中已经验收的同一目录：
+用 `prepare-operation` 记录生产目标后，不重新构建，晋升已通过预览的同一目录：
 
 ```bash
 npx netlify deploy --dir netlify-dist --no-build --prod --json
+```
+
+结果未知时先查 Netlify 部署历史和稳定地址，不重复提交。
+
+### production_verify｜正式站复验
+
+```bash
 npm run verify:deploy -- "https://shiting-neoloop-demo.netlify.app/"
 ```
 
-正式发布后再次检查：
+再次检查固定地址、全部资源、本地/预览/正式哈希、无痕与手机网络、核心交互、控制台、成员白名单、合成声明和角色边界，并记录可恢复的 Netlify deploy ID 与 Git SHA。
 
-- 固定地址匿名返回 200；
-- 本地、预览、正式 HTML 哈希一致；
-- CSS、JavaScript、头像和 OG 图均返回成功；
-- 无痕浏览器与常用手机网络可打开；
-- 核心交互和控制台无错误；
-- 成员白名单、合成声明和角色边界未漂移。
+### handoff｜发布记录与交接
 
-### 阶段 I｜发布记录与交接
+复制 `docs/RELEASE_RECORD_TEMPLATE.md` 到 `docs/releases/YYYY-MM-DD_<short-sha>.md`，填写候选 SHA、运行时、CLI 版本、产物哈希、两次批准、preview/production deploy ID、已知风险和回滚点。
 
-复制 `docs/RELEASE_RECORD_TEMPLATE.md` 到 `docs/releases/YYYY-MM-DD_<short-sha>.md`，填写提交 SHA、运行时、CLI 版本、产物哈希、preview/production deploy ID、人工批准、已知风险和回滚点。
-
-项目记忆只记录任务、完成项、文件、决定、问题、下一步和可复用知识；不写令牌、账号凭据、完整日志、客户数据或整段聊天。
+项目记忆只记录任务、完成项、文件、决定、问题、下一步和可复用知识；不写令牌、账号凭据、完整日志、客户数据或整段聊天。工作流最后一关通过后才记为完整发布。
 
 ## 5. 回滚
 
@@ -250,6 +284,7 @@ npm run verify:deploy -- "https://shiting-neoloop-demo.netlify.app/"
 | `netlify-dist/` 不存在 | 重新执行 `npm run check:release` | 改指向缺少首页的 `dist/client` |
 | 首页空白或资源 404 | 检查导出 HTML 和资源，重建 preview | 用 catch-all 重写掩盖缺失资源 |
 | Preview 失败 | 停在 Preview，修复后重走门槛 | 直接 `--prod` |
+| 外部动作结果未知 | 状态记为 `unknown`，只读核对远端后再决定 | 盲目重试推送或部署 |
 | Sites 返回 403 | 继续以 Netlify 为主演示 | 把 Sites 当唯一入口 |
 | Netlify 临时故障 | 临时说明并使用功能缩减的 `docs/` 降级页 | 宣称降级页与主站等价 |
 | Git 推送卡顿 | 核验 OAuth/API，单次 HTTP/1.1 | 改全局传输或猜测 SSH 配置 |
@@ -260,11 +295,13 @@ npm run verify:deploy -- "https://shiting-neoloop-demo.netlify.app/"
 
 - [ ] 变更契约、四类证据和个人信息白名单已确认
 - [ ] Product Design 的桌面、移动、内容和可访问性标准已满足
+- [ ] 本地候选已冻结并记录 Git SHA、构建配方和干净工作树
 - [ ] Node 22.13.0 下锁文件安装、lint、测试、构建和导出通过
 - [ ] 五个视图、六步流程、人工弹窗、失败/退回路径通过浏览器 QA
 - [ ] Preview 匿名 HTTP、资源、交互、控制台和隐私通过
-- [ ] 人工批准已记录
+- [ ] 预览批准已绑定当前候选
 - [ ] GitHub 远端 SHA 与候选一致
+- [ ] 生产批准与回滚点已记录
 - [ ] Production 使用同一候选并完成匿名复验
 - [ ] 回滚点、发布记录和项目记忆交接完成
 
@@ -280,5 +317,6 @@ npm run verify:deploy -- "https://shiting-neoloop-demo.netlify.app/"
 - 框架、运行时、构建命令和输出目录；
 - 托管平台、预览/正式命令和稳定 URL；
 - 自动测试、浏览器矩阵、人工批准和回滚点。
+- 本地状态路径、Git 忽略项和外部动作恢复策略。
 
-不要复制 NeoLoop 的品牌、成员、合成案例、企业边界、域名或部署 ID到其他网站。
+不要复制 NeoLoop 的品牌、成员、合成案例、企业边界、域名或部署 ID 到其他网站。

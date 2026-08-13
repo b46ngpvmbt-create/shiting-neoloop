@@ -1,12 +1,8 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- Vinext does not provide Next's image optimizer; these local avatars are pre-sized raster assets. */
-
 import {
   ArrowLeft,
   ArrowRight,
-  Buildings,
-  Check,
   CheckCircle,
   ClipboardText,
   Database,
@@ -15,492 +11,682 @@ import {
   MapPin,
   ShieldCheck,
   Sparkle,
-  Truck,
-  UserCircle,
   WarningCircle,
 } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
+import {
+  caseRows,
+  evidenceBoundaries,
+  failureDrills,
+  feedbackRows,
+  fiveViews,
+  improvementRows,
+  mainStory,
+  mainStoryCase,
+  problemRows,
+  slaRows,
+  snapshotMeta,
+  type EvidenceClass,
+  type FailureDrill,
+  type ViewKey,
+} from "./public-snapshot";
+import { ShowcaseZone } from "./showcase-zone";
 
-type Priority = "P0" | "P1" | "P2" | "P3";
-type View = "overview" | "demo" | "cases" | "clusters" | "team";
-type ModalKind = "risk" | "reply" | null;
+const visibleRowLimit = 8;
 
-type CaseItem = {
-  id: string;
-  title: string;
-  priority: Priority;
-  status: string;
-  team: string;
-  vehicle: string;
-  task: string;
-  summary: string;
-  evidence: string[];
-  next: string;
-  confidence: string;
-};
-
-const cases: CaseItem[] = [
-  {
-    id: "DEMO-C-001",
-    title: "车辆停在非机动车道并出现险情",
-    priority: "P0",
-    status: "模拟已关闭",
-    team: "企业车辆运维 + 企业现场运维",
-    vehicle: "DEMO-X6-102",
-    task: "DEMO-T-8452",
-    summary: "任务中断时出现道路安全风险词。系统先触发硬规则，再由企业授权人员确认处置。",
-    evidence: ["合成现场照片", "合成任务日志", "合成处置记录"],
-    next: "保留证据链，进入安全事件复盘。",
-    confidence: "合成示例值 0.98",
-  },
-  {
-    id: "DEMO-C-002",
-    title: "到站后舱门无法开启",
-    priority: "P1",
-    status: "模拟已关闭",
-    team: "企业车辆运维",
-    vehicle: "DEMO-X6-107",
-    task: "DEMO-T-8458",
-    summary: "同一任务收到两条合成反馈，先由企业客服确认并案，再核对车辆、任务和开舱重试证据。",
-    evidence: ["合成错误码", "合成开舱重试记录", "合成现场视频"],
-    next: "关联同版本独立案件，进入问题簇观察。",
-    confidence: "合成示例值 0.97",
-  },
-  {
-    id: "DEMO-C-003",
-    title: "站点多车同时离线",
-    priority: "P1",
-    status: "模拟处理中",
-    team: "企业车辆运维 + 企业现场运维",
-    vehicle: "DEMO-X3-205",
-    task: "DEMO-T-8461",
-    summary: "同一站点多辆车出现离线描述，需区分站点网络、车端通信与任务异常。",
-    evidence: ["合成网络探测", "合成车辆日志", "合成站点信息"],
-    next: "等待企业角色补齐网络探测与车端日志。",
-    confidence: "合成示例值 0.72",
-  },
-  {
-    id: "DEMO-C-005",
-    title: "路线点位指向关闭入口",
-    priority: "P2",
-    status: "模拟待验证",
-    team: "企业现场运维",
-    vehicle: "DEMO-X3-211",
-    task: "DEMO-T-8474",
-    summary: "现场入口发生变化后，既有点位仍被任务引用，需要在下一次合成任务中复核。",
-    evidence: ["合成点位截图", "合成现场说明", "合成任务记录"],
-    next: "重新采集点位并在下一任务验证。",
-    confidence: "合成示例值 0.91",
-  },
-  {
-    id: "DEMO-C-011",
-    title: "新版搜索无法总览车辆电量",
-    priority: "P3",
-    status: "模拟已分诊",
-    team: "企业客户服务 + 企业产品团队",
-    vehicle: "待企业补充",
-    task: "待企业补充",
-    summary: "公开评论仅作为单个反馈样本进入需求分诊，不外推为普遍问题。",
-    evidence: ["公开评论链接", "公开页面截图", "合成需求记录"],
-    next: "核对公开能力边界与企业路线图。",
-    confidence: "合成示例值 0.86",
-  },
-  {
-    id: "DEMO-C-017",
-    title: "冷链舱温度持续告警",
-    priority: "P1",
-    status: "模拟已关闭",
-    team: "企业车辆运维 + 企业现场运维",
-    vehicle: "DEMO-X6-145",
-    task: "DEMO-T-8488",
-    summary: "合成流程先保护货物，再核实传感器、制冷状态与换车记录。",
-    evidence: ["合成温度曲线", "合成换车记录", "合成货物复核"],
-    next: "回顾候选SOP并监测复发。",
-    confidence: "合成示例值 0.97",
-  },
-];
-
-const clusters = [
-  {
-    id: "DEMO-CL-001",
-    name: "舱门解锁失败",
-    risk: "P1" as Priority,
-    count: 4,
-    status: "模拟观察中",
-    hypothesis: "待验证：可能与版本或部件批次相关",
-    action: "生成待企业评审的改进项目草案",
-    related: ["DEMO-C-002", "DEMO-C-008", "DEMO-C-014", "DEMO-C-020"],
-  },
-  {
-    id: "DEMO-CL-002",
-    name: "站点网络与数据回传异常",
-    risk: "P1" as Priority,
-    count: 2,
-    status: "模拟处理中",
-    hypothesis: "待验证：站点网络或车端通信链路",
-    action: "补齐网络探测与车端日志",
-    related: ["DEMO-C-003", "DEMO-C-013"],
-  },
-  {
-    id: "DEMO-CL-003",
-    name: "道路停驶安全事件",
-    risk: "P0" as Priority,
-    count: 1,
-    status: "模拟已控制",
-    hypothesis: "最终根因不得由AI确认",
-    action: "保持硬规则告警与企业人工复核",
-    related: ["DEMO-C-001"],
-  },
-  {
-    id: "DEMO-CL-005",
-    name: "地图点位与现场变化",
-    risk: "P2" as Priority,
-    count: 2,
-    status: "模拟处理中",
-    hypothesis: "待验证：地图版本或现场环境变化",
-    action: "重新采集并在下一任务验证",
-    related: ["DEMO-C-005", "DEMO-C-019"],
-  },
-];
-
-const demoSteps = [
-  { short: "并案", title: "确认同一事件", role: "企业客服专员" },
-  { short: "关联", title: "核对车辆与任务证据", role: "企业运营协调员" },
-  { short: "派单", title: "人工确认风险与责任", role: "企业值班经理" },
-  { short: "处置", title: "提交处置记录", role: "企业车辆运维负责人" },
-  { short: "验证", title: "审批回复并关闭", role: "企业授权审批人" },
-  { short: "改进", title: "生成改进草案", role: "企业产品/质量负责人" },
-];
-
-function PriorityTag({ priority }: { priority: Priority }) {
-  return <span className={`priority priority-${priority.toLowerCase()}`}>{priority}</span>;
+function shortTime(value: string | null | undefined) {
+  if (!value) return "—";
+  return value.replace("T", " ").slice(5, 16);
 }
 
-function StateTag({ kind, children }: { kind: "synthetic" | "ai" | "pending" | "confirmed"; children: React.ReactNode }) {
-  return <span className={`state-tag state-${kind}`}>{children}</span>;
+function executionLabel(value: string) {
+  return value === "not_run" ? "未运行" : value;
+}
+
+function evidenceLabel(value: EvidenceClass) {
+  return evidenceBoundaries.find((item) => item.evidence_class === value)?.label ?? value;
+}
+
+function EvidenceTag({ value }: { value: EvidenceClass }) {
+  return <span className={`evidence-tag evidence-${value}`}>{evidenceLabel(value)}</span>;
+}
+
+function ViewIcon({ view }: { view: ViewKey }) {
+  const props = { size: 20, weight: "duotone" as const, "aria-hidden": true };
+  if (view === "feedback_inbox") return <FileText {...props} />;
+  if (view === "case_cockpit") return <ClipboardText {...props} />;
+  if (view === "sla_board") return <CheckCircle {...props} />;
+  if (view === "problem_map") return <MapPin {...props} />;
+  return <Sparkle {...props} />;
+}
+
+function LegacyNotice() {
+  return (
+    <div className="legacy-notice">
+      <WarningCircle size={18} weight="fill" aria-hidden="true" />
+      <span>列表状态来自冻结合成历史快照，不是新版工作流的运行结果。</span>
+    </div>
+  );
+}
+
+function EmptyValue({ value }: { value: string | number | null }) {
+  return <>{value === null ? <span className="not-run-text">未运行</span> : value}</>;
+}
+
+function ReplayDialog({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    panelRef.current?.querySelector<HTMLElement>("[data-dialog-close]")?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      restoreFocusRef.current?.focus();
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="dialog-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="replay-dialog"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="replay-dialog-title"
+      >
+        <div className="dialog-head">
+          <div>
+            <p className="micro-label">只读故障卡</p>
+            <h2 id="replay-dialog-title">{title}</h2>
+          </div>
+          <button className="icon-button" type="button" onClick={onClose} data-dialog-close aria-label="关闭故障详情">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        {children}
+        <div className="dialog-actions">
+          <button className="secondary-button" type="button" onClick={onClose}>关闭</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeedbackView({ expanded }: { expanded: boolean }) {
+  const rows = expanded ? feedbackRows : feedbackRows.slice(0, visibleRowLimit);
+  return (
+    <>
+      <LegacyNotice />
+      <div className="data-table feedback-table" role="table" aria-label="反馈收件箱合成快照">
+        <div className="table-row table-head" role="row">
+          <span role="columnheader">反馈</span><span role="columnheader">进入方式</span>
+          <span role="columnheader">关联案件</span><span role="columnheader">快照状态</span>
+        </div>
+        {rows.map((row) => (
+          <article className="table-row" role="row" key={row.feedback_id}>
+            <div role="cell" data-label="反馈">
+              <code>{row.feedback_id}</code>
+              <EvidenceTag value={row.evidence_class} />
+            </div>
+            <div role="cell" data-label="进入方式">
+              <strong>{row.channel}</strong>
+              <small>{shortTime(row.received_at)}</small>
+            </div>
+            <div role="cell" data-label="关联案件">
+              <strong>{row.linked_case_id ?? "未关联"}</strong>
+              <small>{row.linkedCase?.title ?? "没有公开案件摘要"}</small>
+            </div>
+            <div role="cell" data-label="快照状态">
+              <span className="status-dot"><i aria-hidden="true" />历史快照：{row.processing_status}</span>
+              <small>运行证据：无</small>
+            </div>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function CaseView({ expanded }: { expanded: boolean }) {
+  const rows = expanded ? caseRows : caseRows.slice(0, visibleRowLimit);
+  return (
+    <>
+      <LegacyNotice />
+      <div className="data-table case-table" role="table" aria-label="案件驾驶舱合成快照">
+        <div className="table-row table-head" role="row">
+          <span role="columnheader">案件</span><span role="columnheader">候选实体</span>
+          <span role="columnheader">关系</span><span role="columnheader">人工关口</span>
+        </div>
+        {rows.map((row) => {
+          const item = row.caseRecord;
+          if (!item) return null;
+          return (
+            <article className={`table-row ${item.case_id === mainStory.source_case_id ? "featured-row" : ""}`} role="row" key={item.case_id}>
+              <div role="cell" data-label="案件">
+                <span className="id-line"><code>{item.case_id}</code>{item.final_risk && <b className={`risk risk-${item.final_risk.toLowerCase()}`}>{item.final_risk}</b>}</span>
+                <strong>{item.title}</strong>
+                <small>历史快照：{item.status}</small>
+              </div>
+              <div role="cell" data-label="候选实体">
+                <strong>{item.candidate_vehicle_id ?? "未提供车辆候选"}</strong>
+                <small>{item.candidate_task_id ?? "未提供任务候选"}</small>
+              </div>
+              <div role="cell" data-label="关系">
+                <strong>{row.feedback_ids.length} 条反馈 · {row.work_order_ids.length} 张工单</strong>
+                <small>{row.cluster_id ?? "未进入问题簇"}</small>
+              </div>
+              <div role="cell" data-label="人工关口">
+                <EvidenceTag value={item.routing_evidence_class} />
+                <small>{item.formal_entity_confirmation_status} · {item.routing_confirmation_status}</small>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function SlaView({ expanded }: { expanded: boolean }) {
+  const rows = expanded ? slaRows : slaRows.slice(0, visibleRowLimit);
+  return (
+    <>
+      <LegacyNotice />
+      <div className="data-table sla-table" role="table" aria-label="SLA 协同板合成快照">
+        <div className="table-row table-head" role="row">
+          <span role="columnheader">工单</span><span role="columnheader">责任候选</span>
+          <span role="columnheader">合成时钟</span><span role="columnheader">快照状态</span>
+        </div>
+        {rows.map((row) => {
+          const order = row.workOrder;
+          if (!order) return null;
+          return (
+            <article className="table-row" role="row" key={row.work_order_id}>
+              <div role="cell" data-label="工单">
+                <code>{order.work_order_id}</code>
+                <strong>{order.case_id}</strong>
+                <small>{row.caseRecord?.title ?? "未找到公开案件摘要"}</small>
+              </div>
+              <div role="cell" data-label="责任候选">
+                <strong>{order.team}</strong>
+                <small>{order.assignee_role}</small>
+              </div>
+              <div role="cell" data-label="合成时钟">
+                <strong>到期 {shortTime(order.due_at)}</strong>
+                <small>{row.clock_source} · 重置 {order.sla_reset_count} 次</small>
+              </div>
+              <div role="cell" data-label="快照状态">
+                <span className="status-dot"><i aria-hidden="true" />历史快照：{order.status}</span>
+                <small>本版运行证据：无</small>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function ProblemView({ expanded }: { expanded: boolean }) {
+  const rows = expanded ? problemRows : problemRows.slice(0, visibleRowLimit);
+  return (
+    <>
+      <LegacyNotice />
+      <div className="problem-grid" aria-label="问题地图合成快照">
+        {rows.map((row) => (
+          <article className="problem-card" key={row.cluster_id}>
+            <div className="card-topline">
+              <code>{row.cluster_id}</code>
+              {row.clusterRecord?.highest_risk && <b className={`risk risk-${row.clusterRecord.highest_risk.toLowerCase()}`}>{row.clusterRecord.highest_risk}</b>}
+            </div>
+            <h3>{row.name}</h3>
+            <p>{row.clusterRecord?.root_cause_hypothesis ?? "没有公开根因假设"}</p>
+            <dl className="compact-facts">
+              <div><dt>合成案件</dt><dd>{row.member_case_count} 件</dd></div>
+              <div><dt>合成站点</dt><dd>{row.synthetic_station_ids.length} 个</dd></div>
+              <div><dt>车型</dt><dd>{row.synthetic_vehicle_models.join("、") || "—"}</dd></div>
+              <div><dt>复发证据</dt><dd>{row.recurrence_evidence_available ? "有" : "无"}</dd></div>
+            </dl>
+            <div className="card-foot">
+              <EvidenceTag value={row.evidence_class} />
+              <span>最终根因未确认</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function ImprovementView({ expanded }: { expanded: boolean }) {
+  const rows = expanded ? improvementRows : improvementRows.slice(0, visibleRowLimit);
+  return (
+    <>
+      <LegacyNotice />
+      <div className="improvement-list" aria-label="改进追踪合成快照">
+        {rows.map((row) => {
+          const item = row.improvementRecord;
+          if (!item) return null;
+          return (
+            <article className="improvement-card" key={row.improvement_id}>
+              <div className="improvement-index"><Sparkle size={19} weight="fill" aria-hidden="true" /></div>
+              <div className="improvement-copy">
+                <div className="card-topline"><code>{item.improvement_id}</code><EvidenceTag value={item.owner_evidence_class} /></div>
+                <h3>{row.clusterRecord?.name ?? item.cluster_id}</h3>
+                <p>{item.measure}</p>
+                <small>{item.metric_formula}</small>
+              </div>
+              <dl className="observation-grid">
+                <div><dt>7 天</dt><dd><EmptyValue value={item.day_7_result} /></dd></div>
+                <div><dt>30 天</dt><dd><EmptyValue value={item.day_30_result} /></dd></div>
+                <div><dt>负责人</dt><dd>{item.owner_role}</dd></div>
+              </dl>
+            </article>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function WorkspacePanel({ view, expanded }: { view: ViewKey; expanded: boolean }) {
+  if (view === "feedback_inbox") return <FeedbackView expanded={expanded} />;
+  if (view === "case_cockpit") return <CaseView expanded={expanded} />;
+  if (view === "sla_board") return <SlaView expanded={expanded} />;
+  if (view === "problem_map") return <ProblemView expanded={expanded} />;
+  return <ImprovementView expanded={expanded} />;
 }
 
 export default function Home() {
-  const [view, setView] = useState<View>("overview");
-  const [filter, setFilter] = useState<"全部" | Priority>("全部");
-  const [selectedId, setSelectedId] = useState("DEMO-C-002");
-  const [selectedClusterId, setSelectedClusterId] = useState("DEMO-CL-001");
-  const [demoStep, setDemoStep] = useState(0);
-  const [modal, setModal] = useState<ModalKind>(null);
-  const [notice, setNotice] = useState("演示尚未开始，所有操作只改变本地合成状态。");
-  const [improvementCreated, setImprovementCreated] = useState(false);
+  const [activeView, setActiveView] = useState<ViewKey>("feedback_inbox");
+  const [expanded, setExpanded] = useState(false);
+  const [storyStep, setStoryStep] = useState(0);
+  const [activeDrill, setActiveDrill] = useState<FailureDrill | null>(null);
+  const expandButtonRef = useRef<HTMLButtonElement>(null);
+  const closeDrill = useCallback(() => setActiveDrill(null), []);
 
-  const filteredCases = useMemo(
-    () => (filter === "全部" ? cases : cases.filter((item) => item.priority === filter)),
-    [filter],
+  const currentView = useMemo(
+    () => fiveViews.find((view) => view.key === activeView) ?? fiveViews[0],
+    [activeView],
   );
-  const selected = filteredCases.find((item) => item.id === selectedId) ?? filteredCases[0] ?? cases[1];
-  const selectedCluster = clusters.find((item) => item.id === selectedClusterId) ?? clusters[0];
+  const currentStoryStep = mainStory.planned_workflow_path[storyStep];
 
-  function navigate(target: View) {
-    setView(target);
-    window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  function chooseView(view: ViewKey) {
+    setActiveView(view);
+    setExpanded(false);
   }
 
-  function advance(message: string) {
-    setDemoStep((current) => Math.min(current + 1, demoSteps.length - 1));
-    setNotice(message);
+  function handleTabKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
+    let nextIndex = index;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % fiveViews.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + fiveViews.length) % fiveViews.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = fiveViews.length - 1;
+    else return;
+    event.preventDefault();
+    const nextView = fiveViews[nextIndex];
+    chooseView(nextView.key);
+    document.getElementById(`view-tab-${nextView.key}`)?.focus();
   }
 
-  function restartDemo() {
-    setDemoStep(0);
-    setModal(null);
-    setImprovementCreated(false);
-    setNotice("演示已重置。先由企业客服专员确认两条记录是否属于同一事件。");
+  function jumpToView(view: ViewKey) {
+    chooseView(view);
+    document.getElementById("five-views")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function toggleExpanded() {
+    const isCollapsing = expanded;
+    setExpanded((value) => !value);
+    if (isCollapsing) {
+      requestAnimationFrame(() => {
+        expandButtonRef.current?.focus();
+        expandButtonRef.current?.scrollIntoView({ block: "center" });
+      });
+    }
   }
 
   return (
-    <main className="site-shell">
-      <nav className="topbar" aria-label="主导航">
-        <button className="brand" onClick={() => navigate("overview")} aria-label="返回产品概览">
+    <main id="top" className="site-shell">
+      <header className="topbar">
+        <a className="brand" href="#top" aria-label="石听 NeoLoop 首页">
           <span className="brand-mark">石听</span>
-          <span>NeoLoop</span>
-        </button>
-        <div className="nav-links">
-          {([
-            ["overview", "产品概览"],
-            ["demo", "合成演示"],
-            ["cases", "反馈案件"],
-            ["clusters", "问题簇"],
-            ["team", "参赛团队"],
-          ] as const).map(([target, label]) => (
-            <button key={target} className={view === target ? "active" : ""} onClick={() => navigate(target)}>
-              {label}
+          <span className="brand-name">NeoLoop</span>
+        </a>
+        <nav className="anchor-nav" aria-label="页面导航">
+          <a href="#dual-loop">双循环</a>
+          <a href="#five-views">五视图</a>
+          <a href="#main-story">主故事</a>
+          <a href="#failure-drills">故障演练</a>
+          <a href="#evidence-boundary">证据边界</a>
+        </nav>
+        <span className="read-only-pill"><ShieldCheck size={16} weight="fill" aria-hidden="true" />只读公开快照</span>
+      </header>
+
+      <section className="hero" aria-labelledby="hero-title">
+        <div className="hero-copy">
+          <div className="eyebrow"><span>石听未来 · A+ 方案</span><span>公开回放</span></div>
+          <h1 id="hero-title">客户的声音，<br />不该停在聊天记录里。</h1>
+          <p className="value-statement">{snapshotMeta.valueStatement}</p>
+          <p className="hero-text">从一条合成反馈出发，把证据、案件、工单和改进串成可审阅的闭环。这里展示的是方案结构与固定样例，不是企业现场运行结果。</p>
+          <ul className="hero-boundaries" aria-label="公开演示边界">
+            <li><strong>合成公开演示</strong><span>不是企业现场数据</span></li>
+            <li><strong>未连接赛事 Base</strong><span>不持有赛事凭证</span></li>
+            <li><strong>预期回放 · 未运行</strong><span>主故事与四类故障均无运行结果</span></li>
+            <li><strong>只读 · 无车辆控制</strong><span>不写数据，不触发外部工作流</span></li>
+          </ul>
+          <div className="hero-actions">
+            <Link className="primary-button" href="/software">进入软件工作台 <ArrowRight size={18} weight="bold" aria-hidden="true" /></Link>
+            <button className="secondary-button" type="button" onClick={() => jumpToView("feedback_inbox")}>查看五个只读视图</button>
+          </div>
+        </div>
+
+        <div className="hero-stage">
+          <figure className="hero-visual">
+            {/* Static 90 KB WebP keeps the same public asset path in local and Netlify builds. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/visuals/neoloop-concept-hero-v1.webp"
+              width="1672"
+              height="941"
+              alt="用于说明反馈闭环的无人配送场景概念插画"
+              fetchPriority="high"
+            />
+            <figcaption>方案场景插画｜非真实车型或运行现场</figcaption>
+          </figure>
+
+          <article className="hero-story-card" aria-label="SYN-CASE-017 主故事证据摘要">
+            <div className="story-card-head">
+              <span className="live-dot" aria-hidden="true" />
+              <span>主故事 · {executionLabel(mainStory.execution_status)}</span>
+              <EvidenceTag value={mainStory.evidence_class} />
+            </div>
+            <code>{mainStory.source_case_id}</code>
+            <h2>{mainStoryCase?.title ?? mainStory.replay_input.original_text}</h2>
+            <p>{mainStory.replay_input.original_text}</p>
+            <div className="entity-chain" aria-label="合成候选实体">
+              <span><small>车辆候选</small>{mainStory.replay_input.vehicle_id}</span>
+              <i aria-hidden="true" />
+              <span><small>任务候选</small>{mainStory.replay_input.task_id}</span>
+              <i aria-hidden="true" />
+              <span><small>案件</small>{mainStory.runtime_case_id}</span>
+            </div>
+            <p className="card-boundary">预期路径尚未执行；正式实体、责任、回复和结案均保留人工关口。</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="status-rail" aria-label="公开站状态边界">
+        <div><Database size={20} weight="duotone" aria-hidden="true" /><span><b>合成实验</b><small>{snapshotMeta.dataScope}</small></span></div>
+        <div><LinkIcon size={20} weight="duotone" aria-hidden="true" /><span><b>未连接赛事 Base</b><small>不持有赛事凭证</small></span></div>
+        <div><WarningCircle size={20} weight="duotone" aria-hidden="true" /><span><b>主故事与故障未运行</b><small>没有运行结果</small></span></div>
+        <div><ShieldCheck size={20} weight="duotone" aria-hidden="true" /><span><b>仅浏览器本地回放</b><small>不写数据，不控制车辆</small></span></div>
+      </section>
+
+      <ShowcaseZone />
+
+      <section className="workspace section-shell" id="five-views" aria-labelledby="views-title">
+        <div className="section-heading">
+          <div><p className="section-kicker">一套关系，五个观察面</p><h2 id="views-title">把反馈闭环摊开来看</h2></div>
+          <p>五个视图读取同一份冻结公开快照。切换标签、翻页和回放步骤只改变当前浏览器状态，不等于获得真实权限，也不会触发工作流。</p>
+        </div>
+
+        <div className="view-tabs" role="tablist" aria-label="五个只读业务视图">
+          {fiveViews.map((view, index) => (
+            <button
+              id={`view-tab-${view.key}`}
+              key={view.key}
+              type="button"
+              role="tab"
+              aria-selected={activeView === view.key}
+              aria-controls="active-view-panel"
+              tabIndex={activeView === view.key ? 0 : -1}
+              className={activeView === view.key ? "active" : ""}
+              onClick={() => chooseView(view.key)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
+            >
+              <ViewIcon view={view.key} />
+              <span>{view.label}<small>{view.count} 条</small></span>
             </button>
           ))}
         </div>
-        <span className="demo-badge">DEMO｜全部为合成数据</span>
-      </nav>
 
-      {view === "overview" && (
-        <>
-          <section className="hero">
-            <div className="hero-copy">
-              <p className="eyebrow">无人配送客户之声闭环中枢</p>
-              <h1>让每条反馈都找到<br />一辆车、一个任务、<br />一个责任人和一次改进。</h1>
-              <p className="hero-text">
-                NeoLoop 不重复做查车、发车或充电调度。它处理反馈进入后如何补齐证据、交给企业授权团队，
-                并把重复问题变成可跟踪的改进项目。
+        <div className="view-panel" id="active-view-panel" role="tabpanel" aria-labelledby={`view-tab-${activeView}`} tabIndex={0}>
+          <div className="view-panel-head">
+            <div><p className="micro-label">{currentView.key}</p><h3>{currentView.label}</h3></div>
+            <span className="snapshot-chip">只读 · {currentView.count} 条合成记录</span>
+          </div>
+          <div id="active-view-records">
+            <WorkspacePanel view={activeView} expanded={expanded} />
+          </div>
+          {currentView.count > visibleRowLimit && (
+            <>
+              <p className="record-count-note" aria-live="polite">
+                当前显示 {expanded ? currentView.count : visibleRowLimit} / {currentView.count} 条合成记录
               </p>
-              <div className="hero-actions">
-                <button className="primary" onClick={() => navigate("demo")}>
-                  进入交互演示 <ArrowRight size={19} weight="bold" />
-                </button>
-                <button className="secondary" onClick={() => navigate("cases")}>查看精选案件</button>
-              </div>
-              <p className="hero-note">公开交互原型｜未接入新石器生产数据或赛事飞书</p>
+              <button
+                ref={expandButtonRef}
+                className="expand-button"
+                type="button"
+                onClick={toggleExpanded}
+                aria-controls="active-view-records"
+                aria-expanded={expanded}
+              >
+                {expanded ? `收起，显示前 ${visibleRowLimit} 条` : `查看全部 ${currentView.count} 条合成记录`}
+                <ArrowRight size={16} aria-hidden="true" />
+              </button>
+            </>
+          )}
+        </div>
+      </section>
+
+      <section className="story-section section-shell" id="main-story" aria-labelledby="story-title">
+        <div className="section-heading">
+          <div><p className="section-kicker">主故事 · SYN-CASE-017</p><h2 id="story-title">七步预期路径，不伪装成一次实跑</h2></div>
+          <p>固定输入、测试时钟、预期输出和人工关口都来自公开快照。当前执行状态为“未运行”，因此页面不展示通过率、耗时或收益。</p>
+        </div>
+
+        <div className="story-layout">
+          <article className="story-input">
+            <div className="story-input-top"><span>输入</span><EvidenceTag value={mainStory.evidence_class} /></div>
+            <blockquote>{mainStory.replay_input.original_text}</blockquote>
+            <dl>
+              <div><dt>渠道</dt><dd>{mainStory.replay_input.channel}</dd></div>
+              <div><dt>测试时钟</dt><dd>{shortTime(mainStory.clock.anchor)}</dd></div>
+              <div><dt>车辆候选</dt><dd>{mainStory.replay_input.vehicle_id}</dd></div>
+              <div><dt>任务候选</dt><dd>{mainStory.replay_input.task_id}</dd></div>
+              <div><dt>初始案件状态</dt><dd>{mainStory.expected_case_draft.case_status}</dd></div>
+              <div><dt>运行证据</dt><dd>无</dd></div>
+            </dl>
+            <button className="text-button" type="button" onClick={() => jumpToView("case_cockpit")}>在案件驾驶舱查看源快照 <ArrowRight size={15} aria-hidden="true" /></button>
+          </article>
+
+          <div className="replay-console">
+            <div className="replay-head">
+              <div><span>浏览器本地回放</span><strong>{storyStep + 1} / {mainStory.planned_workflow_path.length}</strong></div>
+              <div className="progress-track" aria-hidden="true"><i style={{ width: `${((storyStep + 1) / mainStory.planned_workflow_path.length) * 100}%` }} /></div>
             </div>
-
-            <article className="workflow-preview" aria-label="合成反馈关联与人工确认预览">
-              <div className="preview-steps">
-                <span><FileText size={21} weight="duotone" />原始反馈</span>
-                <ArrowRight className="preview-arrow" size={20} />
-                <span><LinkIcon size={21} weight="duotone" />证据关联</span>
-                <ArrowRight className="preview-arrow" size={20} />
-                <span><UserCircle size={21} weight="duotone" />人工确认</span>
-              </div>
-              <div className="preview-columns">
-                <section className="preview-panel feedback-panel">
-                  <StateTag kind="synthetic">合成反馈</StateTag>
-                  <h2>到站后舱门无法开启</h2>
-                  <p>同一任务从客户群和服务记录进入，等待企业客服确认是否并案。</p>
-                  <dl>
-                    <div><dt>反馈渠道</dt><dd>客户群 + 服务记录</dd></div>
-                    <div><dt>反馈类型</dt><dd>交付体验</dd></div>
-                  </dl>
-                  <div className="panel-foot"><ClipboardText size={21} /><span><b>原始记录保留</b><small>不覆盖来源与原文</small></span></div>
-                </section>
-
-                <section className="preview-panel evidence-panel">
-                  <StateTag kind="ai">AI 关联建议</StateTag>
-                  {[
-                    [Truck, "车辆", "DEMO-X6-107"],
-                    [ClipboardText, "任务", "DEMO-T-8458"],
-                    [MapPin, "行程片段", "到站前后 120 秒"],
-                    [Database, "系统日志", "开舱重试记录"],
-                  ].map(([Icon, title, value]) => {
-                    const ItemIcon = Icon as typeof Truck;
-                    return (
-                      <button key={String(title)} onClick={() => { setDemoStep(1); navigate("demo"); }}>
-                        <ItemIcon size={20} weight="duotone" />
-                        <span><b>{String(title)}</b><small>{String(value)}</small></span>
-                        <span className="evidence-check"><Check size={13} weight="bold" /></span>
-                      </button>
-                    );
-                  })}
-                  <div className="evidence-complete"><CheckCircle size={22} weight="fill" /><span><b>证据完整度 4/4</b><small>仅为合成演示状态</small></span></div>
-                </section>
-
-                <section className="preview-panel decision-panel">
-                  <StateTag kind="pending">待企业确认</StateTag>
-                  <h2>建议派单</h2>
-                  <dl>
-                    <div><dt>风险建议</dt><dd>P1</dd></div>
-                    <div><dt>建议责任团队</dt><dd>企业车辆运维</dd></div>
-                    <div><dt>SLA</dt><dd>待企业确认</dd></div>
-                  </dl>
-                  <div className="suggestion"><b>处理建议</b><p>核查合成开舱记录与现场证据，由企业角色决定是否建单。</p></div>
-                  <button className="panel-primary" onClick={() => { setDemoStep(2); navigate("demo"); }}>
-                    进入人工关口 <ArrowRight size={17} weight="bold" />
+            <ol className="workflow-steps" aria-label="主故事预期工作流">
+              {mainStory.planned_workflow_path.map((step, index) => (
+                <li key={`${step.workflow}-${step.order}`} className={index === storyStep ? "active" : index < storyStep ? "passed" : ""}>
+                  <button type="button" onClick={() => setStoryStep(index)} aria-current={index === storyStep ? "step" : undefined}>
+                    <span>{index < storyStep ? "✓" : step.order}</span>
+                    <b>{step.workflow}</b>
+                    <small>{step.mode ?? "预期节点"}</small>
                   </button>
-                </section>
-              </div>
-              <div className="preview-status">
-                <span className="done"><CheckCircle size={19} weight="fill" />已接收</span>
-                <i />
-                <span className="done"><CheckCircle size={19} weight="fill" />证据齐全</span>
-                <i />
-                <span><UserCircle size={19} weight="fill" />待人工确认</span>
+                </li>
+              ))}
+            </ol>
+            <div className="step-detail" aria-live="polite">
+              <div><span>当前查看</span><b>{currentStoryStep.workflow}</b></div>
+              <p>{currentStoryStep.expectation}</p>
+              <small>这是一条规格预期，不是运行日志。</small>
+            </div>
+            <div className="replay-actions">
+              <button className="secondary-button" type="button" disabled={storyStep === 0} onClick={() => setStoryStep((step) => Math.max(0, step - 1))}><ArrowLeft size={17} aria-hidden="true" />上一步</button>
+              <button className="primary-button" type="button" disabled={storyStep === mainStory.planned_workflow_path.length - 1} onClick={() => setStoryStep((step) => Math.min(mainStory.planned_workflow_path.length - 1, step + 1))}>下一步<ArrowRight size={17} aria-hidden="true" /></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="failure-section section-shell" id="failure-drills" aria-labelledby="failure-title">
+        <div className="section-heading">
+          <div><p className="section-kicker">安全降级</p><h2 id="failure-title">四类故障，先定义停在哪里</h2></div>
+          <p>四张卡全部为未运行的故障规格。打开详情只能查看预期安全路径，不会把卡片标成“已通过”。</p>
+        </div>
+        <div className="failure-grid">
+          {failureDrills.map((drill, index) => (
+            <article className="failure-card" key={drill.drill_id}>
+              <div className="failure-number">0{index + 1}</div>
+              <div className="failure-copy">
+                <div className="card-topline"><code>{drill.drill_id}</code><span className="not-run-chip">{executionLabel(drill.execution_status)}</span></div>
+                <h3>{drill.fault_summary}</h3>
+                <p><b>预期安全停点：</b>{drill.expected_safe_path}</p>
+                <button className="text-button" type="button" onClick={() => setActiveDrill(drill)} aria-haspopup="dialog">查看边界与人工关口 <ArrowRight size={15} aria-hidden="true" /></button>
               </div>
             </article>
-          </section>
-
-          <section className="overview-lower">
-            <div className="boundary-section">
-              <p className="eyebrow">证据边界</p>
-              <h2>只用公开资料和明确标注的合成数据建立演示</h2>
-              <div className="boundary-grid">
-                <article><Database size={25} weight="duotone" /><b>公开事实</b><span>规则与公告</span></article>
-                <article><Truck size={25} weight="duotone" /><b>合成业务数据</b><span>车辆与任务均为 DEMO</span></article>
-                <article><MapPin size={25} weight="duotone" /><b>最小化信息</b><span>行程片段按需呈现</span></article>
-                <article><ShieldCheck size={25} weight="duotone" /><b>人工审计</b><span>关键事件保留摘要</span></article>
-              </div>
-            </div>
-            <button className="team-summary" onClick={() => navigate("team")}>
-              <span className="eyebrow">参赛团队｜石听未来</span>
-              <span className="team-summary-members">
-                <span><img src="/avatars/liu.png" alt="刘姓氏头像" width="54" height="54" /><b>刘肖蔚然</b><small>队长</small></span>
-                <span><img src="/avatars/yan.png" alt="闫姓氏头像" width="54" height="54" /><b>闫紫豪</b><small>队员</small></span>
-              </span>
-              <span className="school-line">青岛农业大学｜风景园林（虚拟现实技术设计）</span>
-              <span className="team-boundary">参赛身份与企业业务执行角色相互独立 <ArrowRight size={16} /></span>
-            </button>
-          </section>
-
-          <section className="story-strip">
-            <div><p className="eyebrow">精选演示</p><h2>一条合成案例，走完整个企业闭环</h2></div>
-            <div className="story-metrics">
-              <span><b>30</b><small>合成原始反馈</small></span>
-              <span><b>20</b><small>合成反馈案件</small></span>
-              <span><b>27</b><small>合成处置工单</small></span>
-              <span><b>10</b><small>合成问题簇</small></span>
-            </div>
-            <button className="secondary" onClick={() => navigate("demo")}>开始约 4 分钟演示</button>
-          </section>
-        </>
-      )}
-
-      {view === "demo" && (
-        <section className="workspace demo-workspace">
-          <div className="boundary-banner">
-            <ShieldCheck size={20} weight="duotone" />
-            <span><b>合成演示</b>｜未接入新石器生产数据或赛事飞书｜不向车辆发送任何指令</span>
-          </div>
-          <div className="workspace-head demo-head">
-            <div><p className="eyebrow">交互式软件示例</p><h1>一条反馈如何闭环</h1><p>跟随企业授权角色完成并案、关联、派单、处置、验证和改进。</p></div>
-            <button className="text-button" onClick={restartDemo}>重新开始</button>
-          </div>
-
-          <div className="demo-stepper" aria-label="演示步骤">
-            {demoSteps.map((step, index) => (
-              <button
-                key={step.short}
-                className={`${index === demoStep ? "current" : ""} ${index < demoStep ? "complete" : ""}`}
-                onClick={() => setDemoStep(index)}
-                aria-current={index === demoStep ? "step" : undefined}
-              >
-                <span>{index < demoStep ? <Check size={15} weight="bold" /> : index + 1}</span>
-                <b>{step.short}</b>
-              </button>
-            ))}
-          </div>
-
-          <div className="role-strip">
-            <span><Buildings size={20} weight="duotone" />当前模拟角色</span>
-            <b>{demoSteps[demoStep].role}</b>
-            <small>企业业务角色（演示名称，待企业确认）</small>
-          </div>
-
-          <div className="demo-board">
-            <header className="demo-board-head">
-              <div><span className="case-id">DEMO-C-002</span><h2>{demoSteps[demoStep].title}</h2></div>
-              <div><PriorityTag priority="P1" /> <StateTag kind={demoStep >= 3 ? "confirmed" : "pending"}>{demoStep >= 3 ? "人工已确认" : "待人工确认"}</StateTag></div>
-            </header>
-
-            {demoStep === 0 && (
-              <div className="demo-content split-content">
-                <section className="content-panel"><StateTag kind="synthetic">合成记录 A</StateTag><h3>客户群反馈</h3><blockquote>“车辆到站了，但舱门一直打不开，页面提示重试。”</blockquote><dl><div><dt>时间</dt><dd>2026-07-19 10:42</dd></div><div><dt>任务线索</dt><dd>DEMO-T-8458</dd></div></dl></section>
-                <section className="content-panel"><StateTag kind="synthetic">合成记录 B</StateTag><h3>服务记录</h3><blockquote>“同一任务两分钟后再次上报开舱失败。”</blockquote><dl><div><dt>时间</dt><dd>2026-07-19 10:44</dd></div><div><dt>车辆线索</dt><dd>DEMO-X6-107</dd></div></dl></section>
-                <aside className="decision-aside"><Sparkle size={24} weight="duotone" /><h3>AI 并案建议</h3><p>时间、任务编号与问题描述一致，建议作为同一事件处理。原始记录仍分别保留。</p><button className="primary" onClick={() => advance("人工并案决定已记录；两条原始记录继续保留。")}>确认同一事件 <ArrowRight size={17} /></button></aside>
-              </div>
-            )}
-
-            {demoStep === 1 && (
-              <div className="demo-content evidence-content">
-                <section className="evidence-ledger">
-                  <h3>候选证据</h3>
-                  {[
-                    [Truck, "车辆", "DEMO-X6-107", "车辆标识与任务记录一致"],
-                    [ClipboardText, "任务", "DEMO-T-8458", "到站时间与反馈时间相邻"],
-                    [MapPin, "行程片段", "到站前后 120 秒", "只展示必要时间窗"],
-                    [Database, "开舱日志", "合成重试记录 × 3", "不发送开舱指令"],
-                  ].map(([Icon, label, value, reason]) => {
-                    const EvidenceIcon = Icon as typeof Truck;
-                    return <article key={String(label)}><EvidenceIcon size={23} weight="duotone" /><div><b>{String(label)}</b><span>{String(value)}</span><small>{String(reason)}</small></div><CheckCircle size={22} weight="fill" /></article>;
-                  })}
-                </section>
-                <aside className="decision-aside"><StateTag kind="ai">AI 建议</StateTag><h3>关联置信度</h3><strong className="confidence">0.97</strong><p>该数值只用于展示界面结构，不代表真实模型评测结果。</p><button className="primary" onClick={() => advance("车辆、任务与证据已由企业运营协调员模拟确认。")}>确认关联 <ArrowRight size={17} /></button><button className="secondary" onClick={() => setNotice("已模拟退回补证；没有足够证据时不会强行关联。")}>退回补证</button></aside>
-              </div>
-            )}
-
-            {demoStep === 2 && (
-              <div className="demo-content gate-content">
-                <section className="rule-card"><WarningCircle size={30} weight="duotone" /><div><StateTag kind="ai">AI 风险建议</StateTag><h3>P1｜交付受阻</h3><p>依据合成错误码、三次开舱重试与同任务重复反馈提出建议。</p></div></section>
-                <section className="assignment-card"><h3>建议责任路由</h3><dl><div><dt>主责团队</dt><dd>企业车辆运维</dd></div><div><dt>协同角色</dt><dd>企业客服专员</dd></div><div><dt>响应目标</dt><dd>待企业确认</dd></div></dl><p><ShieldCheck size={18} /> 只创建企业协同工单；不控制车辆，不自动对外承诺。</p></section>
-                <aside className="decision-aside"><StateTag kind="pending">人工关口</StateTag><h3>由企业值班经理决定</h3><p>可确认风险与责任，或退回补充证据；演示不提供风险自动降级。</p><button className="primary" onClick={() => setModal("risk")}>打开人工确认</button></aside>
-              </div>
-            )}
-
-            {demoStep === 3 && (
-              <div className="demo-content workorder-content">
-                <section className="workorder-card"><span className="case-id">DEMO-WO-006</span><h3>舱门异常核查</h3><p className="owner-line"><Buildings size={19} />企业车辆运维负责人</p><ol><li className="done">已接单</li><li className="done">核验合成日志</li><li className="current">补充处置记录</li><li>等待验证</li></ol></section>
-                <section className="content-panel"><StateTag kind="synthetic">合成处置证据</StateTag><h3>提交内容</h3><dl><div><dt>核查记录</dt><dd>已核对开舱重试与版本信息</dd></div><div><dt>现场结果</dt><dd>合成测试恢复，等待授权人员验证</dd></div><div><dt>控制指令</dt><dd>未执行</dd></div></dl></section>
-                <aside className="decision-aside"><StateTag kind="pending">等待提交</StateTag><h3>处置完成不等于结案</h3><p>必须提交记录与验证证据，再由另一授权角色确认结果。</p><button className="primary" onClick={() => advance("企业车辆运维负责人已模拟提交处置证据，案件进入待验证。")}>提交处置证据 <ArrowRight size={17} /></button></aside>
-              </div>
-            )}
-
-            {demoStep === 4 && (
-              <div className="demo-content verify-content">
-                <section className="verification-list"><h3>关闭前检查</h3>{["原始反馈与来源仍可追溯", "车辆/任务关联已人工确认", "处置记录与验证人完整", "回复草稿不含赔偿、责任或恢复时间承诺"].map((item) => <p key={item}><CheckCircle size={20} weight="fill" />{item}</p>)}</section>
-                <section className="reply-draft"><StateTag kind="ai">AI 回复草稿</StateTag><blockquote>“已收到您反馈的到站开舱问题。相关记录已进入人工核查，感谢您提供线索。”</blockquote><small>仅为草稿；对外发送必须由企业授权人员确认。</small></section>
-                <aside className="decision-aside"><StateTag kind="pending">人工审批</StateTag><h3>验证结果并决定结案</h3><p>AI 不判断事故责任、赔偿、恢复时间或最终技术根因。</p><button className="primary" onClick={() => setModal("reply")}>审批回复与结案</button></aside>
-              </div>
-            )}
-
-            {demoStep === 5 && (
-              <div className="demo-content improvement-content">
-                <section className="cluster-summary"><StateTag kind="synthetic">合成问题簇</StateTag><span className="case-id">DEMO-CL-001</span><h3>舱门解锁失败</h3><strong>4</strong><small>个独立合成案件</small><p>只有同一事件才并案；不同事件仅进入同一问题簇。</p></section>
-                <section className="content-panel"><StateTag kind="pending">待企业验证</StateTag><h3>改进草案</h3><dl><div><dt>根因假设</dt><dd>可能与版本或部件批次相关</dd></div><div><dt>企业责任团队</dt><dd>待确认</dd></div><div><dt>7天 / 30天复发观察</dt><dd>{improvementCreated ? "草案已建立，观察未开始" : "尚未建立"}</dd></div></dl></section>
-                <aside className="decision-aside"><StateTag kind={improvementCreated ? "confirmed" : "pending"}>{improvementCreated ? "草案已生成" : "人工评审"}</StateTag><h3>{improvementCreated ? "闭环演示完成" : "由企业产品/质量负责人决定"}</h3><p>{improvementCreated ? "未确认最终根因，未发布知识；后续仍需企业数据验证。" : "生成草案不等于确认根因，也不代表改进已经产生经营成效。"}</p><button className="primary" disabled={improvementCreated} onClick={() => { setImprovementCreated(true); setNotice("已生成待企业评审的改进草案；未确认根因，未发布知识。"); }}>{improvementCreated ? <><Check size={17} /> 已生成改进草案</> : <>生成改进项目草案 <ArrowRight size={17} /></>}</button><button className="secondary" onClick={() => navigate("team")}>查看参赛团队</button></aside>
-              </div>
-            )}
-
-            <footer className="demo-board-foot" aria-live="polite"><CheckCircle size={19} weight="duotone" /><span>{notice}</span></footer>
-          </div>
-        </section>
-      )}
-
-      {view === "cases" && (
-        <section className="workspace">
-          <div className="workspace-head"><div><p className="eyebrow">精选合成案件</p><h1>从原文到可处置对象</h1><p>页面精选展示 6 / 20 个合成案件；完整明细以报名 Excel 为准。</p></div><div className="filter-row" aria-label="按风险筛选">{(["全部", "P0", "P1", "P2", "P3"] as const).map((item) => <button key={item} className={filter === item ? "selected" : ""} onClick={() => setFilter(item)}>{item}</button>)}</div></div>
-          <div className="case-layout">
-            <div className="case-list" aria-label="案件列表">{filteredCases.map((item) => <button className={`case-row ${item.id === selected.id ? "chosen" : ""}`} key={item.id} onClick={() => setSelectedId(item.id)}><PriorityTag priority={item.priority} /><span className="case-row-title"><b>{item.title}</b><small>{item.id} · {item.status}</small></span><ArrowRight size={18} /></button>)}</div>
-            <article className="case-detail"><div className="detail-top"><div><PriorityTag priority={selected.priority} /> <StateTag kind="synthetic">合成案件</StateTag></div><span className="case-id">{selected.id}</span></div><h2>{selected.title}</h2><p className="detail-summary">{selected.summary}</p><div className="detail-grid"><div><span>车辆</span><b>{selected.vehicle}</b></div><div><span>任务</span><b>{selected.task}</b></div><div><span>建议企业团队</span><b>{selected.team}</b></div><div><span>关联置信度</span><b>{selected.confidence}</b></div></div><div className="evidence-section"><h3>模拟证据类型</h3><div>{selected.evidence.map((item) => <span key={item}>{item}</span>)}</div></div><div className="next-action"><span>下一步</span><b>{selected.next}</b></div><div className="audit-note">低置信关联不会自动写入结论。系统保留证据、AI建议与人工修改记录。</div>{selected.id === "DEMO-C-002" && <button className="primary detail-cta" onClick={() => { setDemoStep(0); navigate("demo"); }}>用这个案例体验闭环 <ArrowRight size={17} /></button>}</article>
-          </div>
-        </section>
-      )}
-
-      {view === "clusters" && (
-        <section className="workspace">
-          <div className="workspace-head"><div><p className="eyebrow">重复问题</p><h1>从案件到改进草案</h1><p>页面精选展示 4 / 10 个合成问题簇；不同事件只聚类，不合并案件。</p></div></div>
-          <div className="cluster-layout">
-            <div className="cluster-list">{clusters.map((cluster) => <button key={cluster.id} className={cluster.id === selectedCluster.id ? "chosen" : ""} onClick={() => setSelectedClusterId(cluster.id)}><PriorityTag priority={cluster.risk} /><span><b>{cluster.name}</b><small>{cluster.id} · {cluster.count} 个合成案件</small></span><ArrowRight size={18} /></button>)}</div>
-            <article className="cluster-detail"><div className="detail-top"><StateTag kind="synthetic">合成问题簇</StateTag><span className="status">{selectedCluster.status}</span></div><span className="case-id">{selectedCluster.id}</span><h2>{selectedCluster.name}</h2><div className="cluster-count"><strong>{selectedCluster.count}</strong><span>关联案件</span></div><div className="related-cases">{selectedCluster.related.map((item) => <span key={item}>{item}</span>)}</div><dl><div><dt>根因假设</dt><dd>{selectedCluster.hypothesis}</dd></div><div><dt>下一步</dt><dd>{selectedCluster.action}</dd></div><div><dt>企业责任团队</dt><dd>待企业确认</dd></div></dl>{selectedCluster.id === "DEMO-CL-001" && <button className="primary detail-cta" onClick={() => { setDemoStep(5); navigate("demo"); }}>进入改进演示 <ArrowRight size={17} /></button>}</article>
-          </div>
-          <div className="recurrence"><div><p className="eyebrow">复发监测口径</p><h2>7 天与 30 天观察</h2><p>合成柱形只展示界面与计算口径，不代表企业经营成效。</p></div><div className="recurrence-bars"><div><span>7天</span><i style={{ width: "56%" }} /></div><div><span>30天</span><i style={{ width: "32%" }} /></div><small>示例值｜不代表真实趋势</small></div></div>
-        </section>
-      )}
-
-      {view === "team" && (
-        <section className="workspace team-page">
-          <div className="workspace-head"><div><p className="eyebrow">参赛团队｜石听未来</p><h1>项目由两名参赛成员共同完成</h1><p>这里仅展示参赛项目归属；两名成员不映射演示中的企业客服、运维、审批或改进角色。</p></div></div>
-          <div className="team-grid">
-            <article className="member-card"><img src="/avatars/liu.png" alt="刘肖蔚然的刘姓氏头像" width="118" height="118" /><div><span className="member-role">队长</span><h2>刘肖蔚然</h2><p>青岛农业大学</p><p>风景园林（虚拟现实技术设计）</p></div></article>
-            <article className="member-card"><img src="/avatars/yan.png" alt="闫紫豪的闫姓氏头像" width="118" height="118" /><div><span className="member-role">队员</span><h2>闫紫豪</h2><p>青岛农业大学</p><p>风景园林（虚拟现实技术设计）</p></div></article>
-          </div>
-          <div className="team-clarity"><ShieldCheck size={25} weight="duotone" /><div><h2>角色边界</h2><p>参赛成员负责本项目的设计与制作。演示闭环中的接单、派单、处置、审批和改进均由“企业业务角色（演示名称，待企业确认）”执行。</p></div></div>
-          <button className="primary" onClick={() => navigate("demo")}>查看企业闭环演示 <ArrowRight size={17} /></button>
-        </section>
-      )}
-
-      <footer className="site-footer"><span>石听未来 · 石听 NeoLoop</span><span>公开交互原型 · 全部业务数据均为合成样例</span></footer>
-
-      {modal && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={() => setModal(null)}>
-          <section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onMouseDown={(event) => event.stopPropagation()}>
-            <div className="modal-icon"><ShieldCheck size={28} weight="duotone" /></div>
-            {modal === "risk" ? (
-              <><StateTag kind="pending">人工关口</StateTag><h2 id="modal-title">确认 P1 并生成合成工单？</h2><p>企业值班经理确认风险与责任路由。系统只生成本地演示状态，不创建真实工单，也不向车辆发送指令。</p><ul><li>风险建议：P1｜交付受阻</li><li>主责团队：企业车辆运维</li><li>缺失证据：无（合成演示状态）</li></ul><div className="modal-actions"><button className="secondary" onClick={() => { setModal(null); setNotice("已退回补充证据；案件仍停留在人工关口。") }}><ArrowLeft size={17} />退回补证</button><button className="primary" onClick={() => { setModal(null); advance("人工决定已记录；合成工单 DEMO-WO-006 已生成。") }}>确认 P1 并生成工单 <ArrowRight size={17} /></button></div></>
-            ) : (
-              <><StateTag kind="pending">人工审批</StateTag><h2 id="modal-title">批准回复草稿并模拟关闭案件？</h2><p>企业授权审批人确认验证证据与回复边界。此操作不会发送真实消息。</p><ul><li>验证人：企业授权审批人（合成角色）</li><li>回复：不含赔偿、责任或恢复时间承诺</li><li>最终根因：仍为待验证</li></ul><div className="modal-actions"><button className="secondary" onClick={() => setModal(null)}>继续检查</button><button className="primary" onClick={() => { setModal(null); advance("回复草稿已模拟批准，案件已模拟关闭并进入问题簇观察。") }}>批准并模拟关闭 <ArrowRight size={17} /></button></div></>
-            )}
-          </section>
+          ))}
         </div>
+      </section>
+
+      <section className="evidence-section section-shell" id="evidence-boundary" aria-labelledby="evidence-title">
+        <div className="section-heading">
+          <div><p className="section-kicker">声明先于结论</p><h2 id="evidence-title">四类证据，分开说清楚</h2></div>
+          <p>标签来自公开声明文件。它们约束页面如何描述事实、验证问题、设计规格和合成结果。</p>
+        </div>
+        <div className="evidence-grid">
+          {evidenceBoundaries.map((boundary, index) => (
+            <article className={`evidence-card evidence-card-${index + 1}`} key={boundary.evidence_class}>
+              <div><span>0{index + 1}</span><EvidenceTag value={boundary.evidence_class} /></div>
+              <h3>{boundary.requirement}</h3>
+              <p>不得：{boundary.forbidden_practice}</p>
+              <code>{boundary.public_status}</code>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="team-strip" aria-labelledby="team-title">
+        <div className="team-summary">
+          <p className="section-kicker">参赛团队 / 联系方式</p>
+          <h2 id="team-title">石听未来</h2>
+          <p>参赛成员不等于演示中的企业角色。这里仅展示团队身份与公开联系方式。</p>
+        </div>
+
+        <div className="team-people">
+          <p className="micro-label">成员</p>
+          <ul className="team-member-list" aria-label="参赛成员">
+            <li><strong>刘肖蔚然</strong><span>队长</span></li>
+            <li><strong>闫紫豪</strong><span>队员</span></li>
+          </ul>
+          <p className="team-school">青岛农业大学｜风景园林（虚拟现实技术设计）</p>
+        </div>
+
+        <div className="team-contact">
+          <p className="micro-label">联系与源码</p>
+          <div className="contact-links">
+            <a className="contact-link" href="mailto:2718275274@qq.com">
+              <span><small>邮箱</small><b>2718275274@qq.com</b></span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+            <a
+              className="contact-link"
+              href="https://github.com/b46ngpvmbt-create"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="打开 GitHub 个人主页（新窗口）"
+            >
+              <span><small>GitHub 个人主页</small><b>github.com/b46ngpvmbt-create</b></span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+            <a
+              className="contact-link"
+              href="https://github.com/b46ngpvmbt-create/shiting-neoloop"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="打开石听 NeoLoop 项目仓库（新窗口）"
+            >
+              <span><small>项目仓库</small><b>github.com/b46ngpvmbt-create/shiting-neoloop</b></span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="site-footer">
+        <div className="footer-brand"><span className="brand-mark">石听</span><span><b>{snapshotMeta.productName}</b><small>{snapshotMeta.teamName}</small></span></div>
+        <p>{snapshotMeta.disclaimer}</p>
+        <dl className="version-list">
+          <div><dt>snapshot</dt><dd>{snapshotMeta.snapshotVersion}</dd></div>
+          <div><dt>schema</dt><dd>{snapshotMeta.schemaVersion}</dd></div>
+          <div><dt>fixture</dt><dd>{snapshotMeta.fixtureVersion}</dd></div>
+        </dl>
+      </footer>
+
+      {activeDrill && (
+        <ReplayDialog title={activeDrill.drill_id} onClose={closeDrill}>
+          <div className="dialog-status"><span className="not-run-chip">{executionLabel(activeDrill.execution_status)}</span><EvidenceTag value={activeDrill.evidence_class} /></div>
+          <p className="dialog-summary">{activeDrill.fault_summary}</p>
+          <section className="dialog-block"><h3>预期安全路径</h3><p>{activeDrill.expected_safe_path}</p></section>
+          <div className="dialog-grid">
+            <section className="dialog-block"><h3>人工关口</h3><ul>{activeDrill.human_gate_keys.map((item) => <li key={item}>{item}</li>)}</ul></section>
+            <section className="dialog-block"><h3>禁止动作</h3><ul>{activeDrill.forbidden_actions.map((item) => <li key={item}>{item}</li>)}</ul></section>
+          </div>
+          <p className="dialog-footnote">状态仍为未运行；关闭弹窗不会保存状态、触发重试、升级或任何车辆动作。</p>
+        </ReplayDialog>
       )}
     </main>
   );
