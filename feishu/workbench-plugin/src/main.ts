@@ -2,6 +2,7 @@ import "./styles.css";
 import {
   createMockBaseAdapter,
   createOfficialLarkBaseAdapter,
+  createPublicPreviewBaseAdapter,
 } from "./base-adapter";
 import {
   createMockConnectorClient,
@@ -23,6 +24,18 @@ const mount = root;
 
 const isLocalPreview = import.meta.env.DEV
   && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
+const isLikelyFeishuHost = window.self !== window.top || Boolean(window.tt);
+
+async function loadFeishuH5Sdk(): Promise<void> {
+  if (window.tt || !isLikelyFeishuHost) return;
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://lf-scm-cn.feishucdn.com/lark/op/h5-js-sdk-1.5.44.js";
+    script.addEventListener("load", () => resolve(), { once: true });
+    script.addEventListener("error", () => reject(new Error("SDK 未加载")), { once: true });
+    document.head.append(script);
+  });
+}
 
 let activeWorkbench: NeoLoopWorkbench | null = null;
 window.addEventListener("keydown", (event) => activeWorkbench?.handleGlobalKeydown(event));
@@ -60,7 +73,8 @@ async function bootstrap(): Promise<void> {
       ? new HttpConnectorClient(window.location.origin, () => session.authorization)
       : createUnavailableConnectorClient();
     workbenchHost.replaceChildren();
-    const workbench = new NeoLoopWorkbench(workbenchHost, createOfficialLarkBaseAdapter(role), connectorClient, role);
+    const baseAdapter = session ? createOfficialLarkBaseAdapter(role) : createPublicPreviewBaseAdapter("judge");
+    const workbench = new NeoLoopWorkbench(workbenchHost, baseAdapter, connectorClient, role);
     activeWorkbench = workbench;
     await workbench.start();
 
@@ -94,6 +108,13 @@ async function bootstrap(): Promise<void> {
 
   let automaticSession: FeishuWorkbenchSession | null = null;
   let sessionState = "browser_oauth_required";
+  if (isLikelyFeishuHost) {
+    try {
+      await loadFeishuH5Sdk();
+    } catch (error) {
+      sessionState = sessionFailureCode(error);
+    }
+  }
   if (window.tt) {
     try {
       automaticSession = await createFeishuWorkbenchSession();

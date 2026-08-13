@@ -259,6 +259,19 @@ export function createOfficialLarkBaseAdapter(
   return createLarkBaseAdapter(bitable as unknown as LarkBaseSdkLike, role);
 }
 
+/** Public read-only preview binding. It never contacts or mutates the Base. */
+export function createPublicPreviewBaseAdapter(
+  role: WorkbenchRole = "judge",
+): WorkbenchBaseAdapter {
+  const preview = createMockBaseAdapter(role);
+  return {
+    ...preview,
+    async updateSyntheticRecord() {
+      throw new Error("公开预览不允许写入 Base");
+    },
+  };
+}
+
 export function createMockBaseAdapter(role: WorkbenchRole = "owner"): WorkbenchBaseAdapter {
   const tables: BaseTableSummary[] = BASE_TABLES.map((table, index) => ({
     key: table.key,

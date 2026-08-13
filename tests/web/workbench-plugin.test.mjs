@@ -144,7 +144,10 @@ test("SDK and connector boundaries keep tokens and one-time secrets out of persi
   assert.doesNotMatch(session, /if \(popup\.closed\) finish/);
   assert.match(session, /event\.origin !== origin/);
   assert.match(session, /new BroadcastChannel\("neoloop-owner-oauth-v1"\)/);
-  assert.match(html, /h5-js-sdk-1\.5\.44\.js/);
+  assert.doesNotMatch(html, /h5-js-sdk-1\.5\.44\.js/);
+  assert.match(main, /h5-js-sdk-1\.5\.44\.js/);
+  assert.match(main, /isLikelyFeishuHost/);
+  assert.match(main, /loadFeishuH5Sdk/);
   assert.doesNotMatch(main, /__NEOLOOP_LARK_BASE_SDK__/);
   assert.match(api, /Authorization/);
   assert.match(api, /Session/);
@@ -164,9 +167,13 @@ test("production paths never silently fall back to mock Base or connector data",
   assert.match(main, /createMockBaseAdapter\("owner"\)/);
   assert.match(main, /createMockConnectorClient\(\)/);
   assert.match(main, /createOfficialLarkBaseAdapter\(role\)/);
+  assert.match(main, /createPublicPreviewBaseAdapter\("judge"\)/);
+  assert.match(main, /session \? createOfficialLarkBaseAdapter\(role\) : createPublicPreviewBaseAdapter\("judge"\)/);
   assert.match(main, /createUnavailableConnectorClient\(\)/);
   assert.match(api, /throw new Error\("连接器会话未就绪/);
   assert.match(adapter, /Production binding\. This never falls back to synthetic data/);
+  assert.match(adapter, /Public read-only preview binding/);
+  assert.match(adapter, /公开预览不允许写入 Base/);
 });
 
 test("markup and styles preserve keyboard, dialog, live-region, and mobile affordances", async () => {
@@ -198,6 +205,14 @@ test("workbench header reads live workflow status and never falls back to a fabr
   assert.match(app, /workflow\.enabled/);
   assert.match(app, /状态待同步/);
   assert.doesNotMatch(app, /<b>6<\/b> 条工作流 <em>6 启用 \/ 0 停用<\/em>/);
+});
+
+test("anonymous preview labels snapshot data and never presents it as live Base readback", async () => {
+  const app = await source("src/workbench.ts");
+  assert.match(app, /公开合成预览快照/);
+  assert.match(app, /公开合成审计样例/);
+  assert.match(app, /context\?\.mode === "lark" \? "当前 Base 服务端读回" : "公开合成预览快照"/);
+  assert.match(app, /context\?\.mode === "standalone-preview" \? "预览"/);
 });
 
 test("AI audit validation is rendered as a clear result instead of raw JSON", async () => {

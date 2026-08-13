@@ -535,16 +535,18 @@ export class NeoLoopWorkbench {
     const cases = this.caseItems();
     const orders = this.workOrderItems();
     const audits = this.auditItems();
+    const dataProjectionLabel = this.state.context?.mode === "lark" ? "当前 Base 服务端读回" : "公开合成预览快照";
+    const auditProjectionLabel = this.state.context?.mode === "lark" ? "服务端审计记录" : "公开合成审计样例";
     const sourceCounts = sourceTypes.slice(1).map(([value, label]) => ({
       label,
       value: feedback.filter((item) => item.sourceType === value).length,
     })).filter((item) => item.value > 0);
     const metrics = [
-      { key: "feedback", label: "合成反馈", value: visible.length, detail: "当前 Base 服务端读回", tone: "mint" },
+      { key: "feedback", label: "合成反馈", value: visible.length, detail: dataProjectionLabel, tone: "mint" },
       { key: "attention", label: "待人工关注", value: feedback.filter((item) => item.status === "待分诊" || item.status === "人工处理").length, detail: "待分诊或人工处理", tone: "amber" },
       { key: "cases", label: "案件总数", value: cases.length, detail: "AI 不直接创建案件", tone: "cyan" },
       { key: "sla", label: "SLA 关注", value: orders.filter((item) => !NEUTRAL_ESCALATION_LEVELS.has(item.level)).length, detail: "已进入升级级别", tone: "rose" },
-      { key: "audit", label: "AI 审计", value: audits.length, detail: "服务端审计记录", tone: "violet" },
+      { key: "audit", label: "AI 审计", value: audits.length, detail: auditProjectionLabel, tone: "violet" },
     ];
     return `
       <section class="section-heading overview-heading">
@@ -569,7 +571,7 @@ export class NeoLoopWorkbench {
           </div>
         </article>
         <article class="panel trend-chart">
-          <header><div><span>接入趋势</span><h2>最近 7 天</h2></div><small>当前 Base 读回</small></header>
+          <header><div><span>接入趋势</span><h2>最近 7 天</h2></div><small>${dataProjectionLabel}</small></header>
           <div class="bar-chart" aria-label="七天合成反馈趋势">
             ${this.feedbackTrend(feedback).map((point) => `<div><i style="--bar:${point.height}%"></i><small>${point.label}</small></div>`).join("")}
           </div>
@@ -859,7 +861,8 @@ export class NeoLoopWorkbench {
           ${BASE_TABLES.map((table) => {
             const live = available.get(table.key);
             const ready = live?.available ?? true;
-            return `<button type="button" data-table="${table.key}"${buttonState(allowed && ready, ready ? "当前角色不可打开数据表" : "当前 Base 未找到该表")}><i aria-hidden="true">${table.icon}</i><span><b>${table.name}</b><small>${table.group}</small></span><em>${live?.count ?? table.count}</em></button>`;
+            const countLabel = this.state.context?.mode === "standalone-preview" ? "预览" : String(live?.count ?? table.count);
+            return `<button type="button" data-table="${table.key}"${buttonState(allowed && ready, ready ? "当前角色不可打开数据表" : "当前 Base 未找到该表")}><i aria-hidden="true">${table.icon}</i><span><b>${table.name}</b><small>${table.group}</small></span><em>${countLabel}</em></button>`;
           }).join("")}
         </nav>
         <footer><i aria-hidden="true"></i><span><b>字段目标 249</b><small>10 表 · 5 视图 · 9 关系</small></span></footer>
