@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0-draft.2",
+  "classes": {
+    "public_fact": {
+      "label": "公开事实",
+      "requirement": "附可核验来源、资料名称、获取日期和适用范围",
+      "forbidden": "推断企业内部系统或流程"
+    },
+    "enterprise_pending": {
+      "label": "待企业验证",
+      "requirement": "写明验证问题、责任人、所需证据和状态",
+      "forbidden": "写成已确认企业现状"
+    },
+    "solution_design": {
+      "label": "方案设计",
+      "requirement": "写明规格版本、设计内容和实现状态",
+      "forbidden": "无运行证据时标为已验证"
+    },
+    "synthetic_experiment": {
+      "label": "合成实验",
+      "requirement": "写明 fixture 版本、样本量和时钟来源",
+      "forbidden": "外推为真实客户案例、企业效率、收入或 ROI"
+    }
+  },
+  "seed_policy": "canonical 业务种子 data_scope 固定 synthetic_experiment；设计占位和待企业验证配置仍须保留 evidence_class。"
+}

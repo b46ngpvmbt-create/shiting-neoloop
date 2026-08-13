@@ -1,0 +1,129 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "disclaimer": "只读合成视图索引；状态和时间来自固定历史快照，不是企业现场运行或验收结果。",
+  "view_key": "improvement_tracker",
+  "label": "改进追踪",
+  "read_only": true,
+  "derived_from_public_files": [
+    "clusters.json",
+    "improvements.json"
+  ],
+  "record_count": 10,
+  "records": [
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-001",
+      "cluster_id": "SYN-CLUSTER-001",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-002",
+      "cluster_id": "SYN-CLUSTER-002",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-003",
+      "cluster_id": "SYN-CLUSTER-003",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-004",
+      "cluster_id": "SYN-CLUSTER-004",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-005",
+      "cluster_id": "SYN-CLUSTER-005",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-006",
+      "cluster_id": "SYN-CLUSTER-006",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-007",
+      "cluster_id": "SYN-CLUSTER-007",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-008",
+      "cluster_id": "SYN-CLUSTER-008",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-009",
+      "cluster_id": "SYN-CLUSTER-009",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "improvement_id": "SYN-IMPROVEMENT-010",
+      "cluster_id": "SYN-CLUSTER-010",
+      "record_mode": "synthetic_design_snapshot",
+      "workflow_run_evidence": false,
+      "runtime_evidence_available": false,
+      "clock_source": "synthetic_history"
+    }
+  ]
+}

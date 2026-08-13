@@ -1,0 +1,64 @@
+{
+  "catalog_version": "t1-r2-draft.1",
+  "schema_version": "1.0.0-draft.2",
+  "data_scope": "synthetic_experiment",
+  "builder": "scripts/neoloop-data/build-r2-workbooks.mjs",
+  "output_directory": "../../outputs/019fbb6b-neoloop-r2",
+  "disclaimer": "三份工作簿只承载合成种子、方案设计和待录入验收模板；没有运行证据的权限、节点、工作流和对照实验结果保持未测试、待录入或空值。",
+  "workbooks": [
+    {
+      "file": "NeoLoop_数据模型与导入.xlsx",
+      "sheets": [
+        "说明",
+        "字段字典",
+        "迁移映射",
+        "原始反馈",
+        "反馈案件",
+        "处置工单",
+        "问题簇",
+        "改进项目",
+        "车辆档案",
+        "配送任务",
+        "站点责任矩阵",
+        "知识索引",
+        "AI审计"
+      ],
+      "source": "data/canonical/manifest.json 与 data/canonical/tables/*.json"
+    },
+    {
+      "file": "NeoLoop_验收与评测.xlsx",
+      "sheets": [
+        "说明",
+        "权限矩阵",
+        "20案金标准",
+        "16案安全集",
+        "节点结果",
+        "工作流结果",
+        "证据索引"
+      ],
+      "source": "data/canonical/gold/case-gold.json、data/canonical/adversarial/safety-adversarial.json、data/canonical/scenarios/failure-drills.json 与待录入验收模板"
+    },
+    {
+      "file": "NeoLoop_流程对照实验.xlsx",
+      "sheets": [
+        "说明",
+        "分组设计",
+        "原始记录",
+        "错误记录",
+        "计算辅助",
+        "汇总"
+      ],
+      "source": "固定种子交叉顺序设计；实测输入区保持空白"
+    }
+  ],
+  "build_policy": {
+    "artifact_tool_only": true,
+    "artifact_tool_min_version": "2.8.6",
+    "runtime_results_prefilled": false,
+    "permission_results_prefilled": false,
+    "experiment_measurements_prefilled": false,
+    "formula_derived_summaries": true,
+    "render_every_worksheet": true,
+    "post_export_reimport_required": true
+  }
+}

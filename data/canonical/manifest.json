@@ -1,0 +1,254 @@
+{
+  "schema_version": "1.0.0-draft.2",
+  "status": "contract_corrected_initial_draft",
+  "generated_at": "2026-08-01T00:00:00+08:00",
+  "data_scope": "synthetic_experiment",
+  "evidence_classes": [
+    "public_fact",
+    "enterprise_pending",
+    "solution_design",
+    "synthetic_experiment"
+  ],
+  "disclaimer": "全部业务记录均为合成样例，仅用于迁移、契约与流程验证，不对应真实客户、车辆、任务、事故、责任或企业成效。",
+  "source": {
+    "file_name": "石听_NeoLoop_报名数据样例.xlsx",
+    "sha256": "9fe6fae6cb0f6cc4ca25695df57cc61b8a1a30c6f9f9d667ff7a8125a73f3be5",
+    "size_bytes": 38036,
+    "source_timezone": "Asia/Shanghai",
+    "workbook_unchanged": true,
+    "inspected_with": "bundled @oai/artifact-tool 2.8.6+ (read-only)"
+  },
+  "fixed_regression_counts": {
+    "raw_feedback": 30,
+    "cases": 20,
+    "work_orders": 27,
+    "clusters": 10
+  },
+  "tables": [
+    {
+      "name": "raw_feedback",
+      "file": "raw-feedback.json",
+      "primary_key": "feedback_id",
+      "foreign_key_fields": [
+        "linked_case_id",
+        "candidate_vehicle_id",
+        "candidate_task_id"
+      ],
+      "row_count": 30
+    },
+    {
+      "name": "cases",
+      "file": "cases.json",
+      "primary_key": "case_id",
+      "foreign_key_fields": [
+        "cluster_id",
+        "routing_rule_candidate_id"
+      ],
+      "row_count": 20
+    },
+    {
+      "name": "work_orders",
+      "file": "work-orders.json",
+      "primary_key": "work_order_id",
+      "foreign_key_fields": [
+        "case_id"
+      ],
+      "row_count": 27
+    },
+    {
+      "name": "clusters",
+      "file": "clusters.json",
+      "primary_key": "cluster_id",
+      "foreign_key_fields": [
+        "member_case_ids"
+      ],
+      "row_count": 10
+    },
+    {
+      "name": "improvements",
+      "file": "improvements.json",
+      "primary_key": "improvement_id",
+      "foreign_key_fields": [
+        "cluster_id"
+      ],
+      "row_count": 10
+    },
+    {
+      "name": "vehicles",
+      "file": "vehicles.json",
+      "primary_key": "vehicle_id",
+      "foreign_key_fields": [],
+      "row_count": 8
+    },
+    {
+      "name": "delivery_tasks",
+      "file": "delivery-tasks.json",
+      "primary_key": "task_id",
+      "foreign_key_fields": [
+        "vehicle_id"
+      ],
+      "row_count": 12
+    },
+    {
+      "name": "routing_matrix",
+      "file": "routing-matrix.json",
+      "primary_key": "routing_rule_id",
+      "foreign_key_fields": [],
+      "row_count": 20
+    },
+    {
+      "name": "knowledge_index",
+      "file": "knowledge-index.json",
+      "primary_key": "knowledge_id",
+      "foreign_key_fields": [],
+      "row_count": 4
+    },
+    {
+      "name": "ai_audit",
+      "file": "ai-audit.json",
+      "primary_key": "run_id",
+      "foreign_key_fields": [
+        "object_ref"
+      ],
+      "row_count": 0
+    }
+  ],
+  "status_enums": {
+    "raw_feedback": [
+      "待分诊",
+      "人工处理",
+      "已建案",
+      "已忽略"
+    ],
+    "cases": [
+      "待补充",
+      "待关联",
+      "待派单",
+      "处理中",
+      "待验证",
+      "待回访",
+      "已关闭",
+      "已合并"
+    ],
+    "work_orders": [
+      "待接单",
+      "处理中",
+      "待验证",
+      "已完成",
+      "已取消"
+    ],
+    "clusters": [
+      "候选",
+      "待审核",
+      "改进中",
+      "观察中",
+      "已归档",
+      "已驳回"
+    ],
+    "improvements": [
+      "待立项",
+      "执行中",
+      "观察中",
+      "已完成",
+      "已终止"
+    ]
+  },
+  "relationship_invariants": {
+    "improvement_status_by_cluster_status": {
+      "候选": "待立项",
+      "待审核": "待立项",
+      "改进中": "执行中",
+      "观察中": "观察中",
+      "已归档": "已完成",
+      "已驳回": "已终止"
+    }
+  },
+  "fixture_index": {
+    "fixture_version": "1.0.0-t1-r2",
+    "schema_version": "1.0.0-draft.2",
+    "data_scope": "synthetic_experiment",
+    "contract_projection_sha256": "3ff32e7eca534dbef1010fa13734aa31eb703ff303b485c397bf56f591430708",
+    "counts": {
+      "gold": 20,
+      "adversarial": 16,
+      "main_stories": 1,
+      "failure_drills": 4,
+      "scenarios_total": 5
+    },
+    "gold": {
+      "file": "gold/case-gold.json",
+      "record_count": 20,
+      "source_table": "tables/cases.json",
+      "source_record_mode": "legacy_snapshot",
+      "annotation_status": "draft_pending_human_review",
+      "workflow_run_evidence": false,
+      "p0_p1_metric_population": [
+        "GOLD-SYN-CASE-001",
+        "GOLD-SYN-CASE-002",
+        "GOLD-SYN-CASE-003",
+        "GOLD-SYN-CASE-014",
+        "GOLD-SYN-CASE-017"
+      ]
+    },
+    "adversarial": {
+      "file": "adversarial/safety-adversarial.json",
+      "record_count": 16,
+      "category_counts": {
+        "high_risk": 2,
+        "prompt_injection": 2,
+        "vehicle_control": 2,
+        "automatic_liability": 2,
+        "compensation": 2,
+        "recovery_time": 2,
+        "final_root_cause": 2,
+        "unreviewed_knowledge_publication": 2
+      },
+      "prohibited_action_metric_population": "all_16_records",
+      "p0_p1_metric_population": [
+        "ADV-HIGH-RISK-001",
+        "ADV-HIGH-RISK-002"
+      ]
+    },
+    "scenarios": {
+      "main_story": {
+        "file": "scenarios/main-story.json",
+        "record_count": 1,
+        "source_case_id": "SYN-CASE-017",
+        "record_mode": "scenario_runtime",
+        "execution_status": "not_run",
+        "clock_sources": [
+          "test",
+          "synthetic_history"
+        ]
+      },
+      "failure_drills": {
+        "file": "scenarios/failure-drills.json",
+        "record_count": 4,
+        "execution_status": "not_run",
+        "clock_sources": [
+          "test"
+        ]
+      }
+    },
+    "workbooks": {
+      "catalog_file": "workbooks/workbook-catalog.json",
+      "workbook_count": 3,
+      "sheet_counts": [
+        13,
+        7,
+        6
+      ],
+      "runtime_results_prefilled": false
+    }
+  },
+  "contract_notes": {
+    "raw_feedback_original_text_is_immutable": true,
+    "formal_entity_requires_human_confirmation": true,
+    "reassignment_must_not_reset_sla": true,
+    "vehicle_control_available": false,
+    "final_liability_or_root_cause_automatic": false,
+    "migrated_case_record_mode": "legacy_snapshot",
+    "closed_snapshot_requires_replay_reset": true,
+    "runnable_scenarios_live_under": "data/canonical/scenarios"
+  }
+}

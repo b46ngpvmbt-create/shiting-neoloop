@@ -1,0 +1,52 @@
+{
+  "source_file": "石听_NeoLoop_报名数据样例.xlsx",
+  "sha256": "9fe6fae6cb0f6cc4ca25695df57cc61b8a1a30c6f9f9d667ff7a8125a73f3be5",
+  "size_bytes": 38036,
+  "workbook_sheet_count": 8,
+  "inspected_sheets": [
+    {
+      "name": "README",
+      "used_range": "A1:J26"
+    },
+    {
+      "name": "原始反馈",
+      "used_range": "A1:J34",
+      "business_rows": 30
+    },
+    {
+      "name": "反馈案件",
+      "used_range": "A1:V24",
+      "business_rows": 20
+    },
+    {
+      "name": "车辆任务",
+      "used_range": "A1:O16",
+      "vehicle_rows": 8,
+      "task_rows": 12
+    },
+    {
+      "name": "处置工单",
+      "used_range": "A1:M31",
+      "business_rows": 27
+    },
+    {
+      "name": "问题簇",
+      "used_range": "A1:J14",
+      "business_rows": 10
+    },
+    {
+      "name": "指标口径",
+      "used_range": "A1:G12"
+    },
+    {
+      "name": "证据来源",
+      "used_range": "A1:E12"
+    }
+  ],
+  "website_data_reviewed": [
+    "app/page.tsx",
+    "data/demo-cases.json",
+    "docs/app.js"
+  ],
+  "source_of_truth_decision": "报名 Excel 为本轮旧数据迁移输入；网站三套数据只用于漂移比对，不反向覆盖 Excel。"
+}

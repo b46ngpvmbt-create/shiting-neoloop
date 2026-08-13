@@ -1,0 +1,614 @@
+{
+  "schema_version": "1.0.0-draft.2",
+  "source_sha256": "9fe6fae6cb0f6cc4ca25695df57cc61b8a1a30c6f9f9d667ff7a8125a73f3be5",
+  "rules": {
+    "case_ids": [
+      {
+        "legacy_id": "DEMO-C-002",
+        "canonical_id": "SYN-CASE-017",
+        "reason": "规格锁定的舱门主故事"
+      },
+      {
+        "legacy_id": "DEMO-C-017",
+        "canonical_id": "SYN-CASE-002",
+        "reason": "规格锁定的冷链编号交换"
+      },
+      {
+        "legacy_pattern": "DEMO-C-n",
+        "canonical_pattern": "SYN-CASE-n",
+        "exception_ids": [
+          "DEMO-C-002",
+          "DEMO-C-017"
+        ]
+      }
+    ],
+    "case_statuses": {
+      "已关闭": {
+        "type": "direct",
+        "target": "已关闭"
+      },
+      "处理中": {
+        "type": "direct",
+        "target": "处理中"
+      },
+      "待验证": {
+        "type": "direct",
+        "target": "待验证"
+      },
+      "观察中": {
+        "type": "direct",
+        "target": "待回访"
+      },
+      "已分诊": {
+        "type": "conditional",
+        "condition": "missing_fields.length === 0",
+        "when_complete": "待关联",
+        "when_incomplete": "待补充"
+      },
+      "待人工确认": {
+        "type": "direct",
+        "target": "待关联"
+      }
+    },
+    "work_order_statuses": {
+      "已验证": "已完成",
+      "已完成": "已完成",
+      "处理中": "处理中",
+      "待接单": "待接单"
+    },
+    "cluster_statuses": {
+      "观察中": "观察中",
+      "处理中": "改进中",
+      "已控制": "待审核",
+      "待评审": "待审核"
+    },
+    "association_mode": {
+      "自动": "AI候选生成+正式关系待人工确认",
+      "人工": "人工候选+正式关系待人工确认",
+      "不适用": "不适用"
+    }
+  },
+  "review_items": [
+    "旧案件状态“观察中”无关闭时间，初稿迁为“待回访”，长期观察另建改进项目；需主控在契约冻结前复核。",
+    "旧问题簇状态“处理中/已控制/待评审”没有计划内逐项映射，初稿分别映为“改进中/待审核/待审核”；需主控复核。",
+    "旧工作簿只保存单一优先级，除明确硬规则的 DEMO-C-001 外，rule_risk 暂为空、ai_risk 与 final_risk 保留旧优先级。",
+    "仓库 package.json 没有 Excel 解析依赖；本轮使用桌面捆绑 artifact-tool 只读核对，未修改依赖。"
+  ],
+  "mappings": [
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-001",
+      "canonical_id": "SYN-FEEDBACK-001"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-002",
+      "canonical_id": "SYN-FEEDBACK-002"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-003",
+      "canonical_id": "SYN-FEEDBACK-003"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-004",
+      "canonical_id": "SYN-FEEDBACK-004"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-005",
+      "canonical_id": "SYN-FEEDBACK-005"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-006",
+      "canonical_id": "SYN-FEEDBACK-006"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-007",
+      "canonical_id": "SYN-FEEDBACK-007"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-008",
+      "canonical_id": "SYN-FEEDBACK-008"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-009",
+      "canonical_id": "SYN-FEEDBACK-009"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-010",
+      "canonical_id": "SYN-FEEDBACK-010"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-011",
+      "canonical_id": "SYN-FEEDBACK-011"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-012",
+      "canonical_id": "SYN-FEEDBACK-012"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-013",
+      "canonical_id": "SYN-FEEDBACK-013"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-014",
+      "canonical_id": "SYN-FEEDBACK-014"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-015",
+      "canonical_id": "SYN-FEEDBACK-015"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-016",
+      "canonical_id": "SYN-FEEDBACK-016"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-017",
+      "canonical_id": "SYN-FEEDBACK-017"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-018",
+      "canonical_id": "SYN-FEEDBACK-018"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-019",
+      "canonical_id": "SYN-FEEDBACK-019"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-020",
+      "canonical_id": "SYN-FEEDBACK-020"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-021",
+      "canonical_id": "SYN-FEEDBACK-021"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-022",
+      "canonical_id": "SYN-FEEDBACK-022"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-023",
+      "canonical_id": "SYN-FEEDBACK-023"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-024",
+      "canonical_id": "SYN-FEEDBACK-024"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-025",
+      "canonical_id": "SYN-FEEDBACK-025"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-026",
+      "canonical_id": "SYN-FEEDBACK-026"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-027",
+      "canonical_id": "SYN-FEEDBACK-027"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-028",
+      "canonical_id": "SYN-FEEDBACK-028"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-029",
+      "canonical_id": "SYN-FEEDBACK-029"
+    },
+    {
+      "table": "raw_feedback",
+      "legacy_id": "DEMO-F-030",
+      "canonical_id": "SYN-FEEDBACK-030"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-001",
+      "canonical_id": "SYN-CASE-001"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-002",
+      "canonical_id": "SYN-CASE-017"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-003",
+      "canonical_id": "SYN-CASE-003"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-004",
+      "canonical_id": "SYN-CASE-004"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-005",
+      "canonical_id": "SYN-CASE-005"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-006",
+      "canonical_id": "SYN-CASE-006"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-007",
+      "canonical_id": "SYN-CASE-007"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-008",
+      "canonical_id": "SYN-CASE-008"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-009",
+      "canonical_id": "SYN-CASE-009"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-010",
+      "canonical_id": "SYN-CASE-010"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-011",
+      "canonical_id": "SYN-CASE-011"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-012",
+      "canonical_id": "SYN-CASE-012"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-013",
+      "canonical_id": "SYN-CASE-013"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-014",
+      "canonical_id": "SYN-CASE-014"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-015",
+      "canonical_id": "SYN-CASE-015"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-016",
+      "canonical_id": "SYN-CASE-016"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-017",
+      "canonical_id": "SYN-CASE-002"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-018",
+      "canonical_id": "SYN-CASE-018"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-019",
+      "canonical_id": "SYN-CASE-019"
+    },
+    {
+      "table": "cases",
+      "legacy_id": "DEMO-C-020",
+      "canonical_id": "SYN-CASE-020"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-001",
+      "canonical_id": "SYN-WO-001"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-002",
+      "canonical_id": "SYN-WO-002"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-003",
+      "canonical_id": "SYN-WO-003"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-004",
+      "canonical_id": "SYN-WO-004"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-005",
+      "canonical_id": "SYN-WO-005"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-006",
+      "canonical_id": "SYN-WO-006"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-007",
+      "canonical_id": "SYN-WO-007"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-008",
+      "canonical_id": "SYN-WO-008"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-009",
+      "canonical_id": "SYN-WO-009"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-010",
+      "canonical_id": "SYN-WO-010"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-011",
+      "canonical_id": "SYN-WO-011"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-012",
+      "canonical_id": "SYN-WO-012"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-013",
+      "canonical_id": "SYN-WO-013"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-014",
+      "canonical_id": "SYN-WO-014"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-015",
+      "canonical_id": "SYN-WO-015"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-016",
+      "canonical_id": "SYN-WO-016"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-017",
+      "canonical_id": "SYN-WO-017"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-018",
+      "canonical_id": "SYN-WO-018"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-019",
+      "canonical_id": "SYN-WO-019"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-020",
+      "canonical_id": "SYN-WO-020"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-021",
+      "canonical_id": "SYN-WO-021"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-022",
+      "canonical_id": "SYN-WO-022"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-023",
+      "canonical_id": "SYN-WO-023"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-024",
+      "canonical_id": "SYN-WO-024"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-025",
+      "canonical_id": "SYN-WO-025"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-026",
+      "canonical_id": "SYN-WO-026"
+    },
+    {
+      "table": "work_orders",
+      "legacy_id": "DEMO-WO-027",
+      "canonical_id": "SYN-WO-027"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-001",
+      "canonical_id": "SYN-CLUSTER-001"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-002",
+      "canonical_id": "SYN-CLUSTER-002"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-003",
+      "canonical_id": "SYN-CLUSTER-003"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-004",
+      "canonical_id": "SYN-CLUSTER-004"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-005",
+      "canonical_id": "SYN-CLUSTER-005"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-006",
+      "canonical_id": "SYN-CLUSTER-006"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-007",
+      "canonical_id": "SYN-CLUSTER-007"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-008",
+      "canonical_id": "SYN-CLUSTER-008"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-009",
+      "canonical_id": "SYN-CLUSTER-009"
+    },
+    {
+      "table": "clusters",
+      "legacy_id": "DEMO-CL-010",
+      "canonical_id": "SYN-CLUSTER-010"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X6-102",
+      "canonical_id": "SYN-VEHICLE-X6-102"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X6-107",
+      "canonical_id": "SYN-VEHICLE-X6-107"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X3-205",
+      "canonical_id": "SYN-VEHICLE-X3-205"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X6-118",
+      "canonical_id": "SYN-VEHICLE-X6-118"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X3-211",
+      "canonical_id": "SYN-VEHICLE-X3-211"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X6-130",
+      "canonical_id": "SYN-VEHICLE-X6-130"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X6-145",
+      "canonical_id": "SYN-VEHICLE-X6-145"
+    },
+    {
+      "table": "vehicles",
+      "legacy_id": "DEMO-X3-222",
+      "canonical_id": "SYN-VEHICLE-X3-222"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8452",
+      "canonical_id": "SYN-TASK-8452"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8458",
+      "canonical_id": "SYN-TASK-8458"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8461",
+      "canonical_id": "SYN-TASK-8461"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8470",
+      "canonical_id": "SYN-TASK-8470"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8474",
+      "canonical_id": "SYN-TASK-8474"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8480",
+      "canonical_id": "SYN-TASK-8480"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8488",
+      "canonical_id": "SYN-TASK-8488"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8492",
+      "canonical_id": "SYN-TASK-8492"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8501",
+      "canonical_id": "SYN-TASK-8501"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8508",
+      "canonical_id": "SYN-TASK-8508"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8514",
+      "canonical_id": "SYN-TASK-8514"
+    },
+    {
+      "table": "delivery_tasks",
+      "legacy_id": "DEMO-T-8520",
+      "canonical_id": "SYN-TASK-8520"
+    }
+  ]
+}

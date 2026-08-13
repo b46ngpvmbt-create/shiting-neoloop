@@ -1,0 +1,262 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "disclaimer": "只读合成视图索引；状态和时间来自固定历史快照，不是企业现场运行或验收结果。",
+  "view_key": "sla_board",
+  "label": "SLA 协同板",
+  "read_only": true,
+  "derived_from_public_files": [
+    "cases.json",
+    "work-orders.json"
+  ],
+  "record_count": 27,
+  "records": [
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-001",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-002",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-003",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-004",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-005",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-006",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-007",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-008",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-009",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-010",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-011",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-012",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-013",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-014",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-015",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-016",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-017",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-018",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-019",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-020",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-021",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-022",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-023",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-024",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-025",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-026",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "work_order_id": "SYN-WO-027",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "clock_source": "synthetic_history"
+    }
+  ]
+}

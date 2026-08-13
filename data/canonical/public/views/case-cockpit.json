@@ -1,0 +1,376 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "disclaimer": "只读合成视图索引；状态和时间来自固定历史快照，不是企业现场运行或验收结果。",
+  "view_key": "case_cockpit",
+  "label": "案件驾驶舱",
+  "read_only": true,
+  "derived_from_public_files": [
+    "cases.json",
+    "work-orders.json"
+  ],
+  "record_count": 20,
+  "records": [
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-001",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-003",
+      "feedback_ids": [
+        "SYN-FEEDBACK-001",
+        "SYN-FEEDBACK-002"
+      ],
+      "work_order_ids": [
+        "SYN-WO-001",
+        "SYN-WO-002"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-017",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-001",
+      "feedback_ids": [
+        "SYN-FEEDBACK-003",
+        "SYN-FEEDBACK-004",
+        "SYN-FEEDBACK-005"
+      ],
+      "work_order_ids": [
+        "SYN-WO-003"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-003",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-002",
+      "feedback_ids": [
+        "SYN-FEEDBACK-006",
+        "SYN-FEEDBACK-007"
+      ],
+      "work_order_ids": [
+        "SYN-WO-004",
+        "SYN-WO-005"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-004",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-004",
+      "feedback_ids": [
+        "SYN-FEEDBACK-008",
+        "SYN-FEEDBACK-009"
+      ],
+      "work_order_ids": [
+        "SYN-WO-006"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-005",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-005",
+      "feedback_ids": [
+        "SYN-FEEDBACK-010",
+        "SYN-FEEDBACK-011"
+      ],
+      "work_order_ids": [
+        "SYN-WO-007"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-006",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-006",
+      "feedback_ids": [
+        "SYN-FEEDBACK-012"
+      ],
+      "work_order_ids": [
+        "SYN-WO-008"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-007",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-007",
+      "feedback_ids": [
+        "SYN-FEEDBACK-013",
+        "SYN-FEEDBACK-014"
+      ],
+      "work_order_ids": [
+        "SYN-WO-009"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-008",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-001",
+      "feedback_ids": [
+        "SYN-FEEDBACK-015",
+        "SYN-FEEDBACK-016"
+      ],
+      "work_order_ids": [
+        "SYN-WO-010"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-009",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-004",
+      "feedback_ids": [
+        "SYN-FEEDBACK-017"
+      ],
+      "work_order_ids": [
+        "SYN-WO-011"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-010",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-008",
+      "feedback_ids": [
+        "SYN-FEEDBACK-018",
+        "SYN-FEEDBACK-019"
+      ],
+      "work_order_ids": [
+        "SYN-WO-012",
+        "SYN-WO-013"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-011",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-009",
+      "feedback_ids": [
+        "SYN-FEEDBACK-020"
+      ],
+      "work_order_ids": [
+        "SYN-WO-014",
+        "SYN-WO-015"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-012",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-006",
+      "feedback_ids": [
+        "SYN-FEEDBACK-021"
+      ],
+      "work_order_ids": [
+        "SYN-WO-016"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-013",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-005",
+      "feedback_ids": [
+        "SYN-FEEDBACK-022",
+        "SYN-FEEDBACK-023"
+      ],
+      "work_order_ids": [
+        "SYN-WO-017"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-014",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-001",
+      "feedback_ids": [
+        "SYN-FEEDBACK-024"
+      ],
+      "work_order_ids": [
+        "SYN-WO-018",
+        "SYN-WO-019"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-015",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-009",
+      "feedback_ids": [
+        "SYN-FEEDBACK-025"
+      ],
+      "work_order_ids": [
+        "SYN-WO-020",
+        "SYN-WO-021"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-016",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-010",
+      "feedback_ids": [
+        "SYN-FEEDBACK-026"
+      ],
+      "work_order_ids": [
+        "SYN-WO-022"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-002",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-010",
+      "feedback_ids": [
+        "SYN-FEEDBACK-027"
+      ],
+      "work_order_ids": [
+        "SYN-WO-023",
+        "SYN-WO-024"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-018",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-006",
+      "feedback_ids": [
+        "SYN-FEEDBACK-028"
+      ],
+      "work_order_ids": [
+        "SYN-WO-025"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-019",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-002",
+      "feedback_ids": [
+        "SYN-FEEDBACK-029"
+      ],
+      "work_order_ids": [
+        "SYN-WO-026"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "case_id": "SYN-CASE-020",
+      "record_mode": "legacy_snapshot",
+      "workflow_run_evidence": false,
+      "cluster_id": "SYN-CLUSTER-001",
+      "feedback_ids": [
+        "SYN-FEEDBACK-030"
+      ],
+      "work_order_ids": [
+        "SYN-WO-027"
+      ],
+      "audit_evidence_available": false,
+      "follow_up_evidence_available": false
+    }
+  ]
+}

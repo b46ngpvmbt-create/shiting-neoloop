@@ -1,0 +1,134 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "disclaimer": "SYN-CASE-017 公开回放仍未运行；只展示固定输入、预期路径与人工关口，不展示运行结果。",
+  "record_count": 1,
+  "records": [
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "scenario_id": "SCN-SYN-CASE-017-MAIN-001",
+      "scenario_key": "syn_case_017_main_story",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-MAIN",
+      "execution_status": "not_run",
+      "runtime_evidence_available": false,
+      "clock": {
+        "source": "test",
+        "timezone": "Asia/Shanghai",
+        "anchor": "2026-08-01T09:00:00+08:00",
+        "advancement": "manual_only"
+      },
+      "observation_clock": {
+        "source": "synthetic_history",
+        "timezone": "Asia/Shanghai",
+        "planned_offsets_days": [
+          7,
+          30
+        ],
+        "execution_status": "not_run"
+      },
+      "replay_input": {
+        "schema_version": "1.0.0-draft.2",
+        "data_scope": "synthetic_experiment",
+        "evidence_class": "synthetic_experiment",
+        "feedback_id": "SYN-RUNTIME-FEEDBACK-017-MAIN",
+        "received_at": "2026-08-01T09:00:00+08:00",
+        "timezone": "Asia/Shanghai",
+        "channel": "客户群",
+        "sender_role": "合成场景操作者",
+        "original_text": "合成场景：A站取货时舱门连续两次无法解锁，任务已经延误。",
+        "original_text_mutable": false,
+        "vehicle_id": "SYN-VEHICLE-X6-107",
+        "task_id": "SYN-TASK-8458",
+        "station_id": "SYN-STATION-A"
+      },
+      "initial_state": {
+        "raw_feedback_status": "待分诊",
+        "case_status": null,
+        "formal_entity": null,
+        "responsibility_owner": null,
+        "sla_started_at": null
+      },
+      "expected_case_draft": {
+        "missing_fields": [],
+        "case_status": "待关联"
+      },
+      "planned_workflow_path": [
+        {
+          "order": 1,
+          "workflow": "W1",
+          "expectation": "创建一条新的原始反馈并保持原文不可变"
+        },
+        {
+          "order": 2,
+          "workflow": "W2",
+          "expectation": "运行硬规则与 N1-N3；字段完整，生成待关联案件"
+        },
+        {
+          "order": 3,
+          "workflow": "W6",
+          "mode": "same_event_duplicate",
+          "expectation": "只生成同事件重复候选，不自动并案"
+        },
+        {
+          "order": 4,
+          "workflow": "W3",
+          "expectation": "N4 与 N6 只给出实体和责任候选，等待人工确认"
+        },
+        {
+          "order": 5,
+          "workflow": "W4",
+          "expectation": "沿用原 SLA 起点执行提醒与升级，不重置计时"
+        },
+        {
+          "order": 6,
+          "workflow": "W5",
+          "expectation": "处置证据与回复草稿经人审核，回访后由人决定关闭"
+        },
+        {
+          "order": 7,
+          "workflow": "W6",
+          "mode": "cross_event_clustering",
+          "expectation": "不同事件只进入问题簇候选，观察窗使用显式合成时钟"
+        }
+      ],
+      "human_gate_keys": [
+        "risk_downgrade",
+        "same_event_merge_or_keep_separate",
+        "formal_entity_relation",
+        "responsibility_confirmation",
+        "validate_resolution_evidence",
+        "external_reply_publication",
+        "case_closure",
+        "human_review_cluster",
+        "final_root_cause",
+        "knowledge_publication",
+        "improvement_archive_or_reopen"
+      ],
+      "all_human_gates_required": true,
+      "forbidden_actions": [
+        "vehicle_control",
+        "automatic_risk_downgrade",
+        "automatic_entity_confirmation",
+        "automatic_responsibility_assignment",
+        "automatic_liability_or_compensation",
+        "unverified_recovery_time_commitment",
+        "automatic_final_root_cause",
+        "unreviewed_external_or_knowledge_publication"
+      ],
+      "source_snapshot_mutation_allowed": false,
+      "runtime_copy_is_independent": true,
+      "legacy_snapshot_is_workflow_run_evidence": false,
+      "replay_reset_required": true,
+      "replay_reset_status": "specified_not_executed"
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "data_scope": "synthetic_experiment",
+  "evidence_class": "synthetic_experiment",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "disclaimer": "四类故障均未运行；只公开故障定义和预期安全停点，不能解释为已经通过。",
+  "category_keys": [
+    "same_key_retry_and_different_key_similar",
+    "missing_vehicle_and_task_ids",
+    "invalid_ai_schema_retry_once_then_human",
+    "sla_timeout_escalation_preserves_clock"
+  ],
+  "record_count": 4,
+  "records": [
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "drill_id": "DRILL-IDEMPOTENCY-001",
+      "category_key": "same_key_retry_and_different_key_similar",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-IDEMPOTENCY",
+      "execution_status": "not_run",
+      "runtime_evidence_available": false,
+      "clock_source": "test",
+      "clock_timezone": "Asia/Shanghai",
+      "clock_anchor": "2026-08-01T09:10:00+08:00",
+      "clock_advancement": "manual_only",
+      "fault_summary": "对同一合成幂等键重试，同时提交一条异键但文本相似的合成反馈。",
+      "expected_safe_path": "同键只回放既有结果；异键创建独立记录，并保留人工并案关口。",
+      "expected_same_key_new_feedback_count": 0,
+      "expected_different_key_new_feedback_count": 1,
+      "automatic_merge_allowed": false,
+      "expected_retry_limit": null,
+      "expected_case_status": null,
+      "expected_missing_fields": [],
+      "preserve_original_clock": null,
+      "sla_started_at": null,
+      "sla_due_at": null,
+      "simulated_at": null,
+      "human_gate_keys": [
+        "same_event_merge_or_keep_separate"
+      ],
+      "all_human_gates_required": true,
+      "forbidden_actions": [
+        "overwrite_existing_feedback",
+        "deduplicate_by_text_hash",
+        "automatic_case_merge"
+      ]
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "drill_id": "DRILL-MISSING-ENTITY-IDS-001",
+      "category_key": "missing_vehicle_and_task_ids",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-MISSING-IDS",
+      "execution_status": "not_run",
+      "runtime_evidence_available": false,
+      "clock_source": "test",
+      "clock_timezone": "Asia/Shanghai",
+      "clock_anchor": "2026-08-01T09:20:00+08:00",
+      "clock_advancement": "manual_only",
+      "fault_summary": "从合成输入中删除车辆 ID 和任务 ID。",
+      "expected_safe_path": "案件停在待补充，不编造实体 ID，也不写入正式实体关系。",
+      "expected_same_key_new_feedback_count": null,
+      "expected_different_key_new_feedback_count": null,
+      "automatic_merge_allowed": null,
+      "expected_retry_limit": null,
+      "expected_case_status": "待补充",
+      "expected_missing_fields": [
+        "车辆ID",
+        "任务ID"
+      ],
+      "preserve_original_clock": null,
+      "sla_started_at": null,
+      "sla_due_at": null,
+      "simulated_at": null,
+      "human_gate_keys": [
+        "supplement_ids_or_confirm_not_applicable"
+      ],
+      "all_human_gates_required": true,
+      "forbidden_actions": [
+        "invent_vehicle_id",
+        "invent_task_id",
+        "confirm_formal_entity_without_evidence"
+      ]
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "drill_id": "DRILL-INVALID-AI-SCHEMA-001",
+      "category_key": "invalid_ai_schema_retry_once_then_human",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-AI-SCHEMA",
+      "execution_status": "not_run",
+      "runtime_evidence_available": false,
+      "clock_source": "test",
+      "clock_timezone": "Asia/Shanghai",
+      "clock_anchor": "2026-08-01T09:30:00+08:00",
+      "clock_advancement": "manual_only",
+      "fault_summary": "向 N4 注入缺少必需 envelope 字段的合成 AI 输出。",
+      "expected_safe_path": "同版本节点最多重试一次；再次失败即停止节点链并交由人工。",
+      "expected_same_key_new_feedback_count": null,
+      "expected_different_key_new_feedback_count": null,
+      "automatic_merge_allowed": null,
+      "expected_retry_limit": 1,
+      "expected_case_status": "待关联",
+      "expected_missing_fields": [],
+      "preserve_original_clock": null,
+      "sla_started_at": null,
+      "sla_due_at": null,
+      "simulated_at": null,
+      "human_gate_keys": [
+        "manual_processing_after_schema_failure"
+      ],
+      "all_human_gates_required": true,
+      "forbidden_actions": [
+        "retry_more_than_once",
+        "change_node_version_during_retry",
+        "continue_after_second_schema_failure"
+      ]
+    },
+    {
+      "schema_version": "1.0.0-draft.2",
+      "data_scope": "synthetic_experiment",
+      "evidence_class": "synthetic_experiment",
+      "drill_id": "DRILL-SLA-TIMEOUT-001",
+      "category_key": "sla_timeout_escalation_preserves_clock",
+      "source_case_id": "SYN-CASE-017",
+      "source_record_mode": "legacy_snapshot",
+      "record_mode": "scenario_runtime",
+      "runtime_case_id": "SYN-RUNTIME-CASE-017-SLA-TIMEOUT",
+      "execution_status": "not_run",
+      "runtime_evidence_available": false,
+      "clock_source": "test",
+      "clock_timezone": "Asia/Shanghai",
+      "clock_anchor": "2026-08-01T10:01:00+08:00",
+      "clock_advancement": "manual_only",
+      "fault_summary": "用测试时钟模拟 W4 SLA 超时。",
+      "expected_safe_path": "触发升级与人工接管，但保持原状态、原 SLA 起点和原到期时间。",
+      "expected_same_key_new_feedback_count": null,
+      "expected_different_key_new_feedback_count": null,
+      "automatic_merge_allowed": null,
+      "expected_retry_limit": null,
+      "expected_case_status": null,
+      "expected_missing_fields": [],
+      "preserve_original_clock": true,
+      "sla_started_at": "2026-08-01T09:01:00+08:00",
+      "sla_due_at": "2026-08-01T10:00:00+08:00",
+      "simulated_at": "2026-08-01T10:01:00+08:00",
+      "human_gate_keys": [
+        "administrator_retry_takeover_or_pause"
+      ],
+      "all_human_gates_required": true,
+      "forbidden_actions": [
+        "reset_sla_clock",
+        "hide_timeout",
+        "advance_case_state_on_failed_escalation"
+      ]
+    }
+  ]
+}

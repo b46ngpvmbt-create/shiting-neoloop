@@ -1,0 +1,79 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "data_scope": "synthetic_experiment",
+  "team_name": "石听未来",
+  "product_name": "石听 NeoLoop",
+  "value_statement": "让每条反馈都找到一辆车、一个任务、一个责任人和一次改进。",
+  "disclaimer": "本目录只含确定性合成演示快照，不含真实企业客户、车辆、任务、事故、经营数据或现场运行结果。",
+  "fact_boundaries": [
+    {
+      "evidence_class": "public_fact",
+      "label": "公开事实",
+      "requirement": "附可核验来源、资料名称、获取日期和适用范围",
+      "forbidden_practice": "推断企业内部系统或流程",
+      "public_status": "reference_only_no_enterprise_inference"
+    },
+    {
+      "evidence_class": "enterprise_pending",
+      "label": "待企业验证",
+      "requirement": "写明验证问题、责任人、所需证据和状态",
+      "forbidden_practice": "写成已确认企业现状",
+      "public_status": "pending_validation"
+    },
+    {
+      "evidence_class": "solution_design",
+      "label": "方案设计",
+      "requirement": "写明规格版本、设计内容和实现状态",
+      "forbidden_practice": "无运行证据时标为已验证",
+      "public_status": "specified_not_verified_without_evidence"
+    },
+    {
+      "evidence_class": "synthetic_experiment",
+      "label": "合成实验",
+      "requirement": "写明 fixture 版本、样本量和时钟来源",
+      "forbidden_practice": "外推为真实客户案例、企业效率、收入或 ROI",
+      "public_status": "synthetic_only_no_real_world_generalization"
+    }
+  ],
+  "fixture_counts": {
+    "gold": 20,
+    "adversarial": 16,
+    "main_stories": 1,
+    "failure_drills": 4,
+    "scenarios_total": 5
+  },
+  "public_contract": {
+    "consumer": "T4",
+    "entrypoint": "data/canonical/public/manifest.json",
+    "read_root": "data/canonical/public",
+    "read_only": true,
+    "direct_canonical_reads_allowed": false,
+    "required_view_keys": [
+      "feedback_inbox",
+      "case_cockpit",
+      "sla_board",
+      "problem_map",
+      "improvement_tracker"
+    ],
+    "denied_read_roots": [
+      "data/canonical/tables",
+      "data/canonical/gold",
+      "data/canonical/adversarial",
+      "data/canonical/scenarios",
+      "data/canonical/workbooks",
+      "data/demo-cases.json"
+    ]
+  },
+  "claims": {
+    "enterprise_data_included": false,
+    "enterprise_system_connected": false,
+    "credentials_included": false,
+    "runtime_results_included": false,
+    "measured_efficiency_included": false,
+    "measured_revenue_included": false,
+    "measured_roi_included": false
+  }
+}

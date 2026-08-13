@@ -1,0 +1,712 @@
+{
+  "snapshot_version": "1.0.0-t1-r3-public.1",
+  "schema_version": "1.0.0-draft.2",
+  "fixture_version": "1.0.0-t1-r2",
+  "generator_version": "t1-r3-public-builder-v1",
+  "generator_file": "scripts/neoloop-data/build-public-snapshot.mjs",
+  "snapshot_at": "2026-08-01T00:00:00+08:00",
+  "data_scope": "synthetic_experiment",
+  "hash_algorithm": "sha256",
+  "input_root": "data/canonical",
+  "inputs": [
+    {
+      "file": "manifest.json",
+      "sha256": "3e3ebc6a8aaf1f0692db39b0c763b081df2ef5f9db6f6d8da9f3a0ab8edbe8b7"
+    },
+    {
+      "file": "fact-boundaries.json",
+      "sha256": "4a50034be83262019b99b7903ce5881d21767ccd81d73942939e4ea9ec8dd06b"
+    },
+    {
+      "file": "gold/case-gold.json",
+      "sha256": "8416d7b21ea165865fbe86802ee9e7d1b3845b7b6f43b0df20f2d26ba9dc5e9d"
+    },
+    {
+      "file": "adversarial/safety-adversarial.json",
+      "sha256": "b02653a5c1998412ab69ea0e6e85947aaafa60e6cd26ceb33c95a8e94f7ec8c9"
+    },
+    {
+      "file": "tables/raw-feedback.json",
+      "sha256": "2ef2d71e14b41d8a4b7f9dce204b752ffb74ad10d4116ce173256d2033dbf7a2"
+    },
+    {
+      "file": "tables/cases.json",
+      "sha256": "7d73cd29fd2da9c0d3c59030e34e506d78202c958f2f723b491272b315a0ceed"
+    },
+    {
+      "file": "tables/work-orders.json",
+      "sha256": "73e235b824c45576925e5a38827b6ab2b10923509fd94d13eb6d9d13634d813c"
+    },
+    {
+      "file": "tables/clusters.json",
+      "sha256": "602c613e77e0bfc310da6841a4f70e1138ad89f326629dd99d39fee3f4a38c52"
+    },
+    {
+      "file": "tables/improvements.json",
+      "sha256": "9124d6a47979072c698bfc8201728736622a11135540c05bf54908433437be69"
+    },
+    {
+      "file": "tables/vehicles.json",
+      "sha256": "d27b0e1be986cd40250faccc64f8a08e2010bca4f790f5e026160168033176bd"
+    },
+    {
+      "file": "scenarios/main-story.json",
+      "sha256": "1584fceecbfbbf4d63eee9ac69ed998505985d0f51a4a1b508d28976dcce690c"
+    },
+    {
+      "file": "scenarios/failure-drills.json",
+      "sha256": "c8893a7a706f1b3a8051d16b855a35372690bbc780ca060cb8768219dbc0312a"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "cases.json",
+      "sha256": "cee51a703ccd29a5c2272b99e108216d1396b168fc56dbf6f227f13ddbcb1579",
+      "size_bytes": 30922
+    },
+    {
+      "file": "clusters.json",
+      "sha256": "953e6fa36b1e77380a78ecf052060c89b4f250180aae403b3b0ff273544dc17d",
+      "size_bytes": 9409
+    },
+    {
+      "file": "declarations.json",
+      "sha256": "a4eef1d231803685ee178bcc7e767cc944eba198b908aa8125e00a8053460cf8",
+      "size_bytes": 2778
+    },
+    {
+      "file": "failure-drills.json",
+      "sha256": "e381d62e64f2c5cdc82cd8df8211e4f8f10713e0a6fd9fc68464cd76e7f8fea9",
+      "size_bytes": 6894
+    },
+    {
+      "file": "improvements.json",
+      "sha256": "853757b0ff3e2a2d0bbb7d0af52f5e05c821bd90583a45a616a14bcb594d79b1",
+      "size_bytes": 11342
+    },
+    {
+      "file": "main-story.json",
+      "sha256": "14b859b8d2d3aefd4af9499093e0d99240d38683d78c0a5ba996bc514e3b7106",
+      "size_bytes": 4628
+    },
+    {
+      "file": "README.md",
+      "sha256": "86af9d787dcfe07d9b820a974d862ba8d48dda9ede19cafc366f2e502d43f92e",
+      "size_bytes": 961
+    },
+    {
+      "file": "views/case-cockpit.json",
+      "sha256": "021b61eb8ee997a9a3d2441bdb8bb394d41d31bf8abc94ba42c752c27a52ad5b",
+      "size_bytes": 10958
+    },
+    {
+      "file": "views/feedback-inbox.json",
+      "sha256": "14bbde16af5ae1746a180ff1ecffd3717d6f0d0b2528bd36742ffab7e561d33e",
+      "size_bytes": 19093
+    },
+    {
+      "file": "views/improvement-tracker.json",
+      "sha256": "b20618d67198fbddc1f6aa0c3c4f48be1ada48ca23e70bdc5da5fcad850df12f",
+      "size_bytes": 4642
+    },
+    {
+      "file": "views/problem-map.json",
+      "sha256": "b8944924d651272ecd5e2211221bdb691f0912e54a12c82d26870dd6fc668850",
+      "size_bytes": 10207
+    },
+    {
+      "file": "views/sla-board.json",
+      "sha256": "74fc8138de55a5fd5a6ad5698c230d1dd78384918a00c983ff30f6129299ecb8",
+      "size_bytes": 8760
+    },
+    {
+      "file": "work-orders.json",
+      "sha256": "9fb6a89096d373b63abe988b33024afeaf079ce6197ab52637fce2f8b45b7672",
+      "size_bytes": 23241
+    }
+  ],
+  "manifest_hash_scope": "manifest.json is excluded from outputs to avoid a self-referential hash; validators hash it externally",
+  "file_contracts": [
+    {
+      "file": "declarations.json",
+      "kind": "document",
+      "document_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "snapshot_at",
+        "data_scope",
+        "team_name",
+        "product_name",
+        "value_statement",
+        "disclaimer",
+        "fact_boundaries",
+        "fixture_counts",
+        "public_contract",
+        "claims"
+      ],
+      "nested_allowed_fields": {
+        "fact_boundaries[]": [
+          "evidence_class",
+          "label",
+          "requirement",
+          "forbidden_practice",
+          "public_status"
+        ],
+        "fixture_counts": [
+          "gold",
+          "adversarial",
+          "main_stories",
+          "failure_drills",
+          "scenarios_total"
+        ],
+        "public_contract": [
+          "consumer",
+          "entrypoint",
+          "read_root",
+          "read_only",
+          "direct_canonical_reads_allowed",
+          "required_view_keys",
+          "denied_read_roots"
+        ],
+        "claims": [
+          "enterprise_data_included",
+          "enterprise_system_connected",
+          "credentials_included",
+          "runtime_results_included",
+          "measured_efficiency_included",
+          "measured_revenue_included",
+          "measured_roi_included"
+        ]
+      }
+    },
+    {
+      "file": "cases.json",
+      "kind": "records",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "created_at",
+        "updated_at",
+        "case_id",
+        "record_mode",
+        "workflow_readiness",
+        "workflow_run_evidence",
+        "title",
+        "summary",
+        "category_domain",
+        "category_detail",
+        "rule_risk",
+        "ai_risk",
+        "final_risk",
+        "status",
+        "missing_fields",
+        "candidate_vehicle_id",
+        "candidate_task_id",
+        "candidate_station_id",
+        "candidate_confidence",
+        "formal_entity_confirmation_status",
+        "formal_entity",
+        "evidence_completeness",
+        "pending_confirmation_items",
+        "cluster_id",
+        "routing_rule_candidate_id",
+        "suggested_team",
+        "routing_confirmation_status",
+        "routing_evidence_class",
+        "sla_started_at",
+        "sla_due_at",
+        "sla_rule_version"
+      ]
+    },
+    {
+      "file": "work-orders.json",
+      "kind": "records",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "created_at",
+        "updated_at",
+        "work_order_id",
+        "case_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "team",
+        "assignee_role",
+        "action",
+        "status",
+        "accepted_at",
+        "due_at",
+        "completed_at",
+        "first_response_target_minutes",
+        "escalation_level",
+        "sla_reset_count"
+      ]
+    },
+    {
+      "file": "clusters.json",
+      "kind": "records",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "created_at",
+        "updated_at",
+        "cluster_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "name",
+        "category_domain",
+        "member_case_ids",
+        "clustering_mode",
+        "clustering_version",
+        "root_cause_hypothesis",
+        "root_cause_confirmation_status",
+        "status",
+        "highest_risk",
+        "next_step"
+      ]
+    },
+    {
+      "file": "improvements.json",
+      "kind": "records",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "created_at",
+        "updated_at",
+        "improvement_id",
+        "cluster_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "runtime_evidence_available",
+        "enterprise_confirmation_status",
+        "owner_evidence_class",
+        "status_basis",
+        "version",
+        "owner_role",
+        "measure",
+        "observation_window_days",
+        "clock_source",
+        "metric_formula",
+        "day_7_result",
+        "day_30_result",
+        "human_conclusion",
+        "status"
+      ]
+    },
+    {
+      "file": "main-story.json",
+      "kind": "records",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "scenario_id",
+        "scenario_key",
+        "source_case_id",
+        "source_record_mode",
+        "record_mode",
+        "runtime_case_id",
+        "execution_status",
+        "runtime_evidence_available",
+        "clock",
+        "observation_clock",
+        "replay_input",
+        "initial_state",
+        "expected_case_draft",
+        "planned_workflow_path",
+        "human_gate_keys",
+        "all_human_gates_required",
+        "forbidden_actions",
+        "source_snapshot_mutation_allowed",
+        "runtime_copy_is_independent",
+        "legacy_snapshot_is_workflow_run_evidence",
+        "replay_reset_required",
+        "replay_reset_status"
+      ],
+      "nested_allowed_fields": {
+        "clock": [
+          "source",
+          "timezone",
+          "anchor",
+          "advancement"
+        ],
+        "observation_clock": [
+          "source",
+          "timezone",
+          "planned_offsets_days",
+          "execution_status"
+        ],
+        "replay_input": [
+          "schema_version",
+          "data_scope",
+          "evidence_class",
+          "feedback_id",
+          "received_at",
+          "timezone",
+          "channel",
+          "sender_role",
+          "original_text",
+          "original_text_mutable",
+          "vehicle_id",
+          "task_id",
+          "station_id"
+        ],
+        "initial_state": [
+          "raw_feedback_status",
+          "case_status",
+          "formal_entity",
+          "responsibility_owner",
+          "sla_started_at"
+        ],
+        "expected_case_draft": [
+          "missing_fields",
+          "case_status"
+        ],
+        "planned_workflow_path[]": [
+          "order",
+          "workflow",
+          "mode",
+          "expectation"
+        ]
+      }
+    },
+    {
+      "file": "failure-drills.json",
+      "kind": "records",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "record_count",
+        "records",
+        "category_keys"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "drill_id",
+        "category_key",
+        "source_case_id",
+        "source_record_mode",
+        "record_mode",
+        "runtime_case_id",
+        "execution_status",
+        "runtime_evidence_available",
+        "clock_source",
+        "clock_timezone",
+        "clock_anchor",
+        "clock_advancement",
+        "fault_summary",
+        "expected_safe_path",
+        "expected_same_key_new_feedback_count",
+        "expected_different_key_new_feedback_count",
+        "automatic_merge_allowed",
+        "expected_retry_limit",
+        "expected_case_status",
+        "expected_missing_fields",
+        "preserve_original_clock",
+        "sla_started_at",
+        "sla_due_at",
+        "simulated_at",
+        "human_gate_keys",
+        "all_human_gates_required",
+        "forbidden_actions"
+      ]
+    },
+    {
+      "file": "views/feedback-inbox.json",
+      "kind": "view",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "view_key",
+        "label",
+        "read_only",
+        "derived_from_public_files",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "feedback_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "channel",
+        "received_at",
+        "processing_status",
+        "linked_case_id",
+        "missing_fields",
+        "duplicate_candidate_status",
+        "duplicate_evidence_available",
+        "duplicate_candidate_case_ids"
+      ]
+    },
+    {
+      "file": "views/case-cockpit.json",
+      "kind": "view",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "view_key",
+        "label",
+        "read_only",
+        "derived_from_public_files",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "case_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "cluster_id",
+        "feedback_ids",
+        "work_order_ids",
+        "audit_evidence_available",
+        "follow_up_evidence_available"
+      ]
+    },
+    {
+      "file": "views/sla-board.json",
+      "kind": "view",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "view_key",
+        "label",
+        "read_only",
+        "derived_from_public_files",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "work_order_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "clock_source"
+      ]
+    },
+    {
+      "file": "views/problem-map.json",
+      "kind": "view",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "view_key",
+        "label",
+        "read_only",
+        "derived_from_public_files",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "cluster_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "name",
+        "category_domain",
+        "member_case_ids",
+        "member_case_count",
+        "synthetic_station_ids",
+        "synthetic_vehicle_models",
+        "synthetic_vehicle_versions",
+        "synthetic_sla_window_start",
+        "synthetic_sla_window_end",
+        "clock_source",
+        "root_cause_confirmation_status",
+        "recurrence_evidence_available"
+      ]
+    },
+    {
+      "file": "views/improvement-tracker.json",
+      "kind": "view",
+      "wrapper_allowed_fields": [
+        "snapshot_version",
+        "schema_version",
+        "fixture_version",
+        "data_scope",
+        "evidence_class",
+        "snapshot_at",
+        "disclaimer",
+        "view_key",
+        "label",
+        "read_only",
+        "derived_from_public_files",
+        "record_count",
+        "records"
+      ],
+      "record_allowed_fields": [
+        "schema_version",
+        "data_scope",
+        "evidence_class",
+        "improvement_id",
+        "cluster_id",
+        "record_mode",
+        "workflow_run_evidence",
+        "runtime_evidence_available",
+        "clock_source"
+      ]
+    }
+  ],
+  "policy_checks": [
+    {
+      "policy": "explicit_allowlist_projection",
+      "result": "clear",
+      "hit_count": 0
+    },
+    {
+      "policy": "sensitive_or_private_keys",
+      "result": "clear",
+      "hit_count": 0
+    },
+    {
+      "policy": "credential_or_private_value_patterns",
+      "result": "clear",
+      "hit_count": 0
+    },
+    {
+      "policy": "absolute_paths",
+      "result": "clear",
+      "hit_count": 0
+    },
+    {
+      "policy": "enterprise_runtime_or_measured_outcomes",
+      "result": "clear",
+      "hit_count": 0
+    }
+  ],
+  "consumer_contract": {
+    "consumer": "T4",
+    "entrypoint": "data/canonical/public/manifest.json",
+    "read_root": "data/canonical/public",
+    "read_only": true,
+    "direct_canonical_reads_allowed": false,
+    "view_index_policy": "relationship_and_safe_aggregate_only",
+    "allowed_files": [
+      "README.md",
+      "cases.json",
+      "clusters.json",
+      "declarations.json",
+      "failure-drills.json",
+      "improvements.json",
+      "main-story.json",
+      "manifest.json",
+      "views/case-cockpit.json",
+      "views/feedback-inbox.json",
+      "views/improvement-tracker.json",
+      "views/problem-map.json",
+      "views/sla-board.json",
+      "work-orders.json"
+    ],
+    "denied_read_roots": [
+      "data/canonical/tables",
+      "data/canonical/gold",
+      "data/canonical/adversarial",
+      "data/canonical/scenarios",
+      "data/canonical/workbooks",
+      "data/demo-cases.json"
+    ],
+    "required_views": [
+      "views/feedback-inbox.json",
+      "views/case-cockpit.json",
+      "views/sla-board.json",
+      "views/problem-map.json",
+      "views/improvement-tracker.json"
+    ]
+  }
+}
