@@ -350,6 +350,11 @@
         "emit_value": false
       },
       {
+        "placeholder": "{{FIELD_feedback_id}}",
+        "kind": "trigger_field_reference",
+        "emit_value": false
+      },
+      {
         "placeholder": "{{FIELD_original_text}}",
         "kind": "trigger_field_reference",
         "emit_value": false
@@ -368,13 +373,13 @@
       {
         "placeholder": "{{PROMPT_N2_EXACT5}}",
         "kind": "prompt_text",
-        "source_ref": "feishu/prompts/n2-default-owner-first-exact-5.txt",
+        "source_ref": "feishu/prompts/n2-owner-w2-runtime-exact-5.txt",
         "emit_value": false
       },
       {
         "placeholder": "{{PROMPT_N3_EXACT5}}",
         "kind": "prompt_text",
-        "source_ref": "feishu/prompts/n3-default-owner-first-exact-5.txt",
+        "source_ref": "feishu/prompts/n3-owner-w2-runtime-exact-5.txt",
         "emit_value": false
       }
     ],

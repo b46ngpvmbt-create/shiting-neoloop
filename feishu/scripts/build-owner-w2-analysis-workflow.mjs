@@ -132,6 +132,79 @@ function projectObserved(observed) {
   )) ? projected : null;
 }
 
+function inspectConfiguredW2Readback(readback, contract) {
+  const issues = [];
+  const observed = projectObserved({
+    table_count: Array.isArray(readback?.tables) ? readback.tables.length : -1,
+    field_count: Array.isArray(readback?.tables)
+      ? readback.tables.reduce((sum, table) => sum + (Array.isArray(table?.field_names) ? table.field_names.length : 0), 0)
+      : -1,
+    view_count: Array.isArray(readback?.views)
+      ? readback.views.filter((view) => view?.view_class === "named_business").length
+      : -1,
+    physical_view_count: Array.isArray(readback?.views) ? readback.views.length : -1,
+    record_count: Array.isArray(readback?.tables)
+      ? readback.tables.reduce((sum, table) => sum + (Number.isInteger(table?.record_count) ? table.record_count : 0), 0)
+      : -1,
+    workflow_counts: {
+      total: Array.isArray(readback?.workflows) ? readback.workflows.length : -1,
+      enabled: Array.isArray(readback?.workflows) ? readback.workflows.filter((workflow) => workflow?.enabled === true).length : -1,
+      disabled: Array.isArray(readback?.workflows) ? readback.workflows.filter((workflow) => workflow?.enabled === false).length : -1,
+    },
+  });
+  const expected = contract.schema_migration.expected_post_state;
+  if (!isObject(readback) || readback.contract !== contract.readback_contract.contract || readback.redacted !== true) {
+    issues.push("configured_readback_shape_invalid");
+  }
+  if (!observed || observed.table_count !== expected.table_count || observed.field_count !== expected.field_count
+    || observed.view_count !== expected.view_count || observed.physical_view_count !== expected.physical_view_count
+    || observed.workflow_counts.total !== 6 || observed.workflow_counts.enabled !== 0 || observed.workflow_counts.disabled !== 6) {
+    issues.push("configured_state_mismatch");
+  }
+  const tables = Array.isArray(readback?.tables) ? readback.tables : [];
+  const byKey = new Map(tables.map((table) => [table?.table_key, table]));
+  const additionsByTable = new Map();
+  for (const addition of contract.schema_migration.field_additions) {
+    const names = additionsByTable.get(addition.table_key) ?? [];
+    names.push(addition.field_name);
+    additionsByTable.set(addition.table_key, names);
+  }
+  for (const baselineTable of contract.baseline.tables) {
+    const table = byKey.get(baselineTable.table_key);
+    const expectedFields = baselineTable.field_count + (additionsByTable.get(baselineTable.table_key)?.length ?? 0);
+    if (!table || !Array.isArray(table.field_names) || table.field_names.length !== expectedFields) {
+      issues.push("configured_table_field_count_mismatch");
+      continue;
+    }
+    if ((additionsByTable.get(baselineTable.table_key) ?? []).some((fieldName) => !table.field_names.includes(fieldName))) {
+      issues.push("configured_field_missing");
+    }
+    const mayGrow = ["raw_feedback", "ai_audit"].includes(baselineTable.table_key);
+    if (!Number.isInteger(table.record_count) || (mayGrow
+      ? table.record_count < baselineTable.record_count
+      : table.record_count !== baselineTable.record_count)) {
+      issues.push("configured_record_count_mismatch");
+    }
+  }
+  const businessViews = (Array.isArray(readback?.views) ? readback.views : [])
+    .filter((view) => view?.view_class === "named_business").map((view) => view.view_key);
+  const defaultViews = (Array.isArray(readback?.views) ? readback.views : [])
+    .filter((view) => view?.view_class === "default_table").map((view) => view.view_key);
+  if (!sameJson(uniqueSorted(businessViews), uniqueSorted(contract.baseline.view_keys))
+    || !sameJson(uniqueSorted(defaultViews), uniqueSorted(contract.baseline.default_view_keys))) {
+    issues.push("configured_view_set_mismatch");
+  }
+  const workflowKeys = (Array.isArray(readback?.workflows) ? readback.workflows : []).map((workflow) => workflow?.workflow_key);
+  if (!sameJson(uniqueSorted(workflowKeys), uniqueSorted(contract.baseline.workflow_keys))) {
+    issues.push("configured_workflow_set_mismatch");
+  }
+  if (!sameJson(readback?.w2_readback, contract.baseline.w2_readback)) {
+    issues.push("configured_w2_readback_mismatch");
+  }
+  const issueCodes = uniqueSorted(issues);
+  return { valid: issueCodes.length === 0, issue_codes: issueCodes, observed };
+}
+
 export function evaluateOwnerW2ValidatorRoute(response, expected) {
   const stopped = {
     route: "stop",
@@ -269,37 +342,17 @@ function httpData(definition, profileId, rawBody, responseExample) {
   };
 }
 
-function exactResponseRouteCondition(stepId, route, shouldContinue, shouldRetry) {
-  const responseRef = `$.${stepId}.body`;
-  const classification = route === "continue"
-    ? "exact_14_ready"
-    : route === "retry"
-      ? "repair_required"
-      : "needs_human";
-  const entries = [
-    ["route", route],
-    ["classification", classification],
-    ["continue", shouldContinue],
-    ["retry", shouldRetry],
-    ["business_write_count", 0],
-    ["audit_write_count", 1],
-  ];
+function retryStatusCondition(stepId) {
   return {
     conjunction: "or",
     conditions: [
       {
         conjunction: "and",
-        conditions: entries.map(([field, value]) => ({
-          left_value: ref(`${responseRef}.${field}`),
+        conditions: [{
+          left_value: ref(`$.${stepId}.status_code`),
           operator: "is",
-          right_value: [
-            typeof value === "boolean"
-              ? { value_type: "boolean", value }
-              : typeof value === "number"
-                ? { value_type: "number", value }
-                : text(value),
-          ],
-        })),
+          right_value: [{ value_type: "number", value: 202 }],
+        }],
       },
     ],
   };
@@ -321,7 +374,7 @@ function makeGenerateStep(node, attempt, next) {
   if (node === "N1") {
     prompt.push(
       text("\nsource_ref="),
-      ref("$.w2_trigger.recordId"),
+      ref("$.w2_trigger.{{FIELD_feedback_id}}"),
       text("\nchannel="),
       ref("$.w2_trigger.{{FIELD_channel}}"),
       text("\noriginal_text="),
@@ -330,29 +383,15 @@ function makeGenerateStep(node, attempt, next) {
     );
   } else if (node === "N2") {
     prompt.push(
-      text("\nN1 校验结果中必须恰有一个 envelope_json 非空；只使用该非空值。"),
-      text("\nn1_attempt_1_envelope_json="),
-      ref("$.w2_n1_validate_1.body.envelope_json"),
-      text("\nn1_attempt_2_envelope_json="),
-      ref("$.w2_n1_validate_2.body.envelope_json"),
+      text("\noriginal_text="),
+      ref("$.w2_trigger.{{FIELD_original_text}}"),
+      text("\nRUNTIME_INPUT_END"),
     );
   } else {
     prompt.push(
       text("\noriginal_text="),
       ref("$.w2_trigger.{{FIELD_original_text}}"),
-      text("\nN1/N2 每组校验结果中必须恰有一个非空值；只使用各组的非空值。"),
-      text("\nn1_attempt_1_envelope_json="),
-      ref("$.w2_n1_validate_1.body.envelope_json"),
-      text("\nn1_attempt_2_envelope_json="),
-      ref("$.w2_n1_validate_2.body.envelope_json"),
-      text("\nn2_attempt_1_envelope_json="),
-      ref("$.w2_n2_validate_1.body.envelope_json"),
-      text("\nn2_attempt_2_envelope_json="),
-      ref("$.w2_n2_validate_2.body.envelope_json"),
-      text("\nn2_attempt_1_hard_rule_result_json="),
-      ref("$.w2_n2_validate_1.body.hard_rule_result_json"),
-      text("\nn2_attempt_2_hard_rule_result_json="),
-      ref("$.w2_n2_validate_2.body.hard_rule_result_json"),
+      text("\nRUNTIME_INPUT_END"),
     );
   }
   if (attempt === 2) {
@@ -439,59 +478,23 @@ function makeValidateStep(definition, node, attempt, next) {
   );
 }
 
-function makeFirstAttemptRoute(node, continueTarget, retryTarget, stopTarget) {
+function makeFirstAttemptRoute(node, successTarget) {
   const nodeLower = node.toLowerCase();
   const stepId = `w2_${nodeLower}_validate_1`;
+  const retryTarget = `w2_${nodeLower}_generate_2`;
   return {
     id: `w2_${nodeLower}_route_1`,
-    type: "SwitchBranch",
+    type: "IfElseBranch",
     title: `${node} 第一次校验路由`,
     children: {
       links: [
-        { kind: "case", to: continueTarget, label: "continue", desc: "校验成功" },
-        { kind: "case", to: retryTarget, label: "retry", desc: "唯一修复" },
-        { kind: "case", to: stopTarget, label: "stop", desc: "停止并转人工" },
+        { kind: "if_true", to: retryTarget, desc: "202 唯一修复" },
+        { kind: "if_false", to: successTarget, desc: "200 校验成功" },
       ],
     },
     next: null,
     data: {
-      mode: "exclusive",
-      no_match_action: "fail",
-      child_branch_list: [
-        { name: "校验成功", condition: exactResponseRouteCondition(stepId, "continue", true, false) },
-        { name: "唯一修复", condition: exactResponseRouteCondition(stepId, "retry", false, true) },
-        { name: "停止并转人工", condition: exactResponseRouteCondition(stepId, "stop", false, false) },
-      ],
-    },
-  };
-}
-
-function makeSecondAttemptRoute(node, continueTarget, stopTarget) {
-  const nodeLower = node.toLowerCase();
-  return {
-    id: `w2_${nodeLower}_route_2`,
-    type: "SwitchBranch",
-    title: `${node} 第二次校验后停止门`,
-    children: {
-      links: [
-        { kind: "case", to: continueTarget, label: "continue", desc: "校验成功" },
-        { kind: "case", to: stopTarget, label: "stop", desc: "二次失败转人工" },
-      ],
-    },
-    next: null,
-    data: {
-      mode: "exclusive",
-      no_match_action: "fail",
-      child_branch_list: [
-        {
-          name: "校验成功",
-          condition: exactResponseRouteCondition(`w2_${nodeLower}_validate_2`, "continue", true, false),
-        },
-        {
-          name: "二次失败转人工",
-          condition: exactResponseRouteCondition(`w2_${nodeLower}_validate_2`, "stop", false, false),
-        },
-      ],
+      condition: retryStatusCondition(stepId),
     },
   };
 }
@@ -500,16 +503,13 @@ function makeNodeSteps(definition, node, successTarget) {
   const nodeLower = node.toLowerCase();
   const validate1 = `w2_${nodeLower}_validate_1`;
   const route1 = `w2_${nodeLower}_route_1`;
-  const generate2 = `w2_${nodeLower}_generate_2`;
   const validate2 = `w2_${nodeLower}_validate_2`;
-  const route2 = `w2_${nodeLower}_route_2`;
   return [
     makeGenerateStep(node, 1, validate1),
     makeValidateStep(definition, node, 1, route1),
-    makeFirstAttemptRoute(node, successTarget, generate2, "w2_terminal"),
+    makeFirstAttemptRoute(node, successTarget),
     makeGenerateStep(node, 2, validate2),
-    makeValidateStep(definition, node, 2, route2),
-    makeSecondAttemptRoute(node, successTarget, "w2_terminal"),
+    makeValidateStep(definition, node, 2, successTarget),
   ];
 }
 
@@ -522,7 +522,7 @@ function makeTrigger(definition) {
     data: {
       table_name: definition.trigger.table_name,
       watched_field_name: definition.trigger.watched_field_name,
-      trigger_control_list: [],
+      trigger_control_list: ["pasteUpdate", "automationBatchUpdate", "syncUpdate", "appendImport"],
       condition_list: [
         {
           conjunction: "and",
@@ -530,12 +530,12 @@ function makeTrigger(definition) {
             {
               field_name: "data_scope",
               operator: "is",
-              value: [{ value_type: "option", value: { name: "synthetic_experiment" } }],
+              value: [text("synthetic_experiment")],
             },
             {
               field_name: "processing_status",
               operator: "is",
-              value: [{ value_type: "option", value: { name: "待分诊" } }],
+              value: [text("待分诊")],
             },
           ],
         },
@@ -726,8 +726,12 @@ export function validateOwnerW2AnalysisWorkflowCandidate(candidate) {
       if (step?.type !== "HTTPClientAction") issues.push("validator_action_invalid");
     }
     const httpSteps = steps.filter((entry) => entry?.type === "HTTPClientAction");
-    if (httpSteps.length !== expectedValidateIds.length) issues.push("validator_action_invalid");
-    for (const step of httpSteps) {
+    const validatorSteps = httpSteps.filter((entry) => /^w2_n[123]_validate_[12]$/u.test(entry?.id ?? ""));
+    const unexpectedHttpSteps = httpSteps.filter((entry) => !/^w2_n[123]_validate_[12]$/u.test(entry?.id ?? ""));
+    if (validatorSteps.length !== expectedValidateIds.length || unexpectedHttpSteps.length !== 0) {
+      issues.push("validator_action_invalid");
+    }
+    for (const step of validatorSteps) {
       const data = step.data;
       const nodeMatch = /^w2_(n[123])_validate_([12])$/u.exec(step.id);
       const profileId = nodeMatch ? `${nodeMatch[1]}-default` : null;
@@ -756,6 +760,21 @@ export function validateOwnerW2AnalysisWorkflowCandidate(candidate) {
         }
       }
     }
+    const routeSteps = steps.filter((entry) => /^w2_n[123]_route_1$/u.test(entry?.id ?? ""));
+    if (routeSteps.length !== 3 || routeSteps.some((step) => {
+      const node = /^w2_(n[123])_route_1$/u.exec(step.id)?.[1];
+      const successTarget = node === "n1" ? "w2_n2_generate_1" : node === "n2" ? "w2_n3_generate_1" : "w2_terminal";
+      const condition = step.data?.condition?.conditions?.[0]?.conditions?.[0];
+      return step.type !== "IfElseBranch"
+        || step.children?.links?.length !== 2
+        || step.children.links[0]?.kind !== "if_true"
+        || step.children.links[0]?.to !== `w2_${node}_generate_2`
+        || step.children.links[1]?.kind !== "if_false"
+        || step.children.links[1]?.to !== successTarget
+        || condition?.left_value?.value !== `$.${step.id.replace("route", "validate")}.status_code`
+        || condition?.operator !== "is"
+        || !sameJson(condition?.right_value, [{ value_type: "number", value: 202 }]);
+    })) issues.push("route_fail_closed_invalid");
     const terminal = steps.find((step) => step?.id === "w2_terminal");
     if (terminal?.type !== "Delay" || terminal?.next !== null || !sameJson(terminal?.data, { duration: 1 })) {
       issues.push("terminal_stop_invalid");
@@ -802,7 +821,22 @@ export function buildOwnerW2AnalysisWorkflow(readback) {
   if (!w2WireDefinitionIsFrozen(contract.w2_analysis)) {
     return blockedOwnerW2AnalysisWorkflowCandidate(["owner_workbench_contract_invalid"]);
   }
-  const inspection = inspectOwnerWorkbenchReadback(readback, contract);
+  const baselineInspection = inspectOwnerWorkbenchReadback(readback, contract);
+  const configuredInspection = baselineInspection.valid
+    ? null
+    : inspectConfiguredW2Readback(readback, contract);
+  const inspection = baselineInspection.valid
+    ? baselineInspection
+    : configuredInspection.valid
+      ? configuredInspection
+      : {
+          valid: false,
+          issue_codes: uniqueSorted([
+            ...baselineInspection.issue_codes,
+            ...configuredInspection.issue_codes,
+          ]),
+          observed: configuredInspection.observed,
+        };
   if (!inspection.valid) {
     return blockedOwnerW2AnalysisWorkflowCandidate(inspection.issue_codes, inspection.observed);
   }

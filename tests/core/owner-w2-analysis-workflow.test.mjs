@@ -57,6 +57,20 @@ function ownerWorkbenchBaselineReadback() {
   };
 }
 
+function ownerWorkbenchConfiguredReadback() {
+  const readback = ownerWorkbenchBaselineReadback();
+  const additions = {
+    raw_feedback: ["connector_id", "connector_transport", "source_type", "attachment_manifest"],
+    ai_audit: ["object_type", "object_id", "review_action", "reviewed_by", "reviewed_at"],
+  };
+  readback.tables = readback.tables.map((table) => ({
+    ...table,
+    field_names: [...table.field_names, ...(additions[table.table_key] ?? [])],
+    record_count: table.table_key === "raw_feedback" ? table.record_count + 1 : table.record_count,
+  }));
+  return readback;
+}
+
 function validExact5() {
   return {
     payload: {},
@@ -151,8 +165,26 @@ test("W2 builder emits a disabled, analysis-only full replacement with three exa
   assert.equal(steps[0].type, "AddRecordTrigger");
   assert.equal(steps[0].data.table_name, "原始反馈");
   assert.equal(steps[0].data.watched_field_name, "feedback_id");
+  assert.deepEqual(steps[0].data.trigger_control_list, [
+    "pasteUpdate",
+    "automationBatchUpdate",
+    "syncUpdate",
+    "appendImport",
+  ]);
+  assert.equal(steps[0].data.trigger_control_list.includes("openAPIBatchUpdate"), false);
+  assert.deepEqual(
+    steps[0].data.condition_list[0].conditions.map(({ value }) => value),
+    [
+      [{ value_type: "text", value: "synthetic_experiment" }],
+      [{ value_type: "text", value: "待分诊" }],
+    ],
+  );
+  assert.ok(steps.filter(({ id }) => /^w2_n[123]_route_1$/u.test(id)).every(({ next }) => next === null));
+  assert.equal(steps.some(({ id }) => /^w2_n[123]_route_2$/u.test(id)), false);
   assert.equal(steps.filter(({ type }) => type === "GenerateAiTextAction").length, 6);
   assert.equal(steps.filter(({ type }) => type === "HTTPClientAction").length, 6);
+  assert.equal(steps.filter(({ type }) => type === "IfElseBranch").length, 3);
+  assert.equal(steps.filter(({ type }) => type === "SwitchBranch").length, 0);
   assert.equal(steps.filter(({ type }) => type === "Delay").length, 1);
   assert.equal(steps.some(({ type }) => type === "StopAction"), false);
   assert.ok(steps.every(({ next }) => next === null || stepIds.has(next)));
@@ -176,17 +208,14 @@ test("W2 builder emits a disabled, analysis-only full replacement with three exa
     )));
   }
 
-  assert.ok(steps.filter(({ type }) => type === "SwitchBranch").every(({ data }) => (
-    data.no_match_action === "fail"
-  )));
-  for (const branch of steps.filter(({ type }) => type === "SwitchBranch")) {
-    for (const item of branch.data.child_branch_list) {
-      const checks = item.condition.conditions[0].conditions;
-      assert.equal(checks.length, 6);
-      assert.deepEqual(checks.map(({ left_value }) => left_value.value.split(".").at(-1)), [
-        "route", "classification", "continue", "retry", "business_write_count", "audit_write_count",
-      ]);
-    }
+  assert.equal(steps.filter(({ id }) => /^w2_n[123]_stop_[12]$/u.test(id)).length, 0);
+  assert.equal(steps.filter(({ id }) => /^w2_n[123]_continue_[12]$/u.test(id)).length, 0);
+  for (const branch of steps.filter(({ type }) => type === "IfElseBranch")) {
+    const checks = branch.data.condition.conditions[0].conditions;
+    assert.equal(checks.length, 1);
+    assert.equal(checks[0].left_value.value.split(".").at(-1), "status_code");
+    assert.deepEqual(checks[0].right_value, [{ value_type: "number", value: 202 }]);
+    assert.deepEqual(branch.children.links.map(({ kind }) => kind), ["if_true", "if_false"]);
   }
   assert.deepEqual(candidate.replacement.write_policy, {
     feishu_native_business_writes: [],
@@ -200,6 +229,19 @@ test("W2 builder emits a disabled, analysis-only full replacement with three exa
     assert.equal(types.includes(forbidden), false, forbidden);
   }
   assert.deepEqual(validateOwnerW2AnalysisWorkflowCandidate(candidate), { valid: true, issue_codes: [] });
+});
+
+test("W2 builder accepts the exact additive 249-field state plus retained synthetic demo feedback", () => {
+  const candidate = buildOwnerW2AnalysisWorkflow(ownerWorkbenchConfiguredReadback());
+  assert.equal(candidate.status, "ready");
+  assert.deepEqual(candidate.observed, {
+    table_count: 10,
+    field_count: 249,
+    view_count: 5,
+    physical_view_count: 15,
+    record_count: 179,
+    workflow_counts: { total: 6, enabled: 0, disabled: 6 },
+  });
 });
 
 test("W2 HTTP steps implement the frozen JSON attempt wire contract without form fallback", () => {
@@ -266,6 +308,21 @@ test("W2 HTTP steps implement the frozen JSON attempt wire contract without form
   assert.throws(() => JSON.parse(malformedBody), SyntaxError);
 });
 
+test("W2 downstream prompts never reference mutually exclusive validator branches", () => {
+  const candidate = buildOwnerW2AnalysisWorkflow(ownerWorkbenchBaselineReadback());
+  const serialized = JSON.stringify(candidate.replacement.workflow_update_body.steps);
+  assert.doesNotMatch(serialized, /w2_n1_validate_[12]\.body\.envelope_json/);
+  assert.doesNotMatch(serialized, /w2_n2_validate_[12]\.body\.(?:envelope_json|hard_rule_result_json)/);
+  for (const node of ["n2", "n3"]) {
+    for (const attempt of [1, 2]) {
+      const step = candidate.replacement.workflow_update_body.steps.find(({ id }) => (
+        id === `w2_${node}_generate_${attempt}`
+      ));
+      assert.match(JSON.stringify(step.data.prompt), /FIELD_original_text/);
+    }
+  }
+});
+
 test("W2 N1 prompt is dynamic and contains no frozen fixture identity or body", () => {
   const prompt = readFileSync(runtimeN1PromptPath, "utf8");
   assert.match(prompt, /RUNTIME_INPUT_START/u);
@@ -281,7 +338,7 @@ test("W2 N1 prompt is dynamic and contains no frozen fixture identity or body", 
   const n1Prompt = candidate.replacement.workflow_update_body.steps
     .find(({ id }) => id === "w2_n1_generate_1")
     .data.prompt;
-  assert.ok(n1Prompt.some((item) => item.value_type === "ref" && item.value === "$.w2_trigger.recordId"));
+  assert.ok(n1Prompt.some((item) => item.value_type === "ref" && item.value === "$.w2_trigger.{{FIELD_feedback_id}}"));
   assert.ok(n1Prompt.some((item) => item.value_type === "ref" && item.value === "$.w2_trigger.{{FIELD_channel}}"));
   assert.ok(n1Prompt.some((item) => item.value_type === "ref" && item.value === "$.w2_trigger.{{FIELD_original_text}}"));
 });
@@ -417,9 +474,9 @@ test("W2 candidate validator rejects unsafe mutations, a third attempt, and exte
         .data.url[0].value = "https://sensitive.invalid";
     }, "external_material_forbidden"],
     ["ambiguous unknown route fallback", (candidate) => {
-      candidate.replacement.workflow_update_body.steps
-        .find(({ id }) => id === "w2_n1_route_1")
-        .data.no_match_action = "classifyToOther";
+      const route = candidate.replacement.workflow_update_body.steps
+        .find(({ id }) => id === "w2_n1_route_1");
+      route.children.links[1].to = "w2_n1_generate_2";
     }, "route_fail_closed_invalid"],
   ];
 
