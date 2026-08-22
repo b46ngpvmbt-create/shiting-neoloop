@@ -4,3 +4,15 @@
 
 [build.environment]
   NODE_VERSION = "22.13.0"
+
+[[redirects]]
+  from = "/software"
+  to = "https://shiting-neoloop-w2-edge.netlify.app/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/software/"
+  to = "https://shiting-neoloop-w2-edge.netlify.app/"
+  status = 302
+  force = true
